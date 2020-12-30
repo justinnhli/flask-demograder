@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block content %}
+    <h2>DB Dump</h2>
+    <h3>Users</h3>
+    <ul>
+        {% for item in users %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    <h3>Semesters</h3>
+    <ul>
+        {% for item in semesters %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    <h3>Courses</h3>
+    <ul>
+        {% for item in courses %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    <h3>Assignment</h3>
+    <ul>
+        {% for item in assignments %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    <h3>Questions</h3>
+    <ul>
+        {% for item in questions %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    <h3>Question Files</h3>
+    <ul>
+        {% for item in question_files %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

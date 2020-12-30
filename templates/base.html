@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    <h2>Session</h2>
+    {% if logged_in %}
+    <pre>
+    {{ user.full_name }} ({{ user.email }})
+    </pre>
+    <a href="/logout">logout</a>
+    {% else %}
+    <a href="/login">login</a>
+    {% endif %}
+    {% block content %}{% endblock %}
+</body>
+</html>

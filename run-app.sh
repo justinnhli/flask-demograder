@@ -1,0 +1,3 @@
+source secrets
+
+flask run
