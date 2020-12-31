@@ -19,16 +19,20 @@ def login_redirect():
     token = oauth.google.authorize_access_token()
     user_info = oauth.google.parse_id_token(token)
     # get the user's email address
-    user_email = user_info['email']
+    user_email = user_info.get('email', 'user@example.com')
     # find or create the user
     user = User.query.filter(User.email == user_email).first()
     if not user:
-        first_name = user_info['nickname']
-        if not first_name:
+        if 'nickname' in user_info:
+            first_name = user_info['nickname']
+        elif 'given_name' in user_info:
             first_name = user_info['given_name']
+        else:
+            first_name = '$FIRST_NAME'
+        last_name = user_info.get('family_name', '$LAST_NAME')
         user = User(
             first_name=first_name,
-            last_name=user_info['family_name'],
+            last_name=last_name,
             email=user_email,
         )
         db.session.add(user)
