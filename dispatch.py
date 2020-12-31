@@ -1,4 +1,3 @@
-
 from .job_queue import JobQueue
 from .models import Question, Submission, Result
 
