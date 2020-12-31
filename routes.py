@@ -8,14 +8,17 @@ from .dispatch import evaluate_submission
 blueprint = Blueprint(name='main', import_name='main')
 
 
-def get_demograder_context():
+def get_user_context():
     context = {}
     user_email = session.get('user_email')
-    if not user_email:
-        context['logged_in'] = False
-        return context
-    context['logged_in'] = True
     context['user'] = User.query.filter(User.email == user_email).first()
+    return context
+
+
+def get_course_context():
+    context = get_user_context()
+    if not context['user']:
+        return context
     #print(request)
 
     # FIXME temporary DB dump
@@ -29,10 +32,9 @@ def get_demograder_context():
     return context
 
 
-
 @blueprint.route('/')
 def root():
-    context = get_demograder_context()
+    context = get_course_context()
     return render_template('index.html', **context)
 
 
