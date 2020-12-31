@@ -1,19 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}{% endblock %}</title>
-</head>
-<body>
-    <h2>Session</h2>
-    {% if logged_in %}
-    <pre>
-    {{ user.full_name }} ({{ user.email }})
-    </pre>
-    <a href="/logout">logout</a>
-    {% else %}
-    <a href="/login">login</a>
-    {% endif %}
-    {% block content %}{% endblock %}
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Crimson+Text:600" rel="stylesheet" type="text/css">
+        <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css">
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="row">
+
+                <div id="sidebar" class="col-md-3 col-md-offset-0">
+                    <div id="logo-container">
+                        <h1 id="logo"><a href="{{ url_for('main.root') }}">DEMO<br>grader</a></h1>
+                    </div>
+                    <div id="menu">
+
+                    </div>
+                    <hr>
+                    <div id="admin">
+                        {% if user %}
+                        Logged in as {{ user.email }} (<a href="{{ url_for('auth.logout') }}">logout</a>)
+                        {% else %}
+                        <a href="{{ url_for('auth.login') }}">Login</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div id="content" class="col-md-9">
+                    <div id="breadcrumb">
+                        {% block breadcrumb %}{% endblock %}
+                    </div>
+
+                    {% block content %}{% endblock %}
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div id="footer" class="col-md-12">
+                    &copy; Justin Li
+                </div>
+            </div>
+
+        </div>
+
+    </body>
+
 </html>
