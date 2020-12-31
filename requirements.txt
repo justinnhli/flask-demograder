@@ -6,6 +6,7 @@ gunicorn==20.0.4
 
 # flask extensions
 Flask-SQLAlchemy==2.4.4
+Flask-Admin==1.5.7
 Flask-WTF==0.14.3
 
 # other dependencies

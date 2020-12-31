@@ -2,6 +2,7 @@ from pathlib import Path
 
 from flask import Flask
 
+from .admin import admin
 from .auth import oauth, blueprint as auth_blueprint
 from .models import db
 from .routes import blueprint as routes_blueprint
@@ -18,6 +19,7 @@ def create_app():
     app.secret_key = app.config['FLASK_SECRET_KEY']
     # initialize extensions
     db.init_app(app)
+    admin.init_app(app)
     oauth.init_app(app)
     oauth.register(
         name='google',
