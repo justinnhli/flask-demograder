@@ -10,6 +10,8 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
+    admin = db.Column(db.Boolean, nullable=False, default=False)
+    faculty = db.Column(db.Boolean, nullable=False, default=False)
     submissions = db.relationship('Submission', backref='user')
 
     def __str__(self):
