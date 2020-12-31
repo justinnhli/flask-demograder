@@ -8,12 +8,6 @@ blueprint = Blueprint(name='auth', import_name='auth')
 oauth = OAuth()
 
 
-@blueprint.route('/auth_test')
-def auth_test():
-    user = session.get('user')
-    return render_template('auth_test.html', user=user)
-
-
 @blueprint.route('/login')
 def login():
     redirect_uri = url_for('auth.login_redirect', _external=True)
