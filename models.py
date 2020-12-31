@@ -32,21 +32,24 @@ class User(db.Model, UserMixin):
         return self.email
 
 
-instructor_table = db.Table(
-    'instructors',
-    db.Model.metadata,
-    db.Column('user', db.Integer, db.ForeignKey('users.id')),
-    db.Column('course', db.Integer, db.ForeignKey('courses.id')),
-    db.UniqueConstraint('user', 'course'),
-)
+class Instructor(db.Model):
+    __tablename__ = 'instructors'
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'course_id'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
 
-student_table = db.Table(
-    'students',
-    db.Model.metadata,
-    db.Column('user', db.Integer, db.ForeignKey('users.id')),
-    db.Column('course', db.Integer, db.ForeignKey('courses.id')),
-    db.UniqueConstraint('user', 'course'),
-)
+
+class Student(db.Model):
+    __tablename__ = 'students'
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'course_id'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
 
 
 class Semester(db.Model):
@@ -72,12 +75,12 @@ class Course(db.Model):
     title = db.Column(db.String, nullable=False)
     instructors = db.relationship(
         'User',
-        secondary=instructor_table,
+        secondary='instructors',
         backref='courses_teaching',
     )
     students = db.relationship(
         'User',
-        secondary=student_table,
+        secondary='students',
         backref='courses_taking',
     )
     assignments = db.relationship(
@@ -96,7 +99,7 @@ class Assignment(db.Model):
 
 
 class QuestionDependency(db.Model):
-    __tablename__ = 'question_dependency'
+    __tablename__ = 'question_dependencies'
     __table_args__ = (
         db.UniqueConstraint('producer_id', 'consumer_id'),
     )
@@ -121,7 +124,7 @@ class Question(db.Model):
     submission = db.relationship('Submission', backref='question')
     consumes = db.relationship(
         'User',
-        secondary='question_dependency',
+        secondary='question_dependencies',
         primaryjoin=(id == QuestionDependency.consumer_id),
         secondaryjoin=(id == QuestionDependency.producer_id),
         backref='consumed_by',
@@ -175,10 +178,11 @@ class Result(db.Model):
         return self.submission.user
 
 
-result_dependency_table = db.Table(
-    'result_dependencies',
-    db.Model.metadata,
-    db.Column('result', db.Integer, db.ForeignKey('results.id')),
-    db.Column('submission', db.Integer, db.ForeignKey('submissions.id')),
-    db.UniqueConstraint('result', 'submission'),
-)
+class ResultDependency(db.Model):
+    __tablename__ = 'result_dependencies'
+    __table_args__ = (
+        db.UniqueConstraint('result_id', 'submission_id'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    result_id = db.Column(db.Integer, db.ForeignKey('results.id'), nullable=False)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
