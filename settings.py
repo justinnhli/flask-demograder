@@ -1,10 +1,13 @@
 import os
 import pathlib
 
-SQLALCHEMY_DATABASE_URI = 'sqlite://'
+APP_PATH = pathlib.Path(__file__).expanduser().resolve().parent
+
+SQLALCHEMY_DATABASE_PATH = str(APP_PATH / 'database.sqlite')
+SQLALCHEMY_DATABASE_URI = 'sqlite:///' + SQLALCHEMY_DATABASE_PATH
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-SUBMISSION_PATH = pathlib.Path(__file__).expanduser().resolve() / 'submissions'
+SUBMISSION_PATH = APP_PATH / 'submissions'
 SUBMISSION_PATH.mkdir(exist_ok=True)
 
 OAUTH_URL = 'https://accounts.google.com/.well-known/openid-configuration'

@@ -26,6 +26,9 @@ def create_app():
             'scope': 'openid email profile',
         }
     )
+    # initialize the database
+    with app.app_context():
+        db.create_all()
     # register blueprints
     app.register_blueprint(routes_blueprint)
     app.register_blueprint(auth_blueprint)
