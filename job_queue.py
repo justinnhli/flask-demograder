@@ -103,6 +103,7 @@ class JobQueue:
         self.run_queue: ProcessQueue = ProcessQueue()
         self.result_queue: ProcessQueue = ProcessQueue()
         # threads
+        # TODO handle signals to exit cleanly
         self.in_thread = Thread(
             name='in-thread',
             target=run_thread_main,
