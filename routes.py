@@ -33,8 +33,16 @@ def get_context():
 
 @blueprint.route('/')
 def root():
+    user = get_user()
+    if user:
+        return redirect(url_for('main.home'))
+    return render_template('index.html')
+
+
+@blueprint.route('/home')
+def home():
     context = get_context()
-    return render_template('index.html', **context)
+    return render_template('home.html', **context)
 
 
 @blueprint.route('/person/<person_id>')
