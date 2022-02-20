@@ -7,7 +7,7 @@ from .models import User, Instructor, Student
 from .models import Semester, Course, Assignment, Question, QuestionDependency, QuestionFile
 from .models import Submission, Upload, Result, ResultDependency
 
-from .routes import get_user_context
+from .routes import get_context
 
 admin = Admin(url='/dbadmin')
 
@@ -15,7 +15,7 @@ admin = Admin(url='/dbadmin')
 class DemograderModelView(ModelView):
 
     def is_accessible(self):
-        context = get_user_context()
+        context = get_context()
         return context['user'] and context['user'].admin
 
     def inaccessible_callback(self, name, **kwargs):

@@ -7,8 +7,8 @@ db = SQLAlchemy()
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String, nullable=False)
-    last_name = db.Column(db.String, nullable=False)
+    preferred_name = db.Column(db.String, nullable=False)
+    family_name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
     admin = db.Column(db.Boolean, nullable=False, default=False)
     faculty = db.Column(db.Boolean, nullable=False, default=False)
@@ -19,7 +19,7 @@ class User(db.Model, UserMixin):
 
     @property
     def full_name(self):
-        return f'{self.first_name} {self.last_name}'
+        return f'{self.preferred_name} {self.family_name}'
 
     def latest_submission(self, question=None):
         pass # TODO

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, url_for, request, session, redirect
+from flask import Blueprint, render_template, url_for, request, session, redirect, abort
 from werkzeug.utils import secure_filename
 
 from .forms import SubmitForm
@@ -8,18 +8,17 @@ from .dispatch import evaluate_submission
 blueprint = Blueprint(name='main', import_name='main')
 
 
-def get_user_context():
-    context = {}
+def get_user():
     user_email = session.get('user_email')
-    context['user'] = User.query.filter(User.email == user_email).first()
-    return context
+    return User.query.filter(User.email == user_email).first()
 
 
-def get_course_context():
-    context = get_user_context()
-    if not context['user']:
-        return context
-    #print(request)
+def get_context():
+    context = {}
+    user = get_user()
+    if not user:
+        abort(401)
+    context['user'] = user
 
     # FIXME temporary DB dump
     context['users'] = User.query.all()
@@ -34,7 +33,7 @@ def get_course_context():
 
 @blueprint.route('/')
 def root():
-    context = get_course_context()
+    context = get_context()
     return render_template('index.html', **context)
 
 
