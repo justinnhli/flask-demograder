@@ -24,15 +24,15 @@ def login_redirect():
     user = User.query.filter(User.email == user_email).first()
     if not user:
         if 'nickname' in user_info:
-            first_name = user_info['nickname']
+            preferred_name = user_info['nickname']
         elif 'given_name' in user_info:
-            first_name = user_info['given_name']
+            preferred_name = user_info['given_name']
         else:
-            first_name = '$FIRST_NAME'
-        last_name = user_info.get('family_name', '$LAST_NAME')
+            preferred_name = 'PREFERRED_NAME_PLACEHOLDER'
+        family_name = user_info.get('family_name', 'FAMILY_NAME_PLACEHOLDER')
         user = User(
-            first_name=first_name,
-            last_name=last_name,
+            preferred_name=preferred_name,
+            family_name=family_name,
             email=user_email,
         )
         db.session.add(user)
@@ -43,5 +43,5 @@ def login_redirect():
 
 @blueprint.route('/logout')
 def logout():
-    session.pop('user', None)
+    session.pop('user_email')
     return redirect('/')
