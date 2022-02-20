@@ -110,3 +110,8 @@ def file_view(file_id):
 @blueprint.route('/download_file/<file>')
 def download_file(file_id):
     return f'{file_id=}' # TODO
+
+
+@blueprint.errorhandler(401)
+def unauthorized_error(error):
+    return redirect(url_for('main.root'))
