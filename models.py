@@ -12,6 +12,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String, nullable=False, unique=True)
     admin = db.Column(db.Boolean, nullable=False, default=False)
     faculty = db.Column(db.Boolean, nullable=False, default=False)
+    logged_in = db.Column(db.Boolean, nullable=False, default=False) 
     submissions = db.relationship('Submission', backref='user')
 
     def __str__(self):
