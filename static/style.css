@@ -1,53 +1,9 @@
-body {background-color:#EEEEEC;}
-a, a:active, a:visited {color:#000000;}
-input[type=number], input[type=submit], input[type=text], select {color:#000000;}
+body {background-color:#EEEEEC; font-family:Open Sans,Helvetica,Arial,sans-serif; margin:0 auto; max-width:50em;}
 
-table {border-collapse:collapse; width:100%;}
-table th {text-align:center;}
-table td {padding:0 0.5em 0 0.5em;}
-table tr:first-child th {border-top-style:none;}
-table th, table td {border:#808080 1px solid;}
-table th:first-child, table td:first-child {border-left-style:none;}
-table th:last-child, table td:last-child {border-right-style:none;}
-table tr:last-child td {border-bottom-style:none;}
+h1 {color:#DE6F3E; font-weight:normal; margin:0 auto;}
 
-#sidebar {background-color:#D3D7CF; padding:1.25em;}
+a, a:visited {color:#DE6F3E;}
 
-#logo-container {text-align:center;}
-#logo {color:#FF671F; font:40pt/90% 'Crimson Text',serif;}
-#logo a, #logo a:hover, #logo a:active, #logo a:visited {color:#FF671F;}
-#logo a:hover {text-decoration:none;}
-
-#menu ul {padding-left:20px;}
-#menu .catalog-code {font-weight:bold;}
-
-#admin {text-align:center;}
-
-#content a {text-decoration:underline;}
-#content a {color:#000000;}
-
-#breadcrumb {background-color:#D3D7CF; margin:1em auto; padding:0.25em 0.25em;}
-#breadcrumb a, #breadcrumb a:active, #breadcrumb a:visited {color:#FF671F;}
-#breadcrumb a:hover {color:#FF671F;}
-
-#assignment-table {width:100%;}
-#assignment-table th, #assignment-table td {border-style:none;}
-#assignment-table td ul {margin-bottom:0}
-#assignment-table .due-date {text-align:right;}
-#assignment-table .project-summary {border:1px #000000 solid; padding:0;}
-#assignment-table .summary-bar {background-color:#C0C0C0; cursor:help; height:1.5em; margin:0; position:relative; width:100%; min-width:150px;}
-#assignment-table .summary-passed {background-color:#57BB8A; float:left; height:1.5em;}
-#assignment-table .summary-failed {background-color:#E67C73; height:1.5em; position:absolute; right:0;}
-
-#scoreboard a.score {align-items:center; color:#FFFFFF; display:flex; float:left; height:5em; justify-content:center; margin:0.1em; overflow:hidden; text-align:center; width:5em;}
-#scoreboard a.score:hover {font-weight:bold;}
-#scoreboard a.score.pass {background-color:#57BB8A;}
-#scoreboard a.score.fail {background-color:#E67C73;}
-#scoreboard a.score.tbd {background-color:#808080;}
-
-code {background-color:transparent;}
-
-#history-heading {clear:both; padding-top:0.5em;}
+div#content {width:100%;}
 
 #footer {padding:1em; text-align:center;}
-

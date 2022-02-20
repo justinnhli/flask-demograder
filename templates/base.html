@@ -2,52 +2,44 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}{% endblock %}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Crimson+Text:600" rel="stylesheet" type="text/css">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>demograder</title>
+        <link rel="preload" as="style" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" onload="this.onload=null;this.rel='stylesheet'">
         <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css">
     </head>
 
     <body>
-        <div class="container">
-            <div class="row">
-
-                <div id="sidebar" class="col-md-3 col-md-offset-0">
-                    <div id="logo-container">
-                        <h1 id="logo"><a href="{{ url_for('demograder.root') }}">DEMO<br>grader</a></h1>
-                    </div>
-                    <div id="menu">
-
-                    </div>
-                    <hr>
-                    <div id="admin">
-                        {% if user %}
-                        Logged in as {{ user.email }} (<a href="{{ url_for('auth.logout') }}">logout</a>)
-                        {% else %}
-                        <a href="{{ url_for('auth.login') }}">Login</a>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div id="content" class="col-md-9">
-                    <div id="breadcrumb">
-                        {% block breadcrumb %}{% endblock %}
-                    </div>
-
-                    {% block content %}{% endblock %}
-                </div>
-
-            </div>
-
-            <div class="row">
-                <div id="footer" class="col-md-12">
-                    &copy; Justin Li
-                </div>
-            </div>
-
+        <div id="header-container"><h1>demograder</h1></div>
+        {% if user %}
+        <div class="selector">
+            {% block selector %}{% endblock %}
+            <span id="course-selector-container">
+                &nbsp;
+            </span>
+            {% if user.faculty %}
+            | <span id="faculty-nav-bar">
+                new course
+            </span>
+            {% endif %}
+            {% if user.admin %}
+            | <span id="admin-nav-bar">
+                admin
+            </span>
+            {% endif %}
+            <span id="view-selector-container">
+                Logged in as {{ user.email }} (<a href="{{ url_for('auth.logout') }}">logout</a>)
+            </span>
         </div>
-
+        <div id="breadcrumb">
+            {% block breadcrumb %}{% endblock %}
+        </div>
+        {% endif %}
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        <div id="footer" class="col-md-12">
+            &copy; Justin Li
+        </div>
     </body>
 
 </html>

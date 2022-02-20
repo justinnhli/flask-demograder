@@ -5,5 +5,7 @@
 {% block breadcrumb %}&nbsp;{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('auth.login') }}">Login</a> to continue
+    <div style="font-size:200%; text-align:center; padding:4em 0;">
+        <a href="{{ url_for('auth.login') }}">Login</a> to continue
+    </div>
 {% endblock %}
