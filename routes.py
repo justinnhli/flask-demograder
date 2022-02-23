@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, url_for, request, session, redirect, abort
 from werkzeug.utils import secure_filename
 
-from .forms import SubmitForm
-from .models import User, Semester, Course, Assignment, Question, QuestionFile
+from .forms import SemesterForm
+from .models import db, User, Semester, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
 blueprint = Blueprint(name='main', import_name='main')
@@ -45,6 +45,33 @@ def home():
     return render_template('home.html', **context)
 
 
+@blueprint.route('/semester/', defaults={'semester_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/semester/<semester_id>', methods=('GET', 'POST'))
+def semester_form(semester_id):
+    context = get_context()
+    form = SemesterForm()
+    if form.validate_on_submit():
+        # if the form is being submitted, process it for data
+        if form.id.data:
+            # if there is a UID, this is editing an existing semester
+            semester = Semester.query.filter_by(id=form.id.data).first()
+            semester.season = form.season.data
+            semester.year = form.year.data
+        else:
+            # otherwise, this is creating a new semester
+            semester = Semester(season=form.season.data, year=form.year.data)
+        db.session.add(semester)
+        db.session.commit()
+        return redirect(url_for('main.home')) # FIXME
+    elif semester_id is not None:
+        semester = Semester.query.filter_by(id=semester_id).first()
+        form.id.default = semester.id
+        form.season.default = semester.season
+        form.year.default = semester.year
+        form.process()
+    return render_template('semester_form.html', form=form, **context)
+
+
 @blueprint.route('/person/<person_id>')
 def person_view(person_id):
     return f'{person_id=}' # TODO
@@ -58,18 +85,6 @@ def question_view(question_id):
 @blueprint.route('/submission/<submission_id>')
 def submission_view(submission_id):
     return f'{submission_id=}' # TODO
-
-
-@blueprint.route('/submit', methods=['GET', 'POST'])
-def form_view():
-    form = SubmitForm()
-    if form.validate_on_submit():
-        submitted = form.submitted.data
-        save_path = current_app.config['SUBMISSION_PATH'] / secure_filename(submitted.filename)
-        submitted.save(save_path)
-        evaluate_submission()
-        return redirect(url_for('success'))
-    return render_template('submit.html', form=form)
 
 
 @blueprint.route('/download_submission/<submission_id>')

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block breadcrumb %}&nbsp;{% endblock %}
+
+{% block content %}
+    <div class="form-wrapper">
+        <h2 class="title">Contact</h2>
+        <form method="POST" action="{{ url_for('main.semester_form', semester_id=form.id.default) }}">
+            {{ form.id }}
+            {{ render_field(form.season) }}
+            {{ render_field(form.year) }}
+            {{ form.csrf_token }}
+            {{ form.submit }}
+        </form>
+    </div>
+{% endblock %}
