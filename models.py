@@ -69,10 +69,15 @@ class Semester(db.Model):
 
 class Course(db.Model):
     __tablename__ = 'courses'
+    __table_args__ = (
+        db.UniqueConstraint('season', 'year', 'department_code', 'number', 'section'),
+    )
     id = db.Column(db.Integer, primary_key=True)
-    semester_id = db.Column(db.Integer, db.ForeignKey('semesters.id'), nullable=False)
+    season = db.Column(db.Enum('fall', 'winter', 'spring', 'summer'), nullable=False) # TODO default value
+    year = db.Column(db.Integer, nullable=False)
     department_code = db.Column(db.String, nullable=False)
     number = db.Column(db.String, nullable=False)
+    section = db.Column(db.Integer, nullable=False, default=0)
     title = db.Column(db.String, nullable=False)
     instructors = db.relationship(
         'User',
