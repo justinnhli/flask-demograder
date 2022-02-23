@@ -7,6 +7,8 @@ from .auth import oauth, blueprint as auth_blueprint
 from .models import db
 from .routes import blueprint as routes_blueprint
 
+from .fixtures import install_fixtures
+
 
 def create_app():
     # create app
@@ -31,6 +33,7 @@ def create_app():
     # initialize the database
     with app.app_context():
         db.create_all()
+    install_fixtures(app)
     # register blueprints
     app.register_blueprint(routes_blueprint)
     app.register_blueprint(auth_blueprint)
