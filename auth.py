@@ -22,7 +22,7 @@ def login_redirect():
     user_email = user_info.get('email', 'user@example.com')
     # find or create the user
     user = User.query.filter(User.email == user_email).first()
-    if not user:
+    if not user or not user.logged_in:
         if 'nickname' in user_info:
             preferred_name = user_info['nickname']
         elif 'given_name' in user_info:
@@ -30,11 +30,16 @@ def login_redirect():
         else:
             preferred_name = 'PREFERRED_NAME_PLACEHOLDER'
         family_name = user_info.get('family_name', 'FAMILY_NAME_PLACEHOLDER')
-        user = User(
-            preferred_name=preferred_name,
-            family_name=family_name,
-            email=user_email,
-        )
+        if user:
+            user.preferred_name = preferred_name
+            user.family_name = family_name
+        else:
+            user = User(
+                preferred_name=preferred_name,
+                family_name=family_name,
+                email=user_email,
+            )
+        user.logged_in = True
         db.session.add(user)
         db.session.commit()
     session['user_email'] = user_email
