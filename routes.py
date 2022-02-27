@@ -45,33 +45,6 @@ def home():
     return render_template('home.html', **context)
 
 
-@blueprint.route('/semester/', defaults={'semester_id': None}, methods=('GET', 'POST'))
-@blueprint.route('/semester/<semester_id>', methods=('GET', 'POST'))
-def semester_form(semester_id):
-    context = get_context()
-    form = SemesterForm()
-    if form.validate_on_submit():
-        # if the form is being submitted, process it for data
-        if form.id.data:
-            # if there is a UID, this is editing an existing semester
-            semester = Semester.query.filter_by(id=form.id.data).first()
-            semester.season = form.season.data
-            semester.year = form.year.data
-        else:
-            # otherwise, this is creating a new semester
-            semester = Semester(season=form.season.data, year=form.year.data)
-        db.session.add(semester)
-        db.session.commit()
-        return redirect(url_for('main.home')) # FIXME
-    elif semester_id is not None:
-        semester = Semester.query.filter_by(id=semester_id).first()
-        form.id.default = semester.id
-        form.season.default = semester.season
-        form.year.default = semester.year
-        form.process()
-    return render_template('forms/semester.html', form=form, **context)
-
-
 @blueprint.route('/person/<person_id>')
 def person_view(person_id):
     return f'{person_id=}' # TODO
@@ -110,6 +83,39 @@ def file_view(file_id):
 @blueprint.route('/download_file/<file>')
 def download_file(file_id):
     return f'{file_id=}' # TODO
+
+
+# FORMS
+
+
+@blueprint.route('/semester/', defaults={'semester_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/semester/<semester_id>', methods=('GET', 'POST'))
+def semester_form(semester_id):
+    context = get_context()
+    form = SemesterForm()
+    if form.validate_on_submit():
+        # if the form is being submitted, process it for data
+        if form.id.data:
+            # if there is a UID, this is editing an existing semester
+            semester = Semester.query.filter_by(id=form.id.data).first()
+            semester.season = form.season.data
+            semester.year = form.year.data
+        else:
+            # otherwise, this is creating a new semester
+            semester = Semester(season=form.season.data, year=form.year.data)
+        db.session.add(semester)
+        db.session.commit()
+        return redirect(url_for('main.home')) # FIXME
+    elif semester_id is not None:
+        semester = Semester.query.filter_by(id=semester_id).first()
+        form.id.default = semester.id
+        form.season.default = semester.season
+        form.year.default = semester.year
+        form.process()
+    return render_template('forms/semester.html', form=form, **context)
+
+
+# REDIRECTS
 
 
 @blueprint.errorhandler(401)
