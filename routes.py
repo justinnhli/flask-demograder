@@ -69,7 +69,7 @@ def semester_form(semester_id):
         form.season.default = semester.season
         form.year.default = semester.year
         form.process()
-    return render_template('semester_form.html', form=form, **context)
+    return render_template('forms/semester.html', form=form, **context)
 
 
 @blueprint.route('/person/<person_id>')

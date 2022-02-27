@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_form_helpers.html" import render_field %}
+{% from "forms/_utils.html" import render_field %}
 
 {% block title %}Demograder{% endblock %}
 
@@ -7,7 +7,7 @@
 
 {% block content %}
     <div class="form-wrapper">
-        <h2 class="title">Contact</h2>
+        <h2 class="title">Semester</h2>
         <form method="POST" action="{{ url_for('main.semester_form', semester_id=form.id.default) }}">
             {{ form.id }}
             {{ render_field(form.season) }}
