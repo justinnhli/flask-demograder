@@ -88,8 +88,8 @@ def download_file(file_id):
 # FORMS
 
 
-@blueprint.route('/semester/', defaults={'semester_id': None}, methods=('GET', 'POST'))
-@blueprint.route('/semester/<semester_id>', methods=('GET', 'POST'))
+@blueprint.route('/forms/semester/', defaults={'semester_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/forms/semester/<semester_id>', methods=('GET', 'POST'))
 def semester_form(semester_id):
     context = get_context()
     form = SemesterForm()
