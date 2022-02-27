@@ -94,6 +94,15 @@ class Course(db.Model):
         backref='course',
     )
 
+    def __str__(self):
+        return ' '.join(str(part) for part in [
+            self.season.title(),
+            self.year,
+            self.department_code.upper(),
+            self.number,
+            self.section,
+        ])
+
 
 class Assignment(db.Model):
     __tablename__ = 'assignments'
