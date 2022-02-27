@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from sqlalchemy.orm import validates
 
 db = SQLAlchemy()
 
@@ -93,6 +94,10 @@ class Course(db.Model):
         'Assignment',
         backref='course',
     )
+
+    @validates('department_code')
+    def upper(self, key, value):
+        return value.upper()
 
     def __str__(self):
         return ' '.join(str(part) for part in [
