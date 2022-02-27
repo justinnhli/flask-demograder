@@ -5,7 +5,7 @@ from .forms import SemesterForm
 from .models import db, User, Semester, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
-blueprint = Blueprint(name='main', import_name='main')
+blueprint = Blueprint(name='demograder', import_name='demograder')
 
 
 def get_user():
@@ -35,7 +35,7 @@ def get_context():
 def root():
     user = get_user()
     if user:
-        return redirect(url_for('main.home'))
+        return redirect(url_for('demograder.home'))
     return render_template('index.html')
 
 
@@ -105,7 +105,7 @@ def semester_form(semester_id):
             semester = Semester(season=form.season.data, year=form.year.data)
         db.session.add(semester)
         db.session.commit()
-        return redirect(url_for('main.home')) # FIXME
+        return redirect(url_for('demograder.home')) # FIXME
     elif semester_id is not None:
         semester = Semester.query.filter_by(id=semester_id).first()
         form.id.default = semester.id
@@ -120,4 +120,4 @@ def semester_form(semester_id):
 
 @blueprint.errorhandler(401)
 def unauthorized_error(error):
-    return redirect(url_for('main.root'))
+    return redirect(url_for('demograder.root'))
