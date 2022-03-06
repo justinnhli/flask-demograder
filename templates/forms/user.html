@@ -6,17 +6,15 @@
 {% block breadcrumb %}&nbsp;{% endblock %}
 
 {% block content %}
-    <div class="form-wrapper">
-        <h2 class="title">New/Edit User</h2>
-        <form method="POST" action="{{ url_for('demograder.user_form', user_id=form.id.default) }}">
-            {{ form.id }}
-            {{ render_field(form.preferred_name) }}
-            {{ render_field(form.family_name) }}
-            {{ render_field(form.email) }}
-            {{ render_field(form.admin) }}
-            {{ render_field(form.faculty) }}
-            {{ form.csrf_token }}
-            {{ form.submit }}
-        </form>
-    </div>
+    <h2 class="title">New/Edit User</h2>
+    <form method="POST" action="{{ url_for('demograder.user_form', user_id=form.id.default) }}">
+        {{ form.id }}
+        {{ render_field(form.preferred_name) }}
+        {{ render_field(form.family_name) }}
+        {{ render_field(form.email) }}
+        {{ render_field(form.admin) }}
+        {{ render_field(form.faculty) }}
+        {{ form.csrf_token }}
+        {{ form.submit }}
+    </form>
 {% endblock %}
