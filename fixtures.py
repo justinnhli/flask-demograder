@@ -10,8 +10,10 @@ def install_fixtures(app):
         try:
             user = User(
                 preferred_name='Justin',
-                family_name='li',
+                family_name='Li',
                 email='justinnhli@oxy.edu',
+                admin=True,
+                faculty=True,
             )
             db.session.add(user)
             db.session.commit()
