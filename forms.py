@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, HiddenField, StringField, SubmitField
-from wtforms.validators import Regexp
+from wtforms.validators import InputRequired, Regexp
 
 from .models import User
 
@@ -11,10 +11,13 @@ class UserForm(FlaskForm):
     family_name = StringField('Family Name')
     email = StringField(
         'Email',
-        validators=[Regexp(
-            r'^[\w.+-]+@[\w-]+(\.[\w-]+)+$',
-            message='Please enter a valid email address',
-        ),],
+        validators=[
+            InputRequired(),
+            Regexp(
+                r'^[\w.+-]+@[\w-]+(\.[\w-]+)+$',
+                message='Please enter a valid email address',
+            ),
+        ],
     )
     admin = BooleanField('Admin')
     faculty = BooleanField('Faculty')
