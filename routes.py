@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, url_for, request, session, redirect, abort
 from werkzeug.utils import secure_filename
 
+from .forms import UserForm
 from .models import db, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
@@ -43,9 +44,9 @@ def home():
     return render_template('home.html', **context)
 
 
-@blueprint.route('/person/<person_id>')
-def person_view(person_id):
-    return f'{person_id=}' # TODO
+@blueprint.route('/user/<user_id>')
+def user_view(user_id):
+    return f'{user_id=}' # TODO
 
 
 @blueprint.route('/question/<question_id>')
@@ -84,6 +85,43 @@ def download_file(file_id):
 
 
 # FORMS
+
+
+@blueprint.route('/forms/user/', defaults={'user_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/forms/user/<user_id>', methods=('GET', 'POST'))
+def user_form(user_id):
+    context = get_context()
+    form = UserForm()
+    if form.validate_on_submit():
+        # if the form is being submitted, process it for data
+        if form.id.data:
+            # if there is an ID, this is editing an existing User
+            user = User.query.filter_by(id=form.id.data).first()
+            user.preferred_name = form.preferred_name.data
+            user.family_name = form.family_name.data
+            user.email = form.email.data
+            user.admin = form.admin.data
+            user.faculty = form.faculty.data
+        else:
+            # otherwise, this is creating a new User
+            user = User(
+                preferred_name=form.preferred_name.data,
+                family_name=form.family_name.data,
+                email=form.email.data,
+                admin=form.admin.data,
+                faculty=form.faculty.data,
+            )
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('demograder.home')) # FIXME
+    elif user_id is not None:
+        user = User.query.filter_by(id=user_id).first()
+        form.preferred_name.default = user.preferred_name
+        form.family_name.default = user.family_name
+        form.email.default = user.email
+        form.admin.default = user.admin
+        form.faculty.default = user.faculty
+    return render_template('forms/user.html', form=form, **context)
 
 
 # REDIRECTS
