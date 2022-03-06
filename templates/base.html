@@ -13,7 +13,7 @@
             <div id="wordmark">demograder</div>
             {% if user %}
             <div id="user">
-                {{ user.email }} (<a href="{{ url_for('auth.logout') }}">logout</a>)
+                {{ viewer.email }} (<a href="{{ url_for('auth.logout') }}">logout</a>)
             </div>
             {% endif %}
         </div>
@@ -23,11 +23,11 @@
                 {% block breadcrumb %}{% endblock %}
             </div>
             <div id="quicklinks">
-                {% if user.faculty or user.admin %}
+                {% if role >= Role.FACULTY %}
                 <span id="faculty-nav-bar">
                     new course
                 </span>
-                {% if user.admin %}
+                {% if role >= Role.ADMIN %}
                 | <span id="admin-nav-bar">
                     admin
                 </span>
