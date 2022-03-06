@@ -110,19 +110,19 @@ def user_form(user_id):
             if not context['user'].admin and int(form.id.data) != user_id:
                 abort(403)
             user = User.query.filter_by(id=form.id.data).first()
-            user.preferred_name = form.preferred_name.data
-            user.family_name = form.family_name.data
+            user.preferred_name = form.preferred_name.data.strip()
+            user.family_name = form.family_name.data.strip()
             # only an admin can change the email or the admin/faculty statuses
             if context['user'].admin:
-                user.email = form.email.data
+                user.email = form.email.data.strip()
                 user.admin = form.admin.data
                 user.faculty = form.faculty.data
         else:
             # otherwise, this is creating a new User
             user = User(
-                preferred_name=form.preferred_name.data,
-                family_name=form.family_name.data,
-                email=form.email.data,
+                preferred_name=form.preferred_name.data.strip(),
+                family_name=form.family_name.data.strip(),
+                email=form.email.data.strip(),
                 admin=form.admin.data,
                 faculty=form.faculty.data,
             )
