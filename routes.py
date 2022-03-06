@@ -40,7 +40,10 @@ def root():
 @blueprint.route('/home')
 def home():
     context = get_context()
-    return render_template('home.html', **context)
+    if context['user'].admin:
+        return render_template('home-admin.html', **context)
+    else:
+        return render_template('home.html', **context)
 
 
 @blueprint.route('/user/<user_id>')
