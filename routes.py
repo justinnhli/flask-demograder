@@ -95,7 +95,7 @@ def root():
 @blueprint.route('/home')
 def home():
     context = get_context()
-    if context['user'].admin:
+    if context['role'] >= Role.ADMIN:
         return render_template('home-admin.html', **context)
     else:
         return render_template('home.html', **context)
