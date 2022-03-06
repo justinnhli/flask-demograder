@@ -9,35 +9,37 @@
     </head>
 
     <body>
-        <div id="header-container"><h1>demograder</h1></div>
-        {% if user %}
-        <div class="selector">
-            {% block selector %}{% endblock %}
-            <span id="course-selector-container">
-                &nbsp;
-            </span>
-            {% if user.faculty %}
-            | <span id="faculty-nav-bar">
-                new course
-            </span>
+        <div id="header">
+            <div id="wordmark">demograder</div>
+            {% if user %}
+            <div id="user">
+                {{ user.email }} (<a href="{{ url_for('auth.logout') }}">logout</a>)
+            </div>
             {% endif %}
-            {% if user.admin %}
-            | <span id="admin-nav-bar">
-                admin
-            </span>
-            {% endif %}
-            <span id="view-selector-container">
-                Logged in as {{ user.email }} (<a href="{{ url_for('auth.logout') }}">logout</a>)
-            </span>
         </div>
-        <div id="breadcrumb">
-            {% block breadcrumb %}{% endblock %}
+        {% if user %}
+        <div id="navbar">
+            <div id="breadcrumb">
+                {% block breadcrumb %}{% endblock %}
+            </div>
+            <div id="quicklinks">
+                {% if user.faculty or user.admin %}
+                <span id="faculty-nav-bar">
+                    new course
+                </span>
+                {% if user.admin %}
+                | <span id="admin-nav-bar">
+                    admin
+                </span>
+                {% endif %}
+                {% endif %}
+            </div>
         </div>
         {% endif %}
-        <div class="content">
+        <div id="content">
             {% block content %}{% endblock %}
         </div>
-        <div id="footer" class="col-md-12">
+        <div id="footer">
             &copy; Justin Li
         </div>
     </body>
