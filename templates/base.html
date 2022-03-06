@@ -13,7 +13,12 @@
             <div id="wordmark"><a href="/">demograder</a></div>
             {% if user %}
             <div id="user">
-                {{ viewer.email }} (<a href="{{ url_for('auth.logout') }}">logout</a>)
+                {% if alternate_view %}
+                (<a href="{{ request.path }}">viewing as</a> {{ role.name.lower() }} {{ viewer.email }})
+                {% else %}
+                {{ user.email }}
+                {% endif %}
+                | <a href="{{ url_for('auth.logout') }}">logout</a>
             </div>
             {% endif %}
         </div>
