@@ -93,17 +93,30 @@ def download_file(file_id):
 @blueprint.route('/forms/user/<user_id>', methods=('GET', 'POST'))
 def user_form(user_id):
     context = get_context()
+    # check permissions
+    # normal users can only edit themselves, unless they are an admin
+    permitted = (
+        context['user'].admin
+        or (user_id is not None and user_id == context['user'].id)
+    )
+    if not permitted:
+        abort(403)
     form = UserForm()
+    # if the form is being submitted, process it for data
     if form.validate_on_submit():
-        # if the form is being submitted, process it for data
         if form.id.data:
             # if there is an ID, this is editing an existing User
+            # make sure that the submitted ID is the same as the user ID
+            if not context['user'].admin and int(form.id.data) != user_id:
+                abort(403)
             user = User.query.filter_by(id=form.id.data).first()
             user.preferred_name = form.preferred_name.data
             user.family_name = form.family_name.data
-            user.email = form.email.data
-            user.admin = form.admin.data
-            user.faculty = form.faculty.data
+            # only an admin can change the email or the admin/faculty statuses
+            if context['user'].admin:
+                user.email = form.email.data
+                user.admin = form.admin.data
+                user.faculty = form.faculty.data
         else:
             # otherwise, this is creating a new User
             user = User(
@@ -116,13 +129,17 @@ def user_form(user_id):
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('demograder.home')) # FIXME
-    elif user_id is not None:
+    # the form is not being submitted
+    if user_id is not None:
+        # a user ID is provided; set the defaults to the user being edited
         user = User.query.filter_by(id=user_id).first()
+        form.id.default = user.id
         form.preferred_name.default = user.preferred_name
         form.family_name.default = user.family_name
         form.email.default = user.email
         form.admin.default = user.admin
         form.faculty.default = user.faculty
+        form.process()
     return render_template('forms/user.html', form=form, **context)
 
 
