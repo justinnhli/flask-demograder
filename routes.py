@@ -73,14 +73,6 @@ def get_context(**kwargs):
             )
         else:
             context['role'] = Role.STUDENT
-
-    # FIXME temporary DB dump
-    context['users'] = User.query.all()
-    context['courses'] = Course.query.all()
-    context['assignments'] = Assignment.query.all()
-    context['questions'] = Question.query.all()
-    context['question_files'] = QuestionFile.query.all()
-
     return context
 
 
@@ -96,6 +88,11 @@ def root():
 def home():
     context = get_context()
     if context['role'] >= Role.ADMIN:
+        context['users'] = User.query.all()
+        context['courses'] = Course.query.all()
+        context['assignments'] = Assignment.query.all()
+        context['questions'] = Question.query.all()
+        context['question_files'] = QuestionFile.query.all()
         return render_template('home-admin.html', **context)
     else:
         return render_template('home.html', **context)
