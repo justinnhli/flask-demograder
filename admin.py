@@ -4,7 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 
 from .models import db
 from .models import User, Instructor, Student
-from .models import Semester, Course, Assignment, Question, QuestionDependency, QuestionFile
+from .models import Course, Assignment, Question, QuestionDependency, QuestionFile
 from .models import Submission, Upload, Result, ResultDependency
 
 from .routes import get_context
@@ -26,7 +26,6 @@ class DemograderModelView(ModelView):
 admin.add_view(DemograderModelView(User, db.session, category='Tables'))
 admin.add_view(DemograderModelView(Instructor, db.session, category='Tables'))
 admin.add_view(DemograderModelView(Student, db.session, category='Tables'))
-admin.add_view(DemograderModelView(Semester, db.session, category='Tables'))
 admin.add_view(DemograderModelView(Course, db.session, category='Tables'))
 admin.add_view(DemograderModelView(Assignment, db.session, category='Tables'))
 admin.add_view(DemograderModelView(QuestionDependency, db.session, category='Tables'))
