@@ -48,31 +48,37 @@ def get_context(**kwargs):
     # * the user is for checking actual permissions
     # * the viewer is for acting as a specific person
     # * the role is for checking renders
-    if user.admin:
-        # set viewer
-        if 'viewer' in args:
-            context['viewer'] = User.query.filter_by(email=args['viewer']).first()
-        if not context.get('viewer', None):
-            context['viewer'] = user
-        # set role
-        if 'role' in args and args['role'].upper() not in Role.__members__.keys():
-            del args['role']
-        context['Role'] = Role # this allows templates to branch on role
-        context['role'] = Role.ADMIN
-        if context['viewer'].admin:
-            context['role'] = Role[args.get('role', 'admin').upper()]
-        elif context['viewer'].faculty:
-            context['role'] = min(
-                Role[args.get('role', 'faculty').upper()],
-                context['role'],
-            )
-        elif context['instructor']:
-            context['role'] = min(
-                Role[args.get('role', 'instructor').upper()],
-                context['role'],
-            )
-        else:
-            context['role'] = Role.STUDENT
+    # set viewer
+    if user.admin and 'viewer' in args:
+        context['viewer'] = User.query.filter_by(email=args['viewer']).first()
+    if not context.get('viewer', None):
+        context['viewer'] = user
+    context['alternate_view'] = (context['user'] != context['viewer'])
+    # set role
+    context['Role'] = Role # this allows templates to branch on role
+    if 'role' in args and args['role'].upper() not in Role.__members__.keys():
+        del args['role']
+    if context['viewer'].admin:
+        context['role'] = min(
+            Role[args.get('role', 'admin').upper()],
+            Role.ADMIN,
+        )
+        context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.ADMIN)
+    elif context['viewer'].faculty:
+        context['role'] = min(
+            Role[args.get('role', 'faculty').upper()],
+            Role.FACULTY,
+        )
+        context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.FACULTY)
+    elif context['instructor']:
+        context['role'] = min(
+            Role[args.get('role', 'instructor').upper()],
+            Role.INSTRUCTOR,
+        )
+        context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.INSTRUCTOR)
+    else:
+        context['role'] = Role.STUDENT
+        context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.STUDENT)
     return context
 
 
