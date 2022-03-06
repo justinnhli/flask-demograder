@@ -5,6 +5,28 @@ from wtforms.validators import InputRequired, Regexp
 from .models import User
 
 
+def unique(cls, fields):
+
+    if len(fields) == 1:
+        message = f'A {cls.__name__} already exists with this {fields[0]}'
+    else:
+        fields_string = f'{", ".join(fields[:-1])}  and {fields[-1]}'
+        message = f'A {cls.__name__} already exists with this {fields_string}'
+
+    def uniqueness_check(form, form_field):
+        filters = {
+            field: getattr(form, field).data
+            for field in fields
+        }
+        instance = cls.query.filter_by(**filters).first()
+        if instance and instance.id != int(form.id.data):
+            getattr(form, form_field.id).errors.append(message)
+            return False
+        return True
+
+    return uniqueness_check
+
+
 class UserForm(FlaskForm):
     id = HiddenField('id')
     preferred_name = StringField('Preferred name')
@@ -17,19 +39,9 @@ class UserForm(FlaskForm):
                 r'^[\w.+-]+@[\w-]+(\.[\w-]+)+$',
                 message='Please enter a valid email address',
             ),
+            unique(User, ['email']),
         ],
     )
     admin = BooleanField('Admin')
     faculty = BooleanField('Faculty')
     submit = SubmitField('Submit')
-
-    def validate(self):
-        # validate() via the super class; if it doesn't pass, we're done
-        if not FlaskForm.validate(self):
-            return False
-        # validate by seeing if the season and year combination already exists
-        user = User.query.filter_by(email=self.email.data).first()
-        if user and user.id != self.id.data:
-            self.email.errors.append('A User already exists with this email')
-            return False
-        return True
