@@ -22,7 +22,7 @@ class Role(IntEnum):
 
 
 def get_context(**kwargs):
-    user = User.query.filter(User.email == session.get('user_email')).first()
+    user = User.query.filter_by(email=session.get('user_email')).first()
     context = {}
     context['user'] = user
     # check if login is required
@@ -51,7 +51,7 @@ def get_context(**kwargs):
     if user.admin:
         # set viewer
         if 'viewer' in args:
-            context['viewer'] = User.query.filter(User.email == args['viewer']).first()
+            context['viewer'] = User.query.filter_by(email=args['viewer']).first()
         if not context.get('viewer', None):
             context['viewer'] = user
         # set role
