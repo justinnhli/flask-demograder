@@ -1,6 +1,7 @@
 body {background-color:#EEEEEC; font-family:Open Sans,Helvetica,Arial,sans-serif; margin:0 auto; max-width:50em;}
 
 #wordmark {float:left; color:#DE6F3E; font-size:1.5em;}
+#wordmark a {text-decoration:none;}
 #user {float:right;}
 
 #navbar {clear:both;}

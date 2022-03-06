@@ -10,7 +10,7 @@
 
     <body>
         <div id="header">
-            <div id="wordmark">demograder</div>
+            <div id="wordmark"><a href="/">demograder</a></div>
             {% if user %}
             <div id="user">
                 {{ viewer.email }} (<a href="{{ url_for('auth.logout') }}">logout</a>)
