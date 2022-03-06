@@ -4,32 +4,32 @@
 
 {% block content %}
     {% if user %}
-        <h2>DB Dump</h2>
-        <h3>Users</h3>
+        <h1>DB Dump</h1>
+        <h2>Users</h2>
         <ul>
             {% for item in users %}
             <li>{{ item.id }}: {{ item }}</li>
             {% endfor %}
         </ul>
-        <h3>Courses</h3>
+        <h2>Courses</h2>
         <ul>
             {% for item in courses %}
             <li>{{ item.id }}: {{ item }}</li>
             {% endfor %}
         </ul>
-        <h3>Assignment</h3>
+        <h2>Assignment</h2>
         <ul>
             {% for item in assignments %}
             <li>{{ item.id }}: {{ item }}</li>
             {% endfor %}
         </ul>
-        <h3>Questions</h3>
+        <h2>Questions</h2>
         <ul>
             {% for item in questions %}
             <li>{{ item.id }}: {{ item }}</li>
             {% endfor %}
         </ul>
-        <h3>Question Files</h3>
+        <h2>Question Files</h2>
         <ul>
             {% for item in question_files %}
             <li>{{ item.id }}: {{ item }}</li>

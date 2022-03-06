@@ -6,7 +6,7 @@
 {% block breadcrumb %}&nbsp;{% endblock %}
 
 {% block content %}
-    <div id="title">New/Edit User</div>
+    <h1>New/Edit User</h1>
     <form method="POST" action="{{ url_for('demograder.user_form', user_id=form.id.default) }}">
         <table class="form-table">
             {{ render_field(form.preferred_name) }}
