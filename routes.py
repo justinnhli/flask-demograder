@@ -8,17 +8,16 @@ from .dispatch import evaluate_submission
 blueprint = Blueprint(name='demograder', import_name='demograder')
 
 
-def get_user():
-    user_email = session.get('user_email')
-    return User.query.filter(User.email == user_email).first()
 
-
-def get_context():
+def get_context(**kwargs):
+    user = User.query.filter(User.email == session.get('user_email')).first()
     context = {}
-    user = get_user()
-    if not user:
-        abort(401)
     context['user'] = user
+    # check if login is required
+    if not kwargs.get('login_required', True):
+        return context
+    elif not user:
+        abort(401)
 
     # FIXME temporary DB dump
     context['users'] = User.query.all()
@@ -32,8 +31,8 @@ def get_context():
 
 @blueprint.route('/')
 def root():
-    user = get_user()
-    if user:
+    context = get_context(login_required=False)
+    if context['user']:
         return redirect(url_for('demograder.home'))
     return render_template('index.html')
 
