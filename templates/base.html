@@ -30,7 +30,7 @@
             <div id="quicklinks">
                 {% if role >= Role.FACULTY %}
                 <span id="faculty-nav-bar">
-                    new course
+                    <a href="{{ url_for('demograder.course_form') }}">new course</a>
                 </span>
                 {% if role >= Role.ADMIN %}
                 | <span id="admin-nav-bar">

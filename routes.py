@@ -204,6 +204,11 @@ def user_form(user_id):
     return render_template('forms/user.html', form=form, **context)
 
 
+@blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/forms/course/<course_id>', methods=('GET', 'POST'))
+def course_form(course_id):
+    pass
+
 # REDIRECTS
 
 
