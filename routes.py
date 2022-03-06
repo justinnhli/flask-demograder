@@ -34,7 +34,7 @@ def root():
     context = get_context(login_required=False)
     if context['user']:
         return redirect(url_for('demograder.home'))
-    return render_template('index.html')
+    return render_template('root.html')
 
 
 @blueprint.route('/home')
