@@ -27,6 +27,6 @@ class UserForm(FlaskForm):
         # validate by seeing if the season and year combination already exists
         user = User.query.filter_by(email=self.email.data).first()
         if user and user.id != self.id.data:
-            self.year.errors.append('A User already exists with this email')
+            self.email.errors.append('A User already exists with this email')
             return False
         return True
