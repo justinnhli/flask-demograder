@@ -1,10 +1,15 @@
 {% macro render_field(field) %}
-    <fieldset class="form-field">{{ field.label }} {{ field }}</fieldset>
-    {% if field.errors %}
-    <ul class=errors>
-        {% for error in field.errors %}
-        <li>{{ error }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+    <tr{% if field.errors %} class="form-field-error"{% endif %}>
+        <td><label for="{{ field.id }}">{{ field.label }}:</label></td>
+        <td>
+            {{ field }}
+            {% if field.errors %}
+            <ul class="form-field-error-list">
+                {% for error in field.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </td>
+    </tr>
 {% endmacro %}

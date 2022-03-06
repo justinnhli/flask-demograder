@@ -8,7 +8,12 @@ body {background-color:#EEEEEC; font-family:Open Sans,Helvetica,Arial,sans-serif
 #quicklinks {float:right;}
 
 #content {clear:both; width:100%;}
+#title {font-size:2em; font-weight:bold;}
 
 a, a:visited {color:#DE6F3E;}
+
+table.form-table {border-collapse:collapse; border:none;}
+tr.form-field-error {background-color:#E67C73;}
+ul.form-field-error-list {margin:0; padding-left:1em;}
 
 #footer {padding:1em; text-align:center;}
