@@ -10,7 +10,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     preferred_name = db.Column(db.String, nullable=False)
     family_name = db.Column(db.String, nullable=False)
-    email = db.Column(db.String, nullable=False, unique=True)
+    email = db.Column(db.String, nullable=False, unique=True, index=True)
     admin = db.Column(db.Boolean, nullable=False, default=False)
     faculty = db.Column(db.Boolean, nullable=False, default=False)
     logged_in = db.Column(db.Boolean, nullable=False, default=False) 
