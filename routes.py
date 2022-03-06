@@ -1,3 +1,5 @@
+from enum import IntEnum
+
 from flask import Blueprint, render_template, url_for, request, session, redirect, abort
 from werkzeug.utils import secure_filename
 
@@ -7,6 +9,16 @@ from .dispatch import evaluate_submission
 
 blueprint = Blueprint(name='demograder', import_name='demograder')
 
+
+class Role(IntEnum):
+    '''A class representing the role of the viewer.
+
+    This exists to allow dynamically checking what the page looks like for different people.
+    '''
+    STUDENT = 0
+    INSTRUCTOR = 1
+    FACULTY = 2
+    ADMIN = 3
 
 
 def get_context(**kwargs):
@@ -18,6 +30,49 @@ def get_context(**kwargs):
         return context
     elif not user:
         abort(401)
+    # check if the user is an instructor of the course
+    if 'course' in context:
+        context['instructor'] = True # FIXME
+    else:
+        context['instructor'] = False
+    # get URL parameters
+    args = request.args.to_dict()
+    # Set admin rendering parameters, viewer and role.
+    # These two parameters overlap in semantics slightly. The viewer parameter
+    # is used to render a page as though they are the user. This is helpful for
+    # checking that a page renders correctly. However, an appropriate viewer
+    # is not always available; for example, if an admin is the sole instructor
+    # of a course, and wants to see the page as a non-admin faculty, there is
+    # no viewer that could provide that. Hence the role parameter, which can 
+    # restrict the privileges of the user. In sum:
+    # * the user is for checking actual permissions
+    # * the viewer is for acting as a specific person
+    # * the role is for checking renders
+    if user.admin:
+        # set viewer
+        if 'viewer' in args:
+            context['viewer'] = User.query.filter(User.email == args['viewer']).first()
+        if not context.get('viewer', None):
+            context['viewer'] = user
+        # set role
+        if 'role' in args and args['role'].upper() not in Role.__members__.keys():
+            del args['role']
+        context['Role'] = Role # this allows templates to branch on role
+        context['role'] = Role.ADMIN
+        if context['viewer'].admin:
+            context['role'] = Role[args.get('role', 'admin').upper()]
+        elif context['viewer'].faculty:
+            context['role'] = min(
+                Role[args.get('role', 'faculty').upper()],
+                context['role'],
+            )
+        elif context['instructor']:
+            context['role'] = min(
+                Role[args.get('role', 'instructor').upper()],
+                context['role'],
+            )
+        else:
+            context['role'] = Role.STUDENT
 
     # FIXME temporary DB dump
     context['users'] = User.query.all()
