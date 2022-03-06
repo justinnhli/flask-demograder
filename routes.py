@@ -139,6 +139,9 @@ def user_form(user_id):
         form.email.default = user.email
         form.admin.default = user.admin
         form.faculty.default = user.faculty
+        # disable the email field for non-admins
+        if not context['user'].admin:
+            form.email.render_kw['disabled'] = ''
         form.process()
     return render_template('forms/user.html', form=form, **context)
 

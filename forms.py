@@ -41,6 +41,7 @@ class UserForm(FlaskForm):
             ),
             unique(User, ['email']),
         ],
+        render_kw={},
     )
     admin = BooleanField('Admin')
     faculty = BooleanField('Faculty')
