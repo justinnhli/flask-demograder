@@ -47,6 +47,16 @@ def _set_instructor_context(context, url_args, **kwargs):
         context['instructor'] = False
 
 
+def _set_student_context(context, url_args, **kwargs):
+    if context.get('course', None):
+        context['student'] = bool(Student.query.filter_by(
+            course_id=context['course'].id,
+            user_id=context['viewer'].id,
+        ).first())
+    else:
+        context['student'] = False
+
+
 def _set_role_context(context, url_args, **kwargs):
     context['Role'] = Role # this allows templates to branch on role
     if 'role' in url_args and url_args['role'].upper() not in Role.__members__:
@@ -111,5 +121,6 @@ def get_context(**kwargs):
     _set_viewer_context(context, url_args, **kwargs)
     _set_course_context(context, url_args, **kwargs)
     _set_instructor_context(context, url_args, **kwargs)
+    _set_student_context(context, url_args, **kwargs)
     _set_role_context(context, url_args, **kwargs)
     return context
