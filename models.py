@@ -23,6 +23,12 @@ class User(db.Model, UserMixin):
     def full_name(self):
         return f'{self.preferred_name} {self.family_name}'
 
+    def teaching(self, course):
+        return bool(Instructor.query.filter_by(user_id=self.id, course_id=course.id).first())
+
+    def taking(self, course):
+        return bool(Student.query.filter_by(user_id=self.id, course_id=course.id).first())
+
     def latest_submission(self, question=None):
         pass # TODO
 
@@ -43,6 +49,19 @@ class Instructor(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
 
+    def courses_with_student(self, user):
+        return Course.query.join(
+            Instructor.query.filter_by(user_id=user.id).subquery()
+        ).join(
+            Student.query.filter_by(user_id=user.id).subquery()
+        )
+
+    def courses_with_coinstructor(self, user):
+        return Course.query.join(
+            Instructor.query.filter_by(user_id=user.id).subquery()
+        ).join(
+            Instructor.query.filter_by(user_id=user.id).subquery()
+        )
 
 class Student(db.Model):
     __tablename__ = 'students'
