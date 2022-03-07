@@ -2,7 +2,7 @@ from enum import IntEnum
 
 from flask import session, request, abort
 
-from .models import User, Instructor, Student, Course
+from .models import User, Course
 
 
 class Role(IntEnum):
@@ -39,20 +39,14 @@ def _set_instructor_context(context, url_args, **kwargs):
     if context['viewer'].admin:
         context['instructor'] = True
     elif context.get('course', None):
-        context['instructor'] = bool(Instructor.query.filter_by(
-            course_id=context['course'].id,
-            user_id=context['viewer'].id,
-        ).first())
+        context['instructor'] = context['viewer'].teaching(context['course'])
     else:
         context['instructor'] = False
 
 
 def _set_student_context(context, url_args, **kwargs):
     if context.get('course', None):
-        context['student'] = bool(Student.query.filter_by(
-            course_id=context['course'].id,
-            user_id=context['viewer'].id,
-        ).first())
+        context['student'] = context['viewer'].taking(context['course'])
     else:
         context['student'] = False
 
