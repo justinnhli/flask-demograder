@@ -105,7 +105,9 @@ def get_context(**kwargs):
 
     Permission Parameters:
         login_required (bool): If the user must be logged in.
-        user (int): The viewer must be this user.
+        user (int): The only user (or an admin) who is permitted.
+            Note that this is _user_, not _viewer_ - this parameter is for
+            things like account management.
         min_role (Role): The minimum role the viewer must have.
     '''
     # get URL parameters
@@ -117,12 +119,10 @@ def get_context(**kwargs):
         return context
     if not context['user']:
         abort(401)
-    permitted = (
-        context['user'].admin
-        or ('user' in kwargs and kwargs['user'] == context['user'].id)
-    )
-    if not permitted:
-        abort(403)
+    # check if the user is the specific user required
+    if not user.admin:
+        if 'user' in kwargs and kwargs['user'] != context['user'].id:
+            abort(403)
     _set_viewer_context(context, url_args, **kwargs)
     _set_course_context(context, url_args, **kwargs)
     _set_instructor_context(context, url_args, **kwargs)
