@@ -30,7 +30,6 @@ def _set_viewer_context(context, url_args, **kwargs):
 
 def _set_course_context(context, url_args, **kwargs):
     # TODO determine question, assignment, and course
-    # TODO check course access permissions
     if 'course_id' in kwargs:
         context['course'] = Course.query.filter_by(id=kwargs['course_id']).first()
 
@@ -133,10 +132,17 @@ def get_context(**kwargs):
         if not (viewer_is_student or viewer_is_instructor):
             abort(403)
     _set_course_context(context, url_args, **kwargs)
+    course = context['course']
     _set_instructor_context(context, url_args, **kwargs)
     _set_student_context(context, url_args, **kwargs)
-    if not (context['instructor'] or context['student']):
-        abort(403)
+    # check if both the user and the viewer are related to the course
+    if not user.admin and course:
+        # check if the user is related to the course
+        if not (user.teaching(course) or user.taking(course)):
+            abort(403)
+        # check if the viewer is related to the course
+        if context['alternate_view'] and not (context['instructor'] or context['student']):
+            abort(403)
     _set_role_context(context, url_args, **kwargs)
     if Role[kwargs.get('min_role', 'student').upper()] > context['role']:
         abort(403)
