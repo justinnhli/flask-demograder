@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, url_for, redirect, session
+from flask import Blueprint, url_for, redirect, session
 from authlib.integrations.flask_client import OAuth
 
 from .models import db, User

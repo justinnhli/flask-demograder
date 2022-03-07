@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, url_for, request, session, redirect, abort
+from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
@@ -89,7 +89,7 @@ def user_form(user_id):
         if form.id.data:
             # if there is an ID, this is editing an existing User
             # make sure that the submitted ID is the same as the user ID
-            if not context['user'].admin and int(form.id.data) != user_id:
+            if not (context['user'].admin or int(form.id.data) == user_id):
                 abort(403)
             user = User.query.filter_by(id=form.id.data).first()
             user.preferred_name = form.preferred_name.data.strip()
