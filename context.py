@@ -144,6 +144,8 @@ def get_context(**kwargs):
         if context['alternate_view'] and not (context['instructor'] or context['student']):
             abort(403)
     _set_role_context(context, url_args, **kwargs)
-    if Role[kwargs.get('min_role', 'student').upper()] > context['role']:
-        abort(403)
+    # check if the viewer meets the minimum role requirements
+    if not user.admin:
+        if Role[kwargs.get('min_role', 'student').upper()] > context['role']:
+            abort(403)
     return context
