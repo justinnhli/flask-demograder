@@ -31,47 +31,47 @@ def home():
         return render_template('home.html', **context)
 
 
-@blueprint.route('/user/<user_id>')
+@blueprint.route('/user/<int:user_id>')
 def user_view(user_id):
     return f'{user_id=}' # TODO
 
 
-@blueprint.route('/course/<course_id>')
+@blueprint.route('/course/<int:course_id>')
 def course_view(course_id):
     return f'{course_id=}' # TODO
 
 
-@blueprint.route('/question/<question_id>')
+@blueprint.route('/question/<int:question_id>')
 def question_view(question_id):
     return f'{question_id=}' # TODO
 
 
-@blueprint.route('/submission/<submission_id>')
+@blueprint.route('/submission/<int:submission_id>')
 def submission_view(submission_id):
     return f'{submission_id=}' # TODO
 
 
-@blueprint.route('/download_submission/<submission_id>')
+@blueprint.route('/download_submission/<int:submission_id>')
 def download_submission(submission_id):
     return f'{submission_id=}' # TODO
 
 
-@blueprint.route('/result/<result_id>')
+@blueprint.route('/result/<int:result_id>')
 def result_view(result_id):
     return f'{result_id=}' # TODO
 
 
-@blueprint.route('/download_result/<result_id>')
+@blueprint.route('/download_result/<int:result_id>')
 def download_result(result_id):
     return f'{result_id=}' # TODO
 
 
-@blueprint.route('/file/<file>')
+@blueprint.route('/file/<int:file>')
 def file_view(file_id):
     return f'{file_id=}' # TODO
 
 
-@blueprint.route('/download_file/<file>')
+@blueprint.route('/download_file/<int:file>')
 def download_file(file_id):
     return f'{file_id=}' # TODO
 
@@ -80,7 +80,7 @@ def download_file(file_id):
 
 
 @blueprint.route('/forms/user/', defaults={'user_id': None}, methods=('GET', 'POST'))
-@blueprint.route('/forms/user/<user_id>', methods=('GET', 'POST'))
+@blueprint.route('/forms/user/<int:user_id>', methods=('GET', 'POST'))
 def user_form(user_id):
     context = get_context(user=user_id)
     form = UserForm()
@@ -129,9 +129,10 @@ def user_form(user_id):
 
 
 @blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
-@blueprint.route('/forms/course/<course_id>', methods=('GET', 'POST'))
+@blueprint.route('/forms/course/<int:course_id>', methods=('GET', 'POST'))
 def course_form(course_id):
     pass
+
 
 # REDIRECTS
 
