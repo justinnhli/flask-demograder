@@ -36,6 +36,11 @@ def user_view(user_id):
     return f'{user_id=}' # TODO
 
 
+@blueprint.route('/course/<course_id>')
+def course_view(course_id):
+    return f'{course_id=}' # TODO
+
+
 @blueprint.route('/question/<question_id>')
 def question_view(question_id):
     return f'{question_id=}' # TODO
