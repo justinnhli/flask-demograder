@@ -21,7 +21,7 @@ def _set_user_context(context, url_args, **kwargs):
 
 
 def _set_viewer_context(context, url_args, **kwargs):
-    if context['user'].admin and 'viewer' in url_args:
+    if 'viewer' in url_args:
         context['viewer'] = User.query.filter_by(email=url_args['viewer']).first()
     if not context.get('viewer', None):
         context['viewer'] = context['user']
@@ -119,11 +119,19 @@ def get_context(**kwargs):
         return context
     if not context['user']:
         abort(401)
+    user = context['user']
     # check if the user is the specific user required
     if not user.admin:
-        if 'user' in kwargs and kwargs['user'] != context['user'].id:
+        if 'user' in kwargs and kwargs['user'] != user.id:
             abort(403)
     _set_viewer_context(context, url_args, **kwargs)
+    viewer = context['viewer']
+    # check if the viewer is in a course taught by the user
+    if not user.admin and context['alternate_view']:
+        viewer_is_student = user.courses_with_student(viewer).first()
+        viewer_is_instructor = user.courses_with_coinstructor(viewer).first()
+        if not (viewer_is_student or viewer_is_instructor):
+            abort(403)
     _set_course_context(context, url_args, **kwargs)
     _set_instructor_context(context, url_args, **kwargs)
     _set_student_context(context, url_args, **kwargs)
