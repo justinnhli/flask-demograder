@@ -36,8 +36,13 @@ def _set_course_context(context, url_args, **kwargs):
 
 
 def _set_instructor_context(context, url_args, **kwargs):
-    if 'course' in context:
-        context['instructor'] = True # FIXME
+    if context['viewer'].admin:
+        context['instructor'] = True
+    elif context.get('course', None):
+        context['instructor'] = bool(Instructor.query.filter_by(
+            course_id=context['course'].id,
+            user_id=context['viewer'].id,
+        ).first())
     else:
         context['instructor'] = False
 
