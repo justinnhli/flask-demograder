@@ -16,6 +16,11 @@ class Role(IntEnum):
     ADMIN = 3
 
 
+def forbidden(context):
+    if not context['user'].admin:
+        abort(403)
+
+
 def _set_user_context(context, url_args, **kwargs):
     context['user'] = User.query.filter_by(email=session.get('user_email')).first()
 
@@ -120,32 +125,30 @@ def get_context(**kwargs):
         abort(401)
     user = context['user']
     # check if the user is the specific user required
-    if not user.admin:
-        if 'user' in kwargs and kwargs['user'] != user.id:
-            abort(403)
+    if 'user' in kwargs and kwargs['user'] != user.id:
+        forbidden(context)
     _set_viewer_context(context, url_args, **kwargs)
     viewer = context['viewer']
     # check if the viewer is in a course taught by the user
-    if not user.admin and context['alternate_view']:
+    if context['alternate_view']:
         viewer_is_student = user.courses_with_student(viewer).first()
         viewer_is_instructor = user.courses_with_coinstructor(viewer).first()
         if not (viewer_is_student or viewer_is_instructor):
-            abort(403)
+            forbidden(context)
     _set_course_context(context, url_args, **kwargs)
     course = context['course']
     _set_instructor_context(context, url_args, **kwargs)
     _set_student_context(context, url_args, **kwargs)
     # check if both the user and the viewer are related to the course
-    if not user.admin and course:
+    if course:
         # check if the user is related to the course
         if not (user.teaching(course) or user.taking(course)):
-            abort(403)
+            forbidden(context)
         # check if the viewer is related to the course
         if context['alternate_view'] and not (context['instructor'] or context['student']):
-            abort(403)
+            forbidden(context)
     _set_role_context(context, url_args, **kwargs)
     # check if the viewer meets the minimum role requirements
-    if not user.admin:
-        if Role[kwargs.get('min_role', 'student').upper()] > context['role']:
-            abort(403)
+    if Role[kwargs.get('min_role', 'student').upper()] > context['role']:
+        forbidden(context)
     return context
