@@ -91,7 +91,7 @@ def user_form(user_id):
             # make sure that the submitted ID is the same as the user ID
             if not (context['user'].admin or int(form.id.data) == user_id):
                 abort(403)
-            user = User.query.filter_by(id=form.id.data).first()
+            user = User.query.get(form.id.data).first()
             user.preferred_name = form.preferred_name.data.strip()
             user.family_name = form.family_name.data.strip()
             # only an admin can change the email or the admin/faculty statuses
@@ -114,7 +114,7 @@ def user_form(user_id):
     # the form is not being submitted
     if user_id is not None:
         # a user ID is provided; set the defaults to the user being edited
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.get(user_id).first()
         form.id.default = user.id
         form.preferred_name.default = user.preferred_name
         form.family_name.default = user.family_name
