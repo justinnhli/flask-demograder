@@ -77,15 +77,7 @@ def download_file(file_id):
 @blueprint.route('/forms/user/', defaults={'user_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/user/<user_id>', methods=('GET', 'POST'))
 def user_form(user_id):
-    context = get_context()
-    # check permissions
-    # normal users can only edit themselves, unless they are an admin
-    permitted = (
-        context['user'].admin
-        or (user_id is not None and user_id == context['user'].id)
-    )
-    if not permitted:
-        abort(403)
+    context = get_context(user=user_id)
     form = UserForm()
     # if the form is being submitted, process it for data
     if form.validate_on_submit():

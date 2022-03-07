@@ -106,8 +106,13 @@ def get_context(**kwargs):
     * the viewer is for acting as a specific person
     * the role is for checking renders
 
-    Parameters:
+    Context Parameters:
+        course_id (int): The course ID of the page being viewed.
+
+    Permission Parameters:
         login_required (bool): If the user must be logged in.
+        user (int): The viewer must be this user.
+        min_role (Role): The minimum role the viewer must have.
     '''
     # get URL parameters
     url_args = request.args.to_dict()
@@ -118,9 +123,19 @@ def get_context(**kwargs):
         return context
     if not context['user']:
         abort(401)
+    permitted = (
+        context['user'].admin
+        or ('user' in kwargs and kwargs['user'] == context['user'].id)
+    )
+    if not permitted:
+        abort(403)
     _set_viewer_context(context, url_args, **kwargs)
     _set_course_context(context, url_args, **kwargs)
     _set_instructor_context(context, url_args, **kwargs)
     _set_student_context(context, url_args, **kwargs)
+    if not (context['instructor'] or context['student']):
+        abort(403)
     _set_role_context(context, url_args, **kwargs)
+    if Role[kwargs.get('min_role', 'student').upper()] > context['role']:
+        abort(403)
     return context
