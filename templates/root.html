@@ -5,7 +5,19 @@
 {% block breadcrumb %}&nbsp;{% endblock %}
 
 {% block content %}
-    <div style="font-size:200%; text-align:center; padding:4em 0;">
-        <a href="{{ url_for('auth.login') }}">Login</a> to continue
+<div class="grid grid-cols-3 flex flex-col h-full">
+    <div class="col-span-1 col-start-2 h-100 grid grid-rows-3 grid-flow-col">
+        <div class="row-span-1 row-start-2">
+            <div class="bg0 rounded-lg grid grid-rows-2 grid-flow-col">
+                <div class="row-span-1 text-center my-12">
+                    <div class="lorange font-extrabold text-2xl mb-2">demograder</div>
+                    Sign in with your Oxy email
+                </div>
+                <div class="row-span-1 flex justify-center text-3xl">
+                    <a class="aqua underline font-medium" href="{{ url_for('auth.login') }}">Login with Google</a>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 {% endblock %}
