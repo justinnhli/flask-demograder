@@ -11,21 +11,22 @@
 
     <body class="grid grid-cols-8 h-screen">
         <div class="flex flex-col col-span-6 col-start-2">
-            <div id="header">
-                <div class="lorange text-3xl my-3">
+            <div id="header" class="grid grid-cols-1 lg:grid-cols-2 py-3">
+                <div class="lorange text-3xl text-center lg:text-left">
                     <a href="/">demograder</a>
                 </div>
                 {% if user %}
-                <div id="user">
+                <div id="user" class="flex justify-center lg:justify-end items-end text-center">
                     {% if alternate_view %}
-                    (<a href="{{ request.path }}">viewing as</a> {{ role.name.lower() }} {{ viewer.email }})
+                        (<a href="{{ request.path }}">viewing as</a> {{ role.name.lower() }} {{ viewer.email }})
                     {% else %}
-                    {{ user.email }}
+                        {{ user.email }}
                     {% endif %}
-                    | <a href="{{ url_for('auth.logout') }}">logout</a>
+                        |&nbsp;<a href="{{ url_for('auth.logout') }}" class="lorange underline">Logout</a>
                 </div>
                 {% endif %}
             </div>
+
             {% if user %}
             <div id="navbar">
                 <div id="breadcrumb">
@@ -45,9 +46,11 @@
                 </div>
             </div>
             {% endif %}
+
             <div id="content" class="grow shrink">
                 {% block content %}{% endblock %}
             </div>
+
             <div id="footer">
                 &copy; Justin Li
             </div>

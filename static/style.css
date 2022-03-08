@@ -46,10 +46,6 @@ body {
 	text-decoration:none;
 }
 
-#user {
-	float:right;
-}
-
 #navbar {
 	clear:both;
 }
@@ -60,11 +56,6 @@ body {
 
 #quicklinks {
 	float:right;
-}
-
-#content {
-	clear:both;
-	width:100%;
 }
 
 /* a, a:visited {
