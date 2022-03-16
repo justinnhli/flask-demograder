@@ -37,6 +37,11 @@ def _set_course_context(context, url_args, **kwargs):
     # TODO determine question, assignment, and course
     if 'course_id' in kwargs:
         context['course'] = Course.query.filter_by(id=kwargs['course_id']).first()
+    elif False:
+        # FIXME get the course based on the assignment
+        pass
+    else:
+        context['course'] = None
 
 
 def _set_instructor_context(context, url_args, **kwargs):
@@ -137,10 +142,10 @@ def get_context(**kwargs):
             forbidden(context)
     _set_course_context(context, url_args, **kwargs)
     course = context['course']
-    _set_instructor_context(context, url_args, **kwargs)
-    _set_student_context(context, url_args, **kwargs)
     # check if both the user and the viewer are related to the course
     if course:
+        _set_instructor_context(context, url_args, **kwargs)
+        _set_student_context(context, url_args, **kwargs)
         # check if the user is related to the course
         if not (user.teaching(course) or user.taking(course)):
             forbidden(context)
