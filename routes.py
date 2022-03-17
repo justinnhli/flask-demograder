@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
-from .forms import UserForm
+from .forms import UserForm, CourseForm
 from .models import db, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
@@ -131,7 +131,50 @@ def user_form(user_id):
 @blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>', methods=('GET', 'POST'))
 def course_form(course_id):
-    pass
+    context = get_context(course=course_id)
+    form = CourseForm()
+
+    if form.validate_on_submit():
+        if form.course_id:
+            # is there anything that should be restrictured to just admin?
+            course = Course.query.filter_by(id=form.id.data).first()
+            course.season = form.season.data.strip()
+            course.year = form.year.data.strip()
+            course.department_code = form.department_code.data.strip()
+            course.number = form.number.data.strip()
+            course.section = form.section.data.strip()
+            course.title = form.title.data.strip()
+            course.instructors = form.instructors.data.strip()
+            course.students = form.students.data.strip()
+
+        else:
+            course = Course(
+                season = form.season.data.strip(),
+                year = form.year.data.strip(),
+                department_code = form.department_code.data.strip(),
+                number = form.number.data.strip(),
+                section = form.section.data.strip(),
+                title = form.title.data.strip(),
+                instructors = form.instructors.data.strip(),
+                students = form.students.data.strip(),
+            )
+        db.session.add(course)
+        db.session.commit()
+        return redirect(url_for('demograder.home'))
+
+    elif course_id:
+        course = Course.query.filter_by(id=course_id).first()
+        form.id.default = course.id
+        form.season.default = course.season
+        form.year.default = course.year
+        form.department_code.default = course.department_code
+        form.number.default = course.number
+        form.section.default = course.section
+        form.title.default = course.title
+        form.instructors.default = course.instructors
+        form.students.default = course.students
+        form.process()
+    return render_template('course_form.html', form=form, **context)
 
 
 # REDIRECTS

@@ -85,6 +85,8 @@ class Course(db.Model):
     number = db.Column(db.String, nullable=False)
     section = db.Column(db.Integer, nullable=False, default=0)
     title = db.Column(db.String, nullable=False)
+
+    # what does it mean for these to be database relationships
     instructors = db.relationship(
         'User',
         secondary='instructors',
