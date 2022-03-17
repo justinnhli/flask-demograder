@@ -46,3 +46,7 @@ class UserForm(FlaskForm):
     admin = BooleanField('Admin')
     faculty = BooleanField('Faculty')
     submit = SubmitField('Submit')
+
+
+class CourseForm(FlaskForm):
+    
