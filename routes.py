@@ -134,6 +134,9 @@ def course_form(course_id):
     context = get_context(course=course_id)
     form = CourseForm()
 
+    # add logic for the 'add me as instructor' option from form
+    # ask about how this should work
+
     if form.validate_on_submit():
         if form.course_id:
             # is there anything that should be restrictured to just admin?

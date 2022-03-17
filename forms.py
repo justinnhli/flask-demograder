@@ -58,6 +58,7 @@ class CourseForm(FlaskForm):
     number = StringField('Course Number')
     section = StringField('Section Number')
     title = StringField('Course Title')
+    add_instructor = BooleanField('Add Me As Instructor')
     instructors = StringField('Instructors')
     students = StringField('Students')
 
