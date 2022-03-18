@@ -148,6 +148,14 @@ def course_form(course_id):
             course.number = form.number.data.strip()
             course.section = form.section.data.strip()
             course.title = form.title.data.strip()
+
+            # TODO:
+            # - for the instructors & the students:
+            #   - isolate the email addresses (parse function)
+            #   - check with the username if there is already a User for them
+            #     - if already user, grab that user and do course.instructors.append(user) / course.students.append(user)
+            #     - else: creaate a new user for them, with just email (name, etc. = '') and then append
+            
             course.instructors = form.instructors.data.strip()
             course.students = parsed_students
 
