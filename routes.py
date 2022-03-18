@@ -138,6 +138,7 @@ def course_form(course_id):
     # ask about how this should work
 
     if form.validate_on_submit():
+        parsed_students = parse_students(form.students.data.strip())
         if form.course_id:
             # is there anything that should be restrictured to just admin?
             course = Course.query.filter_by(id=form.id.data).first()
@@ -148,7 +149,7 @@ def course_form(course_id):
             course.section = form.section.data.strip()
             course.title = form.title.data.strip()
             course.instructors = form.instructors.data.strip()
-            course.students = form.students.data.strip()
+            course.students = parsed_students
 
         else:
             course = Course(
@@ -159,10 +160,13 @@ def course_form(course_id):
                 section = form.section.data.strip(),
                 title = form.title.data.strip(),
                 instructors = form.instructors.data.strip(),
-                students = form.students.data.strip(),
+                students = parsed_students,
             )
         db.session.add(course)
         db.session.commit()
+
+        # TODO need to add student adding based on email addresses
+
         return redirect(url_for('demograder.home'))
 
     elif course_id:
@@ -180,7 +184,14 @@ def course_form(course_id):
     return render_template('course_form.html', form=form, **context)
 
 
-# REDIRECTS
+def parse_students(students):
+    '''
+    in: text/str list of all the students being enrolled
+    out: a list of just the email addresses
+    desc: grabs the email addresses from the 'students' field
+    '''
+    students_list = [item.strip(',/-.') for item in students.split(' ') if '@' in item]
+    return students_list
 
 
 @blueprint.errorhandler(401)
