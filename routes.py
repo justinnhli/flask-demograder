@@ -9,6 +9,9 @@ from .dispatch import evaluate_submission
 blueprint = Blueprint(name='demograder', import_name='demograder')
 
 
+# --------------------------- 
+# ROUTES
+# ---------------------------
 @blueprint.route('/')
 def root():
     context = get_context(login_required=False)
@@ -138,7 +141,15 @@ def course_form(course_id):
     # ask about how this should work
 
     if form.validate_on_submit():
-        parsed_students = parse_students(form.students.data.strip())
+
+        # extract the emails from the instructor & student fields
+        instructor_emails = extract_emails(form.instructors.data.strip())
+        student_emails = extract_emails(form.students.data.strip())
+
+        # retrieve/generate User objects for the email addresses
+        map(check_db_user, instructor_emails)
+        map(check_db_user, student_emails)
+
         if form.course_id:
             # is there anything that should be restrictured to just admin?
             course = Course.query.filter_by(id=form.id.data).first()
@@ -155,9 +166,6 @@ def course_form(course_id):
             #   - check with the username if there is already a User for them
             #     - if already user, grab that user and do course.instructors.append(user) / course.students.append(user)
             #     - else: creaate a new user for them, with just email (name, etc. = '') and then append
-            
-            course.instructors = form.instructors.data.strip()
-            course.students = parsed_students
 
         else:
             course = Course(
@@ -167,9 +175,16 @@ def course_form(course_id):
                 number = form.number.data.strip(),
                 section = form.section.data.strip(),
                 title = form.title.data.strip(),
-                instructors = form.instructors.data.strip(),
-                students = parsed_students,
+                instructors = [],
+                students = [],
             )
+        
+        # add the Users for instructors and students to the course
+        for user in instructor_emails:
+            course.instructors.append(user)
+        for user in student_emails:
+            course.students.append(user)
+    
         db.session.add(course)
         db.session.commit()
 
@@ -192,16 +207,53 @@ def course_form(course_id):
     return render_template('course_form.html', form=form, **context)
 
 
-def parse_students(students):
+# --------------------------- 
+# UTILITY FUNCTIONS
+# ---------------------------
+def extract_emails(students):
     '''
     in: text/str list of all the students being enrolled
-    out: a list of just the email addresses
+    return: a list of just the email addresses
     desc: grabs the email addresses from the 'students' field
     '''
     students_list = [item.strip(',/-.') for item in students.split(' ') if '@' in item]
     return students_list
 
 
+def check_db_user(email):
+    '''
+    in: str email address
+    return: User object
+    desc: 
+      - checks the db for a user with the provided email
+      - returns the target User object if they exist,
+      - else generates and returns a new user object with the email
+    '''
+    # query the db for the target user 
+    # (not totally sure how querying works in sqlalchemy)
+    #   - will it return None if no email found?
+    #     - put in try, catch just incase
+    try:
+        user = User.query.get(email).first()
+        return user
+    except: #add specific error to catch
+        new_user = User(
+                preferred_name='',
+                family_name='',
+                email=email,
+                # what should these last two be set to?
+                admin='',
+                faculty='',
+                # other attributes to define?
+            )
+        db.session.add(new_user)
+        db.session.commit()
+        return new_user
+
+
+# --------------------------- 
+# ERROR HANDLERS
+# ---------------------------
 @blueprint.errorhandler(401)
 def unauthorized_error(error):
     return redirect(url_for('demograder.root'))
