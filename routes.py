@@ -31,7 +31,21 @@ def home():
 
 @blueprint.route("/overview")
 def admin_overview():
-    return render_template("overview.html", **get_context())
+    tiles = [
+                {
+                    "name": "Faculty",
+                    "icon_name": "fa-building-columns",
+                    "count": 4,
+                    "new_user_prompt": "New user"
+                },
+                {
+                    "name": "Students",
+                    "icon_name": "fa-user-group",
+                    "count": 36,
+                    "new_user_prompt": "New student"
+                }
+            ]
+    return render_template("overview.html", **get_context(), tiles=tiles)
 
 
 @blueprint.route("/user/<int:user_id>")
