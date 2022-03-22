@@ -6,6 +6,8 @@
 	--green: #98971a;
 	--blue: #458588;
 	--aqua: #689d6a;
+	--grey: #565252;
+	--light-gray:#7C6F64;
 }
 
 body {
@@ -36,6 +38,14 @@ body {
 
 .orange {
 	color: var(--orange);
+}
+
+.grey {
+	color: var(--grey);
+}
+
+.admin-button {
+	background-color: var(--aqua);
 }
 
 #wordmark {

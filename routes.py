@@ -26,10 +26,11 @@ def home():
         context['assignments'] = Assignment.query.all()
         context['questions'] = Question.query.all()
         context['question_files'] = QuestionFile.query.all()
-        return render_template('home-admin.html', **context)
-    else:
-        return render_template('home.html', **context)
+    return render_template('home.html', **context)
 
+@blueprint.route('/overview')
+def admin_overview():
+    return render_template('overview.html')
 
 @blueprint.route('/user/<int:user_id>')
 def user_view(user_id):

@@ -6,15 +6,23 @@
         <title>demograder</title>
         <link rel="preload" as="style" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 		<script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://kit.fontawesome.com/99eb0eda65.js" crossorigin="anonymous"></script>
         <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css">
+        <link href="static/card.css" rel="stylesheet" type="text/css">
+
     </head>
 
     <body class="grid grid-cols-8 h-screen">
         <div class="flex flex-col col-span-6 col-start-2">
-            <div id="header" class="grid grid-cols-1 lg:grid-cols-2 py-3">
+            <div id="header" class="grid grid-cols-1 lg:grid-cols-3 py-3">
                 <div class="lorange text-3xl text-center lg:text-left">
                     <a href="/">demograder</a>
                 </div>
+                <a class="block" href="/overview">
+                    <div class="admin-button flex w-8 h-8 items-center justify-center rounded-md">
+                        <i class="fa-thin fa-wrench inline-block"></i>
+                    </div>
+                </a>
                 {% if user %}
                 <div id="user" class="flex justify-center lg:justify-end items-end text-center">
                     {% if alternate_view %}
