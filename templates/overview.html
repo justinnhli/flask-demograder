@@ -1,24 +1,30 @@
 {% extends "base.html" %}
 
+{% import "card.html" as card %}
+
 {% block title %}Demograder{% endblock %}
 
 {% block content %}
-<div>
-    <h1>Instance Overview</h1>
-    <div class="grid grid-cols-3">
-        <div>
-            <div class="grid grid-cols-2">
-                <div>
-                    
-                </div>
-                <button>New User</button>
-            </div>
-            <a>View Faculty</a>
-        </div>
-        <div></div>
-        <div></div>
+<div class="mt-8">
+    <h1 class="text-3xl font-bold">Instance Overview</h1>
+    <div class="grid grid-cols-3 gap-8 mt-6">
+		<div class="bg0 col-span-1 rounded-sm outline outline-bg2">
+			<div class="grid grid-cols-2">
+				<div class="flex flex-col p-6 space-y-2">
+					<div class="text-4xl space-x-2"><i class="fa-solid fa-building-columns"></i><span>4</span></div>
+					<div class="text-2xl fold-bold">FACULTY</div>
+				</div>
+				<div class="flex justify-center items-center">
+					<a class="block bg-purple px-4 py-1 rounded-md outline outline-dark-purple font-extrabold text-white" href="#">
+						New user
+					</a>
+				</div>
+			</div>
+			<hr class="card-divider">
+			<div class="py-4 mx-8 space-x-1">
+				<a class="lorange font-semibold" href="#">View faculty</a> <span>&gt;</span>
+			</div>
+		</div>
     </div>
-
 </div>
-    
 {% endblock %}

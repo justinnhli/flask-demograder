@@ -1,8 +1,11 @@
 :root {
 	--bg: #fbf1c7;
 	--bg0: #ebdbb2;
+	--bg2: #d5c4a1;
 	--orange: #af3a03;
 	--lorange: #d65d0e;
+	--purple: #b16286;
+	--dark-purple: #8f3f71;
 	--green: #98971a;
 	--blue: #458588;
 	--aqua: #689d6a;
@@ -15,9 +18,21 @@ body {
 	font-family:Open Sans, Helvetica, Arial,sans-serif;
 }
 
+a {
+	color: var(--lorange)
+}
+
 /* Colors */
 .bg0 {
 	background-color: var(--bg0);
+}
+
+.bg0-color {
+	color: var(--bg0)
+}
+
+.bg-purple {
+	background-color: var(--purple);
 }
 
 .lorange {
@@ -44,6 +59,20 @@ body {
 	color: var(--grey);
 }
 
+.outline-bg2 {
+	outline-color: var(--bg2);
+}
+
+.outline-dark-purple {
+	outline-color: var(--dark-purple)
+}
+
+.card-divider {
+	border-color: var(--bg2);
+	border-width: 1px;
+}
+
+/* Custom Styles */
 .admin-button {
 	background-color: var(--aqua);
 }
