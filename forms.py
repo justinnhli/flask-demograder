@@ -50,7 +50,7 @@ class UserForm(FlaskForm):
 
 class CourseForm(FlaskForm):
     id = HiddenField('id')
-    season = SelectField(u'Season', choices=[('F', 'Fall'), ('Sp', 'Spring'), ('Su', 'Summer'), ('W', 'Winter')])
+    season = SelectField(u'Season', choices=['Fall', 'Spring', 'Summer', 'Winter'])
 
     # is there a way to do a year dropdown field?
     year = StringField('Year')

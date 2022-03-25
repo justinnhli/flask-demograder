@@ -148,12 +148,12 @@ def course_form(course_id):
         student_emails = extract_emails(form.students.data.strip())
 
         # retrieve/generate User objects for the email addresses
-        map(check_db_user, instructor_emails)
-        map(check_db_user, student_emails)
+        instructor_emails = map(check_db_user, instructor_emails)
+        student_emails = map(check_db_user, student_emails)
 
-        if form.id:
+        if form.id.data:
             # is there anything that should be restrictured to just admin?
-            q = Course.query.get(course_id)
+            q = Course.query.get(int(form.id.data))
             if not q:
                 abort(403)
             course = q.first()
@@ -237,22 +237,24 @@ def check_db_user(email):
     # (not totally sure how querying works in sqlalchemy)
     #   - will it return None if no email found?
     #     - put in try, catch just incase
-    try:
-        user = User.query.get(email).first()
+   
+    user = User.query.filter_by(email=email).first()
+    # usr.first()
+    if user: 
         return user
-    except: #add specific error to catch
-        new_user = User(
-                preferred_name='',
-                family_name='',
-                email=email,
-                # what should these last two be set to?
-                admin='',
-                faculty='',
-                # other attributes to define?
+   
+    new_user = User(
+            preferred_name='',
+            family_name='',
+            email=email,
+            # what should these last two be set to?
+            admin=False,
+            faculty=False,
+            # other attributes to define?
             )
-        db.session.add(new_user)
-        db.session.commit()
-        return new_user
+    db.session.add(new_user)
+    db.session.commit()
+    return new_user
 
 
 # --------------------------- 
