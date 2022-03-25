@@ -61,6 +61,7 @@ class CourseForm(FlaskForm):
     add_instructor = BooleanField('Add Me As Instructor')
     instructors = StringField('Instructors')
     students = StringField('Students')
+    submit = SubmitField('Submit')
 
     # Are we representing this in the form or will these get added later?
     # assignments = 

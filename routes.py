@@ -93,6 +93,7 @@ def user_form(user_id):
             # if there is an ID, this is editing an existing User
             # make sure that the submitted ID is the same as the user ID
             if not (context['user'].admin or int(form.id.data) == user_id):
+                print('hi')
                 abort(403)
             user = User.query.get(form.id.data).first()
             user.preferred_name = form.preferred_name.data.strip()
@@ -150,9 +151,12 @@ def course_form(course_id):
         map(check_db_user, instructor_emails)
         map(check_db_user, student_emails)
 
-        if form.course_id:
+        if form.id:
             # is there anything that should be restrictured to just admin?
-            course = Course.query.filter_by(id=form.id.data).first()
+            q = Course.query.get(course_id)
+            if not q:
+                abort(403)
+            course = q.first()
             course.season = form.season.data.strip()
             course.year = form.year.data.strip()
             course.department_code = form.department_code.data.strip()
@@ -204,7 +208,7 @@ def course_form(course_id):
         form.instructors.default = course.instructors
         form.students.default = course.students
         form.process()
-    return render_template('course_form.html', form=form, **context)
+    return render_template('forms/course.html', form=form, **context)
 
 
 # --------------------------- 
