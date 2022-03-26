@@ -8,30 +8,45 @@
 <div class="mt-8">
     <h1 class="text-3xl font-bold mb-6">Users</h1>
     <div class="grid gap-y-4">
-		<div class="grid grid-cols-3 text-xl font-semibold">
+		<div class="grid grid-cols-4 text-xl font-semibold">
 			<div>Name</div>
 			<div>Faculty</div>
 			<div>Admin</div>
 		</div>
+
+		<hr class="card-divider">
+
 		{% for user in users %}
-		<div class="grid grid-cols-3">
+		<div class="grid grid-cols-4 flex items-center">
 			<div class="">
 				<div class="flex">
-					<img src="{{ user.picture }}" class="h-16 grow object-contain rounded-full">
-					<div class="grow">
-						{% if user.preferred_name == "" %}
-							&lt; None Specified &gt;
+					<div class="image-container h-16 w-16 object-contain mr-4 items-center flex justify-center rounded-full {% if user.admin %} outline outline-admin {% elif user.faculty %} outline outline-faculty {% endif %}">
+						{% if user.picture == None %}
+						<i class="fa-solid fa-circle-user fa-4x"></i>
 						{% else %}
-							{{ user.preferred_name + " " + user.family_name }}
+						<img src="{{ user.picture }}" class="rounded-full">
 						{% endif %}
+					</div>
+					<div class="grow">
+						<span class="lorange font-bold text-lg">
+							{% if user.preferred_name == "" %}
+								&lt; None Specified &gt;
+							{% else %}
+								{{ user.preferred_name + " " + user.family_name }}
+							{% endif %}
+						</span>
 						<br>
-						{{ user.email }}
+						<span class="text-black">{{ user.email }}</span>
 					</div>
 				</div>
 			</div>
 			<div>{{ user.faculty }}</div>
 			<div>{{ user.admin }}</div>
+			<div>
+				<a class="text-2xl" href="{{ url_for('demograder.user_form', user_id=user.id) }}"><i class="fa-solid fa-pencil"></i></a>
+			</div>
 		</div>
+		<hr class="card-divider">
 		{% endfor %}
     </div>
 </div>

@@ -140,7 +140,7 @@ def user_form(user_id):
     # the form is not being submitted
     if user_id is not None:
         # a user ID is provided; set the defaults to the user being edited
-        user = User.query.get(user_id).first()
+        user = User.query.get(user_id)
         form.id.default = user.id
         form.preferred_name.default = user.preferred_name
         form.family_name.default = user.family_name
