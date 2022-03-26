@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% import "card.html" as card %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block content %}
+<div class="mt-8">
+    <h1 class="text-3xl font-bold mb-6">Users</h1>
+    <div class="grid gap-y-4">
+		<div class="grid grid-cols-3 text-xl font-semibold">
+			<div>Name</div>
+			<div>Faculty</div>
+			<div>Admin</div>
+		</div>
+		{% for user in users %}
+		<div class="grid grid-cols-3">
+			<div class="">
+				<div class="flex">
+					<img src="{{ user.picture }}" class="h-16 grow object-contain rounded-full">
+					<div class="grow">
+						{% if user.preferred_name == "" %}
+							&lt; None Specified &gt;
+						{% else %}
+							{{ user.preferred_name + " " + user.family_name }}
+						{% endif %}
+						<br>
+						{{ user.email }}
+					</div>
+				</div>
+			</div>
+			<div>{{ user.faculty }}</div>
+			<div>{{ user.admin }}</div>
+		</div>
+		{% endfor %}
+    </div>
+</div>
+{% endblock %}

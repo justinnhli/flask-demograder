@@ -21,6 +21,7 @@
                 </div>
                     <!-- Navbar Options -->
                     <div class="text-right space-x-5">
+                        {% if user %}
                         <!-- Admin Button -->
                         {# if role >= Role.ADMIN #}
 		                <a class="inline-block col-span-1" href="/overview">
@@ -30,7 +31,6 @@
             		    </a>
                         {# endif #}
 
-		                {% if user %}
 			            <div id="user" class="inline-block justify-center lg:justify-end items-end text-center col-span-1">
 		                    {% if alternate_view %}
               	            (<a href="{{ request.path }}">viewing as</a> {{ role.name.lower() }} {{ viewer.email }})
@@ -40,7 +40,7 @@
                 	        |&nbsp;<a href="{{ url_for('auth.logout') }}" class="lorange underline">Logout</a>
                 		</div>
                 		{% endif %}
-								</div>
+                    </div>
             </nav>
 
             {% if user %}

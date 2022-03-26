@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
+import os.path
+
 from .context import get_context, Role
 from .forms import UserForm
 from .models import db, User, Course, Assignment, Question, QuestionFile
@@ -28,25 +30,32 @@ def home():
         context["question_files"] = QuestionFile.query.all()
     return render_template("home.html", **context)
 
+def sizeof_fmt(num, suffix="B"):
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.1f}Yi{suffix}"
 
 @blueprint.route("/overview")
 def admin_overview():
-    tiles = [
-                {
-                    "name": "Faculty",
-                    "icon_name": "fa-building-columns",
-                    "count": 4,
-                    "new_user_prompt": "New user"
-                },
-                {
-                    "name": "Students",
-                    "icon_name": "fa-user-group",
-                    "count": 36,
-                    "new_user_prompt": "New student"
-                }
-            ]
-    return render_template("overview.html", **get_context(), tiles=tiles)
+    context = get_context()
+    context["users"] = User.query.all()
+    context["courses"] = Course.query.all()
+    context["database_size"] = sizeof_fmt(os.path.getsize("database.sqlite"))
+    return render_template("overview.html", **context)
 
+@blueprint.route("/overview/users")
+def users_overview():
+    context = get_context()
+    context["users"] = User.query.all()
+    return render_template("users_overview.html", **context)
+
+@blueprint.route("/overview/courses")
+def courses_overview():
+    context = get_context()
+    context["courses"] = Course.query.all()
+    return render_template("courses_overview.html", **context)
 
 @blueprint.route("/user/<int:user_id>")
 def user_view(user_id):
