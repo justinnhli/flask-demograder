@@ -1,0 +1,10 @@
+/* Assignment table */
+.asg-table {
+    width: 100%;
+    text-align: center;
+    border-collapse: collapse;
+}
+
+.asg-table * {
+    padding: 0.5rem;
+}
