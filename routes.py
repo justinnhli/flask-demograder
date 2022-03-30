@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 
 from .context import _set_student_context, get_context, Role
 from .forms import UserForm
-from .models import db, User, Course, Assignment, Question, QuestionFile
+from .models import db, Student, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
 blueprint = Blueprint(name='demograder', import_name='demograder')
@@ -29,8 +29,12 @@ def home():
         context['question_files'] = QuestionFile.query.all()
         return render_template('home-admin.html', **context)
     elif context['role'] >= Role.STUDENT:
-        context['courses'] = Course.query.all()
-        context['assignments'] = Assignment.query.all()
+        # Assuming the alternative view takes care of the difference with MASQ?
+        context['courses'] = context['user'].courses_taking
+        context['assignments'] = []
+        for course in context['courses']:
+            context['assignments'] += course.assignments
+        
         return render_template('home-student.html', **context)
     else:
         return render_template('home.html', **context)
@@ -45,6 +49,7 @@ def user_view(user_id):
 def course_view(course_id):
     context = get_context()
     context['course'] = Course.query.get(course_id)
+    print(context['course'].assignments[0].questions)
     return render_template('course-student.html', **context)
 
 

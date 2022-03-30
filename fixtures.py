@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
-from .models import Student, db, User, Course, Assignment, Question, QuestionFile
+from .models import Student, Submission, db, User, Course, Assignment, Question, QuestionFile
 
 
 def install_fixtures(app):
@@ -28,16 +28,16 @@ def install_fixtures(app):
                 admin=False,
                 faculty=False,
             )
-            student1 = Student(
-                id = 1,
-                user_id = 2,
-                course_id = 2293
-            )
-            student2 = Student(
-                id = 2,
-                user_id = 3,
-                course_id = 2295
-            )
+            # student1 = Student(
+            #     id = 1,
+            #     user_id = 2,
+            #     course_id = 2293
+            # )
+            # student2 = Student(
+            #     id = 2,
+            #     user_id = 3,
+            #     course_id = 2295
+            # )
             course = Course(
                 id=2293,
                 season='Spring',
@@ -49,7 +49,8 @@ def install_fixtures(app):
                 students=[user2],
                 instructors=[user],
             )
-            course = Course(
+            
+            course2 = Course(
                 id=2295,
                 season='Spring',
                 year=2022,
@@ -79,12 +80,25 @@ def install_fixtures(app):
                 name='Make A Basket!',
                 due_date = datetime(2022, 5, 1, 23, 59, 59)
             )
+            question1 = Question(
+                id=1,
+                assignment_id=1
+            )
+            submission1 = Submission (
+                id=1,
+                user_id=2,
+                question_id=1,
+                timestamp = datetime.now()
+            )
             db.session.add(user)
             db.session.add(user2)
             db.session.add(course)
+            db.session.add(course2)
             db.session.add(assignment)
             db.session.add(assignment2)
             db.session.add(assignment3)
+            db.session.add(question1)
+            db.session.add(submission1)
             db.session.commit()
         except IntegrityError:
             db.session.rollback()

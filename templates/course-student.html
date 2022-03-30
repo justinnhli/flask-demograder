@@ -7,6 +7,12 @@
         <h2>{{assignment.name}}</h2>
         <h3>{{assignment.due_date}}</h3>
         <h4>{{assignment.score}}</h4>
+        {% for question in assignment.questions %}
+            <h2>{{question.id}}</h2>
+            {% for submission in question.submissions %}
+            <h2>{{submission.id}}</h2> 
+            {% endfor %}
+        {% endfor %}
     {% endfor %}
     {% else %}
     <h1>No course found.</h1>

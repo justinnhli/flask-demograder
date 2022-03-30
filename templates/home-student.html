@@ -39,6 +39,7 @@
         {% if courses %}
             {% for course in courses %}
             <a href="/course/{{course.id}}">{{course.title}}</a>
+            <br>
             {% endfor %}
         {% else %}
             <h2> No courses enrolled. </h2>
