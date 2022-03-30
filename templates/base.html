@@ -5,50 +5,67 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>demograder</title>
         <link rel="preload" as="style" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://kit.fontawesome.com/99eb0eda65.js" crossorigin="anonymous"></script>
         <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css">
         <link href="{{ url_for('static', filename='home-student.css') }}" rel="stylesheet" type="text/css">
-
+        <link href="static/card.css" rel="stylesheet" type="text/css">
     </head>
 
-    <body>
-        <div id="header">
-            <div id="wordmark"><a href="/">demograder</a></div>
+    <body class="grid grid-cols-8 h-screen">
+        <div class="flex flex-col col-span-6 col-start-2">
+            <!-- Navbar -->
+            <nav class="grid grid-cols-1 lg:grid-cols-2 py-3 mb-16">
+                <!-- Logo -->
+                <div class="lorange text-3xl text-center lg:text-left">
+                    <a href="/">demograder</a>
+                </div>
+                    <!-- Navbar Options -->
+                    <div class="text-right space-x-5">
+                        {% if user %}
+                        <!-- Admin Button -->
+                        {# if role >= Role.ADMIN #}
+		                <a class="inline-block col-span-1" href="/overview">
+                            <div class="admin-button flex w-8 h-8 items-center justify-center rounded-md">
+    		                    <i class="fa-solid fa-wrench"></i>
+                            </div>
+            		    </a>
+                        {# endif #}
+
+			            <div id="user" class="inline-block justify-center lg:justify-end items-end text-center col-span-1">
+		                    {% if alternate_view %}
+              	            (<a href="{{ request.path }}">viewing as</a> {{ role.name.lower() }} {{ viewer.email }})
+    		                {% else %}
+            	            {{ user.email }}
+        		            {% endif %}
+                	        |&nbsp;<a href="{{ url_for('auth.logout') }}" class="lorange underline">Logout</a>
+                		</div>
+                		{% endif %}
+                    </div>
+            </nav>
+
             {% if user %}
-            <div id="user">
-                {% if alternate_view %}
-                (<a href="{{ request.path }}">viewing as</a> {{ role.name.lower() }} {{ viewer.email }})
-                {% else %}
-                {{ user.email }}
-                {% endif %}
-                | <a href="{{ url_for('auth.logout') }}">logout</a>
+            <div id="navbar">
+                <div id="breadcrumb">
+                    {% block breadcrumb %}{% endblock %}
+                </div>
+                <div id="quicklinks">
+                    {% if role >= Role.FACULTY %}
+                    <span id="faculty-nav-bar">
+                        <a href="{{ url_for('demograder.course_form') }}">new course</a>
+                    </span>
+                    {% endif %}
+                </div>
             </div>
             {% endif %}
-        </div>
-        {% if user %}
-        <div id="navbar">
-            <div id="breadcrumb">
-                {% block breadcrumb %}{% endblock %}
+
+            <div id="content" class="grow shrink">
+                {% block content %}{% endblock %}
             </div>
-            <div id="quicklinks">
-                {% if role >= Role.FACULTY %}
-                <span id="faculty-nav-bar">
-                    <a href="{{ url_for('demograder.course_form') }}">new course</a>
-                </span>
-                {% if role >= Role.ADMIN %}
-                | <span id="admin-nav-bar">
-                    admin
-                </span>
-                {% endif %}
-                {% endif %}
+
+            <div id="footer">
+                &copy; Justin Li
             </div>
-        </div>
-        {% endif %}
-        <div id="content">
-            {% block content %}{% endblock %}
-        </div>
-        <div id="footer">
-            &copy; Justin Li
         </div>
     </body>
-
 </html>

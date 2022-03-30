@@ -28,16 +28,6 @@ def install_fixtures(app):
                 admin=False,
                 faculty=False,
             )
-            # student1 = Student(
-            #     id = 1,
-            #     user_id = 2,
-            #     course_id = 2293
-            # )
-            # student2 = Student(
-            #     id = 2,
-            #     user_id = 3,
-            #     course_id = 2295
-            # )
             course = Course(
                 id=2293,
                 season='Spring',
@@ -89,6 +79,24 @@ def install_fixtures(app):
                 user_id=2,
                 question_id=1,
                 timestamp = datetime.now()
+            )
+            assignment1 = Assignment(
+                id=5328423,
+                course_id=34,
+                name='Homework 1',
+                due_date=datetime(2022, 3, 24, 23, 59, 59),
+            )
+            assignment2 = Assignment(
+                id=3435453,
+                course_id=34,
+                name='Homework 2',
+                due_date=datetime(2022, 3, 24, 23, 59, 59),
+            )
+            assignment3 = Assignment(
+                id=324342342,
+                course_id=34,
+                name='Homework 1',
+                due_date=datetime(2022, 3, 24, 23, 59, 59),
             )
             db.session.add(user)
             db.session.add(user2)

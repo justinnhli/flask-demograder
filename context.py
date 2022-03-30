@@ -141,8 +141,11 @@ def get_context(**kwargs):
         if not (viewer_is_student or viewer_is_instructor):
             forbidden(context)
     _set_course_context(context, url_args, **kwargs)
-    course = context['course']
-    
+    course = None
+    if 'course' in context:
+        course = context['course']
+    _set_instructor_context(context, url_args, **kwargs)
+    _set_student_context(context, url_args, **kwargs)
     # check if both the user and the viewer are related to the course
     if course:
         _set_instructor_context(context, url_args, **kwargs)

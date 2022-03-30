@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <link href="./home-student.css" rel="stylesheet">
+    </head>
+    <!--
+        • What large and small decisions are students making?
+            - Submission/Resubmission of an assignment
+            - 
+        • What are some edge cases that students might face?
+            - Submitting for multiple classes at the same time
+        • What do they need to know to make those decisions?
+            - Assignment name, course, due date, testcases, sub score
+        Current needs:
+        - Assignments and their due dates (high)
+            - closest due dates should be at top
+            - only show due dates currently needed?
+        - Courses and their corresponding assignments (med)
+        - Assignments and their corresponding submissions (high)
+    -->
+
+
+    <body>
+        <h1 style="display: inline-block; color: rgb(255, 140, 0);">
+            demograder
+        </h1>
+        <h3 style="display: inline-block; color: rgb(255, 140, 0); text-align: right;">
+            clinscott@oxy.edu | <a href="#">Logout</a>
+        </h3>
+        <h2>Current Assignments:</h2>
+        <table>
+            <tr>
+                <th>Course</th>
+                <th>Assignment Name</th>
+                <th>Due Date</th>
+                <th>File(s)</th>
+                <th>Current Score</th>
+            </tr>
+            <tr>
+                <td>COMP 229: Spring 2023</td>
+                <td>Homework 2:<a href="#">MiniMax</a></td>
+                <td>March 25th, 12:03:56 pm</td>
+                <td><u>MiniMax.py</u><br><u>TicTacToe.py</u></td>
+                <td>3/5<br>2/5</td>
+
+            </tr>
+            <tr>
+                <td>COMP 229: Spring 2023</td>
+                <td>Homework 1: <a href="#">RiverCrossingProblem</a></td>
+                <td>March 25th, 12:03:56 pm</td>
+                <td><u>BFS.py</u><br><u>DFS.py</u></td>
+                <td>3/5<br>2/5</td>
+            </tr>
+        </table>
+
+        <div id="course-container">
+            <h2>Your Courses:</h2>
+            <div class="course-dropdown">
+                <div class="course-title" style="cursor: pointer;">
+                    <h2 style="color: white;"> COMP 229</h2>
+                </div>
+                <div class="course-info">
+                    <h3 style="color: gray;">Spring 2022</h3>
+                    <h4 style="color: rgb(184, 130, 130);">Section 1</h4>
+                </div>
+            </div>
+            <div class="course-assignment-container">
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Assignment Name</th>
+                        <th>Submission Time</th>
+                        <th>Score</th>
+                    </tr>
+                    <tr class="success">
+                        <td>Rainfall.py</td>
+                        <td>Homework 1</td>
+                        <td>12:07:34 AM</td>
+                        <td>5/5</d>
+                    </tr>
+                    <tr class="fail">
+                        <td>Doggo.py</td>
+                        <td>Homework 2</td>
+                        <td>4:34:23 AM</td>
+                        <td>3/5</d>
+                    </tr>
+                    <tr class="tba">
+                        <td>Homework.py</td>
+                        <td>Homework 3</td>
+                        <td>12:07:34 AM</td>
+                        <td>TBA/5</d>
+                    </tr>
+                    <tr class="fail">
+                        <td>Homework.py</td>
+                        <td>Homework 3</td>
+                        <td>12:07:34 AM</td>
+                        <td>1/5</d>
+                    </tr>
+                    <tr class="fail">
+                        <td>Homework.py</td>
+                        <td>Homework 3</td>
+                        <td>12:07:34 AM</td>
+                        <td>2.5/5</d>
+                    </tr>
+                </table>
+                <form>
+                    <input style="cursor: pointer;"type="file">
+                    <input style="cursor: pointer;"type="submit">
+                </form>
+                <!-- <div class="assignment">
+                    <div class="submission">
+                        <div class="sub-header">
+                            <h3>Rainfall.py</h3>
+                        </div>
+                        <div class="sub-info">
+                            <h4 class="sub-time">12:07:34 AM</h6>
+                            <div class="sub-score">5/5</div>
+                        </div>
+                        
+                    </div>
+                </div> -->
+            </div> 
+            <div class="course-dropdown">
+                <div class="course-title">
+                    <h2 style="color: white;">Underwater Basketweaving</h2>
+                </div>
+                <div class="course-info">
+                    <h3 style="color: gray;">Spring 2022</h3>
+                    <h4 style="color: rgb(184, 130, 130);">Section 2</h4>
+                </div>
+            </div>
+            <div class="course-assignment-container">
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Assignment Name</th>
+                        <th>Submission Time</th>
+                        <th>Score</th>
+                    </tr>
+                    <tr class="success">
+                        <td>Rainfall.py</td>
+                        <td>Homework 1</td>
+                        <td>12:07:34 AM</td>
+                        <td>5/5</d>
+                    </tr>
+                    <tr class="fail">
+                        <td>Doggo.py</td>
+                        <td>Homework 2</td>
+                        <td>4:34:23 AM</td>
+                        <td>3/5</d>
+                    </tr>
+                    <tr class="tba">
+                        <td>Homework.py</td>
+                        <td>Homework 3</td>
+                        <td>12:07:34 AM</td>
+                        <td>TBA/5</d>
+                    </tr>
+                    <tr class="fail">
+                        <td>Homework.py</td>
+                        <td>Homework 3</td>
+                        <td>12:07:34 AM</td>
+                        <td>1/5</d>
+                    </tr>
+                    <tr class="fail">
+                        <td>Homework.py</td>
+                        <td>Homework 3</td>
+                        <td>12:07:34 AM</td>
+                        <td>2.5/5</d>
+                    </tr>
+                </table>
+                <form>
+                    <input style="cursor: pointer;"type="file">
+                    <input style="cursor: pointer;"type="submit">
+                </form>
+        </div>
+    </body>
+</html>

@@ -30,11 +30,14 @@ def login_redirect():
         else:
             preferred_name = 'PREFERRED_NAME_PLACEHOLDER'
         family_name = user_info.get('family_name', 'FAMILY_NAME_PLACEHOLDER')
+        picture = user_info['picture']
         if user:
             user.preferred_name = preferred_name
             user.family_name = family_name
+            user.picture = picture
         else:
             user = User(
+                picture=picture,
                 preferred_name=preferred_name,
                 family_name=family_name,
                 email=user_email,

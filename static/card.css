@@ -1,0 +1,9 @@
+.course-card {
+    text-align: center;
+    background-color: #DECFAA;
+    border-radius: 4px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    -webkit-box-shadow: 2px 2px 5px 0px var(--grey); 
+    box-shadow: 2px 2px 5px 0px var(--grey);
+}

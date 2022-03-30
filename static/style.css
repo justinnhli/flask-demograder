@@ -1,19 +1,134 @@
-body {background-color:#EEEEEC; font-family:Open Sans,Helvetica,Arial,sans-serif; margin:0 auto; max-width:50em;}
+:root {
+	--bg: #fbf1c7;
+	--bg0: #ebdbb2;
+	--bg2: #d5c4a1;
+	--orange: #af3a03;
+	--lorange: #d65d0e;
+	--yellow: #d79921;
+	--purple: #b16286;
+	--dark-purple: #8f3f71;
+	--green: #98971a;
+	--blue: #458588;
+	--aqua: #689d6a;
+	--grey: #565252;
+	--light-gray:#7C6F64;
+}
 
-#wordmark {float:left; color:#DE6F3E; font-size:1.5em;}
-#wordmark a {text-decoration:none;}
-#user {float:right;}
+body {
+	background-color: var(--bg);
+	font-family:Open Sans, Helvetica, Arial,sans-serif;
+}
 
-#navbar {clear:both;}
-#breadcrumb {float:left;}
-#quicklinks {float:right;}
+a {
+	color: var(--lorange)
+}
 
-#content {clear:both; width:100%;}
+/* Colors */
+.bg0 {
+	background-color: var(--bg0);
+}
 
-a, a:visited {color:#DE6F3E;}
+.bg0-color {
+	color: var(--bg0)
+}
 
-table.form-table {border-collapse:collapse; border:none;}
-tr.form-field-error {background-color:#E67C73;}
-ul.form-field-error-list {margin:0; padding-left:1em;}
+.bg-purple {
+	background-color: var(--purple);
+}
 
-#footer {padding:1em; text-align:center;}
+.lorange {
+	color: var(--lorange);
+}
+
+.green {
+	color: var(--green);
+}
+
+.blue {
+	color: var(--blue);
+}
+
+.aqua {
+	color: var(--aqua);
+}
+
+.orange {
+	color: var(--orange);
+}
+
+.grey {
+	color: var(--grey);
+}
+
+.outline-bg2 {
+	outline-color: var(--bg2);
+}
+
+.outline-dark-purple {
+	outline-color: var(--dark-purple)
+}
+
+.outline-admin {
+	outline-color: var(--yellow);
+}
+
+.outline-faculty {
+	outline-color: var(--aqua);
+}
+
+.outline-instructor {
+	outline-color: var(--purple);
+}
+
+.card-divider {
+	border-color: var(--bg2);
+	border-width: 1px;
+}
+
+/* Custom Styles */
+.admin-button {
+	background-color: var(--aqua);
+}
+
+#wordmark {
+	font-size:1.5em;
+}
+
+#wordmark a {
+	text-decoration:none;
+}
+
+#navbar {
+	clear:both;
+}
+
+#breadcrumb {
+	float:left;
+}
+
+#quicklinks {
+	float:right;
+}
+
+/* a, a:visited {
+	color:#DE6F3E;
+} */
+
+table.form-table {
+	border-collapse:collapse;
+	border:none;
+}
+
+tr.form-field-error {
+	background-color:#E67C73;
+}
+
+ul.form-field-error-list {
+	margin:0;
+	padding-left:1em;
+}
+
+#footer {
+	padding:1em;
+	text-align:center;
+}

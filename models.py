@@ -15,6 +15,7 @@ class User(db.Model, UserMixin):
     faculty = db.Column(db.Boolean, nullable=False, default=False)
     logged_in = db.Column(db.Boolean, nullable=False, default=False)
     submissions = db.relationship('Submission', backref='user')
+    picture = db.Column(db.String, nullable=True)
 
     def __str__(self):
         return f'{self.full_name} <{self.email}>'

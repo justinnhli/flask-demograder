@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% import "card.html" as card %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block content %}
+<div class="mt-8">
+    <h1 class="text-3xl font-bold mb-6">Courses</h1>
+    <div class="grid gap-y-4">
+		<div class="grid grid-cols-3 text-center">
+			<div>Title</div>
+			<div>Season</div>
+			<div>Year</div>
+		</div>
+		{% for course in courses %}
+		<div class="grid grid-cols-3">
+			<div class="inline-block">
+				{{ course.title }}
+			</div>
+			<div class="inline-block">
+				{{ course.season }}
+			</div>
+			<div class="inline-block">
+				{{ course.year }}
+			</div>
+		</div>
+		{% endfor %}
+    </div>
+</div>
+{% endblock %}

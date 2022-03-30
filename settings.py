@@ -15,3 +15,5 @@ OAUTH_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 FLASK_SECRET_KEY = os.environ['FLASK_SECRET_KEY']
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
 GOOGLE_CLIENT_SECRET = os.environ['GOOGLE_CLIENT_SECRET']
+
+TEMPLATES_AUTO_RELOAD = True
