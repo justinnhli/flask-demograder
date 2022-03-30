@@ -119,6 +119,8 @@ class Course(db.Model):
 class Assignment(db.Model):
     __tablename__ = 'assignments'
     id = db.Column(db.Integer, primary_key=True)
+
+    # is the person filling out the form expected to know the course_id?
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
     name = db.Column(db.String, nullable=False)
     due_date = db.Column(db.DateTime, nullable=True)

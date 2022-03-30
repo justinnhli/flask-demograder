@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
-from .forms import UserForm, CourseForm
+from .forms import UserForm, CourseForm, AssignmentForm
 from .models import db, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
@@ -141,6 +141,7 @@ def course_form(course_id):
     # add logic for the 'add me as instructor' option from form
     # ask about how this should work
 
+    # goes here when the form is actually submitted
     if form.validate_on_submit():
 
         # extract the emails from the instructor & student fields
@@ -151,6 +152,9 @@ def course_form(course_id):
         instructor_emails = map(check_db_user, instructor_emails)
         student_emails = map(check_db_user, student_emails)
 
+        # TODO: add permissions checks for course form
+
+        # if the course already exists in the DB
         if form.id.data:
             # is there anything that should be restrictured to just admin?
             q = Course.query.get(int(form.id.data))
@@ -164,13 +168,7 @@ def course_form(course_id):
             course.section = form.section.data.strip()
             course.title = form.title.data.strip()
 
-            # TODO:
-            # - for the instructors & the students:
-            #   - isolate the email addresses (parse function)
-            #   - check with the username if there is already a User for them
-            #     - if already user, grab that user and do course.instructors.append(user) / course.students.append(user)
-            #     - else: creaate a new user for them, with just email (name, etc. = '') and then append
-
+        # if the course doesn't already exist in the DB
         else:
             course = Course(
                 season = form.season.data.strip(),
@@ -196,6 +194,8 @@ def course_form(course_id):
 
         return redirect(url_for('demograder.home'))
 
+    # pre-fills the fields if the course_id is specified in the URL
+    # happend when they load the page initially
     elif course_id:
         course = Course.query.filter_by(id=course_id).first()
         form.id.default = course.id
@@ -208,7 +208,28 @@ def course_form(course_id):
         form.instructors.default = course.instructors
         form.students.default = course.students
         form.process()
+    
     return render_template('forms/course.html', form=form, **context)
+
+
+# NEW ROUTE for Assignments
+# double check that these URLs are correct
+@blueprint.route('/forms/course/assignment', defaults={'assignment_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/forms/course/assignment/<int:assignment_id>', methods=('GET', 'POST'))
+def assignment_form(assignment_id):
+    context = get_context(assignment=assignment_id)
+    form = AssignmentForm()
+
+    # goes here when the form is actually submitted
+    if form.validate_on_submit():
+        pass
+
+    # if the id is specified in the URL, pre-fill the form with existing data
+    elif assignment_id:
+        pass
+
+    # TODO: create the html form for assignment
+    return render_template('forms/assignment.html', form=form, **context)
 
 
 # --------------------------- 
