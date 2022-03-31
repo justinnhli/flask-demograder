@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Demograder{% endblock %}
+{% block content %}
+    <!-- Assignment Panel: Current Assignments Due By Student -->
+    <!-- The "current" assignments are assignment due between now() and 2 weeks -->
+    <div id="assignment-panel">
+        <h2>Current Assignments</h2> 
+        {% if assignments %}
+            <table class="asg-table">
+                <tr>
+                    <th>Course</th>
+                    <th>Assignment Name</th>
+                    <th>Due Date</th>
+                    <th>File(s)</th>
+                    <th>Current Score</th>
+                </tr>
+                {% for assignment in assignments %}
+            <!-- Design decisions: is section needed, what is "current" (since due dates can widely vary from 1-4 weeks for example) -->
+                    <tr>
+                        <td>
+                            {{assignment.course.department_code}} 
+                            {{assignment.course.number}} 
+                            {{assignment.course.season}} 
+                            {{assignment.course.year}}
+                        </td>
+                        <td><a href="#">{{ assignment.name }}</a></td>
+                        <td>{{ assignment.due_date }}</td>
+                        <td>N/A</td>
+                        <td>N/A</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <h3>No assignments currently due.</h3>
+        {% endif %}
+    </div>
+    <div id="course-panel">
+        <h1>Courses</h1>
+        {% if courses %}
+            {% for course in courses %}
+            <a href="/course/{{course.id}}">{{course.title}}</a>
+            <br>
+            {% endfor %}
+        {% else %}
+            <h2> No courses enrolled. </h2>
+        {% endif %}
+    </div>
+{% endblock %}

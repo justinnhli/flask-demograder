@@ -76,12 +76,12 @@ def _set_role_context(context, url_args, **kwargs):
             Role.FACULTY,
         )
         context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.FACULTY)
-    elif context['instructor']:
-        context['role'] = min(
-            Role[url_args.get('role', 'instructor').upper()],
-            Role.INSTRUCTOR,
-        )
-        context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.INSTRUCTOR)
+    # elif context['instructor']:
+    #     context['role'] = min(
+    #         Role[url_args.get('role', 'instructor').upper()],
+    #         Role.INSTRUCTOR,
+    #     )
+    #     context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.INSTRUCTOR)
     else:
         context['role'] = Role.STUDENT
         context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.STUDENT)

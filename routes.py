@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, url_for, redirect, abort
+from pandas import concat
 from werkzeug.utils import secure_filename
 
+from .context import _set_student_context, get_context, Role
 import os.path
-
-from .context import get_context, Role
 from .forms import UserForm
-from .models import db, User, Course, Assignment, Question, QuestionFile
+from .models import db, Student, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
 blueprint = Blueprint(name="demograder", import_name="demograder")
@@ -22,6 +22,25 @@ def root():
 @blueprint.route("/home")
 def home():
     context = get_context()
+    if context['role'] >= Role.ADMIN:
+        context['users'] = User.query.all()
+        context['courses'] = Course.query.all()
+        context['assignments'] = Assignment.query.all()
+        context['questions'] = Question.query.all()
+        context['question_files'] = QuestionFile.query.all()
+        return render_template('home-admin.html', **context)
+    elif context['role'] >= Role.STUDENT:
+        # Assuming the alternative view takes care of the difference with MASQ?
+        context['courses'] = context['user'].courses_taking
+        context['assignments'] = []
+        for course in context['courses']:
+            context['assignments'] += course.assignments
+        return render_template('home-student.html', **context)
+    else:
+        return render_template('home.html', **context)
+
+
+@blueprint.route('/user/<int:user_id>')
     if context["role"] >= Role.ADMIN:
         context["users"] = User.query.all()
         context["courses"] = Course.query.all()
@@ -64,8 +83,10 @@ def user_view(user_id):
 
 @blueprint.route("/course/<int:course_id>")
 def course_view(course_id):
-    return f"{course_id=}"  # TODO
-
+    context = get_context()
+    context['course'] = Course.query.get(course_id)
+    print(context['course'].assignments[0].questions)
+    return render_template('course-student.html', **context)
 
 @blueprint.route("/question/<int:question_id>")
 def question_view(question_id):
