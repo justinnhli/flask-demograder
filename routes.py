@@ -229,14 +229,14 @@ def assignment_form(assignment_id):
             assignment = q.first()
             assignment.course_id = form.course_id.data.strip()
             assignment.name = form.name.data.strip()
-            assignment.due_date = form.due_date.data.strip()
+            assignment.due_date = form.due_date.data
 
         # if the assignment doesn't already exist in the DB
         else:
             assignment = Assignment(
                 course_id=form.course_id.data.strip(),
                 name=form.name.data.strip(),
-                due_date=form.due_date.data.strip(),
+                due_date=form.due_date.data,
             )
         
         # commit this assignment to the DB
