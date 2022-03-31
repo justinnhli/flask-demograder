@@ -152,8 +152,6 @@ def course_form(course_id):
         instructor_emails = map(check_db_user, instructor_emails)
         student_emails = map(check_db_user, student_emails)
 
-        # TODO: add permissions checks for course form
-
         # if the course already exists in the DB
         if form.id.data:
             # is there anything that should be restrictured to just admin?
@@ -215,7 +213,7 @@ def course_form(course_id):
 @blueprint.route('/forms/course/<int:course_id>/assignment', defaults={'assignment_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>/assignment/<int:assignment_id>', methods=('GET', 'POST'))
 def assignment_form(assignment_id):
-    context = get_context(assignment=assignment_id)
+    context = get_context(assignment=assignment_id, min_role='faculty')
     form = AssignmentForm()
 
     # goes here when the form is actually submitted
