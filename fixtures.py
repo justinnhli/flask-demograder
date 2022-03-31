@@ -17,8 +17,8 @@ def install_fixtures(app):
                 preferred_name='Kathy',
                 family_name='Liu',
                 email='kliu4@oxy.edu',
-                admin=False,
-                faculty=False,
+                admin=True,
+                faculty=True,
             )
             db.session.add(user1)
             db.session.add(user2)
