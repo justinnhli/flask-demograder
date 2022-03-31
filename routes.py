@@ -135,7 +135,7 @@ def user_form(user_id):
 @blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>', methods=('GET', 'POST'))
 def course_form(course_id):
-    context = get_context(course=course_id)
+    context = get_context(course=course_id, min_role='faculty')
     form = CourseForm()
 
     # add logic for the 'add me as instructor' option from form
