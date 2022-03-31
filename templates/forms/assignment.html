@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "forms/_utils.html" import render_field %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block breadcrumb %}&nbsp;{% endblock %}
+
+{% block content %}
+    <h1>New/Edit Assignment</h1>
+    <form method="POST" action="{{ url_for('demograder.assignment_form', assignment_id=form.id.default) }}">
+        <table class="form-table">
+            {{ render_field(form.course_id) }}
+            {{ render_field(form.name) }}
+            {{ render_field(form.due_date) }}
+        </table>
+        {{ form.id }}
+        {{ form.csrf_token }}
+        <p>{{ form.submit }}</p>
+    </form>
+{% endblock %}

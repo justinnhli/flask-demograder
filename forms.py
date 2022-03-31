@@ -76,3 +76,4 @@ class AssignmentForm(FlaskForm):
     # should we use a different date format?
     # default for DateField is: format='%Y-%m-%d'
     due_date = DateField('Due Date [yyyy-mm-dd]')
+    submit = SubmitField('Submit')
