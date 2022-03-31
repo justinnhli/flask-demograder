@@ -20,7 +20,7 @@ body {
 }
 
 a {
-	color: var(--lorange)
+	color: var(--lorange) !important; /* Kept overriding with 'inherit' */
 }
 
 /* Colors */

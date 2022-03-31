@@ -11,7 +11,6 @@
                     <th>Course</th>
                     <th>Assignment Name</th>
                     <th>Due Date</th>
-                    <th>File(s)</th>
                     <th>Current Score</th>
                 </tr>
                 {% for assignment in assignments %}
@@ -25,7 +24,6 @@
                         </td>
                         <td><a href="#">{{ assignment.name }}</a></td>
                         <td>{{ assignment.due_date }}</td>
-                        <td>N/A</td>
                         <td>N/A</td>
                     </tr>
                 {% endfor %}

@@ -33,6 +33,10 @@ def home():
         # Assuming the alternative view takes care of the difference with MASQ?
         context['courses'] = context['user'].courses_taking
         context['assignments'] = []
+        # Yeah, don't think this is completely correct. I was trying to figure out
+        # how to natural join the assignments 
+        # with just the array of courses I get from context['courses']
+        # but I don't get anything.
         for course in context['courses']:
             context['assignments'] += course.assignments
         return render_template('home-student.html', **context)
@@ -41,6 +45,8 @@ def home():
 
 
 @blueprint.route('/user/<int:user_id>')
+def user_view(user_id):
+    context = get_context()
     if context["role"] >= Role.ADMIN:
         context["users"] = User.query.all()
         context["courses"] = Course.query.all()
@@ -76,16 +82,10 @@ def courses_overview():
     context["courses"] = Course.query.all()
     return render_template("courses_overview.html", **context)
 
-@blueprint.route("/user/<int:user_id>")
-def user_view(user_id):
-    return f"{user_id=}"  # TODO
-
-
 @blueprint.route("/course/<int:course_id>")
 def course_view(course_id):
     context = get_context()
     context['course'] = Course.query.get(course_id)
-    print(context['course'].assignments[0].questions)
     return render_template('course-student.html', **context)
 
 @blueprint.route("/question/<int:question_id>")
