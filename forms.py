@@ -77,3 +77,14 @@ class AssignmentForm(FlaskForm):
     # default for DateField is: format='%Y-%m-%d'
     due_date = DateField('Due Date [yyyy-mm-dd]')
     submit = SubmitField('Submit')
+
+
+class QuestionForm(FlaskForm):
+    id = HiddenField('id')
+    assignment_id = StringField('Assignment ID')
+    cooldown_seconds = StringField('Cooldown seconds')
+    timeout_seconds = StringField('Timeout seconds')
+    hide_output = BooleanField('Hide Output')
+    visible = BooleanField('Visible')
+    Locked = BooleanField('Locked')
+    submit = SubmitField('Submit')
