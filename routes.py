@@ -300,14 +300,14 @@ def check_db_user(email):
         return user
    
     new_user = User(
-            preferred_name='',
-            family_name='',
-            email=email,
-            # what should these last two be set to?
-            admin=False,
-            faculty=False,
-            # other attributes to define?
-            )
+        preferred_name='',
+        family_name='',
+        email=email,
+        # what should these last two be set to?
+        admin=False,
+        faculty=False,
+        # other attributes to define?
+        )
     db.session.add(new_user)
     db.session.commit()
     return new_user
