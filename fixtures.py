@@ -28,6 +28,13 @@ def install_fixtures(app):
                 admin=False,
                 faculty=False,
             )
+            user4 = User(
+                preferred_name='Nick',
+                family_name='Novak',
+                email='nnovak@oxy.edu',
+                admin=False,
+                faculty=False,
+            )
             course = Course(
                 id=2293,
                 season='Spring',
@@ -36,10 +43,9 @@ def install_fixtures(app):
                 number=229,
                 section=1,
                 title='Data Structures',
-                students=[user2],
+                students=[user2, user4],
                 instructors=[user],
             )
-            
             course2 = Course(
                 id=2295,
                 season='Spring',
@@ -80,7 +86,6 @@ def install_fixtures(app):
                 question_id=1,
                 timestamp = datetime.now()
             )
-            
             db.session.add(user)
             db.session.add(user2)
             db.session.add(course)
