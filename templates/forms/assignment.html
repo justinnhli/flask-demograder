@@ -7,13 +7,13 @@
 
 {% block content %}
     <h1>New/Edit Assignment</h1>
-    <form method="POST" action="{{ url_for('demograder.assignment_form', assignment_id=form.id.default) }}">
+    <form method="POST" action="{{ url_for('demograder.assignment_form', course_id=form.course_id.data, assignment_id=form.id.data) }}">
         <table class="form-table">
-            {{ render_field(form.course_id) }}
             {{ render_field(form.name) }}
             {{ render_field(form.due_date) }}
         </table>
         {{ form.id }}
+        {{ form.course_id }}
         {{ form.csrf_token }}
         <p>{{ form.submit }}</p>
     </form>

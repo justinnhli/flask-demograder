@@ -210,12 +210,16 @@ def course_form(course_id):
 
 # NEW ROUTE for Assignments
 # double check that these URLs are correct
-@blueprint.route('/forms/course/<int:course_id>/assignment', defaults={'assignment_id': None}, methods=('GET', 'POST'))
+# @blueprint.route('/forms/course/assignment/', methods=('GET', 'POST'))
+@blueprint.route('/forms/course/<int:course_id>/assignment/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>/assignment/<int:assignment_id>', methods=('GET', 'POST'))
-def assignment_form(assignment_id):
+def assignment_form(course_id=None, assignment_id=None):
     context = get_context(assignment=assignment_id, min_role='faculty')
     form = AssignmentForm()
-
+    print(course_id)
+    course = Course.query.filter_by(id=course_id).first()
+    if not course:
+        abort(403)
     # goes here when the form is actually submitted
     if form.validate_on_submit():
 
@@ -225,18 +229,17 @@ def assignment_form(assignment_id):
             if not q:
                 abort(403)
             assignment = q.first()
-            assignment.course_id = form.course_id.data.strip()
+            assignment.course_id = course_id
             assignment.name = form.name.data.strip()
             assignment.due_date = form.due_date.data
-
+            
         # if the assignment doesn't already exist in the DB
         else:
             assignment = Assignment(
-                course_id=form.course_id.data.strip(),
+                course_id=course_id,
                 name=form.name.data.strip(),
                 due_date=form.due_date.data,
             )
-        
         # commit this assignment to the DB
         db.session.add(assignment)
         db.session.commit()

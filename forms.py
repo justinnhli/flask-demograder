@@ -70,12 +70,12 @@ class CourseForm(FlaskForm):
 
 class AssignmentForm(FlaskForm):
     id = HiddenField('id')
-    course_id = StringField('Course ID')
+    course_id = HiddenField('course_id')
     name = StringField('Assignment Name')
 
     # should we use a different date format?
     # default for DateField is: format='%Y-%m-%d'
-    due_date = DateField('Due Date [yyyy-mm-dd]')
+    due_date = DateField('Due Date')
     submit = SubmitField('Submit')
 
 
@@ -86,5 +86,5 @@ class QuestionForm(FlaskForm):
     timeout_seconds = StringField('Timeout seconds')
     hide_output = BooleanField('Hide Output')
     visible = BooleanField('Visible')
-    Locked = BooleanField('Locked')
+    locked = BooleanField('Locked')
     submit = SubmitField('Submit')
