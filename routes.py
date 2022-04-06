@@ -214,21 +214,23 @@ def course_form(course_id):
 @blueprint.route('/forms/course/<int:course_id>/assignment/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>/assignment/<int:assignment_id>', methods=('GET', 'POST'))
 def assignment_form(course_id=None, assignment_id=None):
-    context = get_context(assignment=assignment_id, min_role='faculty')
+    
+    context = get_context(course_id=course_id, assignment_id=assignment_id, min_role='faculty')
     form = AssignmentForm()
     print(course_id)
     course = Course.query.filter_by(id=course_id).first()
     if not course:
         abort(403)
     # goes here when the form is actually submitted
+    
     if form.validate_on_submit():
 
         # if the assignment already exists in the DB
         if form.id.data:
-            q = Assignment.query.get(int(form.id.data))
-            if not q:
-                abort(403)
-            assignment = q.first()
+        #     q = Assignment.query.get(int(form.id.data))
+        #     if not q:
+        #         abort(403)
+            assignment = context['assignment']
             assignment.course_id = course_id
             assignment.name = form.name.data.strip()
             assignment.due_date = form.due_date.data
@@ -256,7 +258,10 @@ def assignment_form(course_id=None, assignment_id=None):
         form.name.default = assignment.name
         form.due_date.default = assignment.due_date
         form.process()
-
+    else:
+        form.course_id.default = context["course"].id
+        form.process()
+        
     return render_template('forms/assignment.html', form=form, **context)
 
 
