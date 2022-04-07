@@ -18,7 +18,7 @@
 #question-container {
     display: flex;
     flex-direction: column;
-    height: 50%;
+    height: 35%;
     max-height: 20rem;
     overflow: auto;
 }
@@ -40,7 +40,8 @@
 #test-cases {
     margin-top: 1rem;
     width: 100%;
-    height: 50%;
+    height: 35%;
+    max-height: 20rem;
 }
 
 #submit-new-version {
@@ -69,6 +70,7 @@
     height: 10rem;
     max-height: 7.5%;
     text-align: center;
+    margin-top: 1rem;
     grid-template-columns: 1fr 0.5fr 0.5fr;
 }
 
