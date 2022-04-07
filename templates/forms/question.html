@@ -7,7 +7,7 @@
 
 {% block content %}
     <h1>New/Edit Question</h1>
-    <form method="POST" action="{{ url_for('demograder.question_form', user_id=form.id.default) }}">
+    <form method="POST" action="{{ url_for('demograder.question_form', assignment_id=form.assignment_id.data, question_id=form.id.data) }}">
         <table class="form-table">
             {{ render_field(form.cooldown_seconds) }}
             {{ render_field(form.timeout_seconds) }}
