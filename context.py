@@ -2,7 +2,7 @@ from enum import IntEnum
 
 from flask import session, request, abort
 
-from .models import User, Course, Assignment
+from .models import User, Course, Assignment, Question
 
 
 class Role(IntEnum):
@@ -33,25 +33,39 @@ def _set_viewer_context(context, url_args, **kwargs):
     context['alternate_view'] = (context['user'] != context['viewer'])
 
 
+# TODO - check my logic here with Justin and make sure it is accurate
 def _set_course_context(context, url_args, **kwargs):
-    # TODO determine question, assignment, and course
-    if kwargs.get('assignment_id', None):
+    '''
+    this methods sets context for course or assignment or question,
+    assigning whichever ones are specified in the argument dictionary
+    '''
+    # if a question_id is specified, grab the question
+    # if the question is specified, we can also get the assignment and course immediately
+    # this is because question is the deepest in the hierarchy
+    if kwargs.get('question_id', None):
+        context['question'] = Question.query.filter_by(id=kwargs['question_id']).first()
+        # does Question object have .assignment attribute?
+        # feel like we may need something more involved here
+        context['assignment'] = context['question'].assignment
+        # same question for Assignment.course attribute
+        context['course'] = context['assignment'].course
+    # if the assignment_id is specified, grab the assignment and course, question will be None
+    elif kwargs.get('assignment_id', None):
         context['assignment'] = Assignment.query.filter_by(id=kwargs['assignment_id']).first()
-    elif False:
-        # FIXME get the course based on the assignment
-        pass
-    else:
-        context['assignment'] = None
-    
-    if 'course_id' in kwargs:
+        context['course'] = context['assignment'].course
+        context['question'] = None
+    # if just course_id is specified, get Course, while assignment and question will be None
+    elif 'course_id' in kwargs:
         context['course'] = Course.query.filter_by(id=kwargs['course_id']).first()
-        if context['assignment'] and  context['course'].id != context['assignment'].course.id:
+        context['assignment'] = None
+        context['question'] = None
+        # should we add checks like this in the above conditions?
+        if context['assignment'] and context['course'].id != context['assignment'].course.id:
             abort(403)
-
-    elif context['assignment']:
-        context['course'] = context['assingment'].course
-        
+    # if none of the above are specified, all three will be None   
     else:
+        context['question'] = None
+        context['assignment'] = None
         context['course'] = None
 
 

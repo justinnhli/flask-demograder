@@ -257,6 +257,7 @@ def assignment_form(course_id=None, assignment_id=None):
     return render_template('forms/assignment.html', form=form, **context)
 
 
+# new route for questions
 @blueprint.route('/forms/assignment/<int:assignment_id>/question/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/assignment/<int:assignment_id>/question/<int:question_id>', methods=('GET', 'POST'))
 def assignment_form(assignment_id=None, question_id=None):
