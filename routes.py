@@ -1,6 +1,8 @@
 from ast import Assign
 from flask import Blueprint, render_template, url_for, redirect, abort
 
+from datetime import datetime
+
 from .context import _set_student_context, get_context, Role
 import os.path
 from .forms import UserForm
@@ -38,6 +40,7 @@ def home():
         # but I don't get anything.
         for course in context['courses']:
             context['assignments'] += course.assignments
+        context['current_time'] = datetime.now()
         return render_template('home-student.html', **context)
     else:
         return render_template('home.html', **context)

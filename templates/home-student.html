@@ -1,46 +1,46 @@
 {% extends "base.html" %}
+
 {% block title %}Demograder{% endblock %}
+
 {% block content %}
     <!-- Assignment Panel: Current Assignments Due By Student -->
     <!-- The "current" assignments are assignment due between now() and 2 weeks -->
-    <div id="assignment-panel">
-        <h2>Current Assignments</h2> 
-        {% if assignments %}
-            <table class="asg-table">
-                <tr>
-                    <th>Course</th>
-                    <th>Assignment Name</th>
-                    <th>Due Date</th>
-                    <th>Current Score</th>
-                </tr>
-                {% for assignment in assignments %}
-            <!-- Design decisions: is section needed, what is "current" (since due dates can widely vary from 1-4 weeks for example) -->
-                    <tr>
-                        <td>
-                            {{assignment.course.department_code}} 
-                            {{assignment.course.number}} 
-                            {{assignment.course.season}} 
-                            {{assignment.course.year}}
-                        </td>
-                        <td><a href="#">{{ assignment.name }}</a></td>
-                        <td>{{ assignment.due_date }}</td>
-                        <td>N/A</td>
-                    </tr>
-                {% endfor %}
-            </table>
+    <h1 class="font-bold text-3xl mb-6">Current Assignments</h1>
+
+    <div class="grid grid-cols-4 space-y-2 text-xl">
+        <div class="font-semibold text-2xl">Course</div>
+        <div class="font-semibold text-2xl">Assignment Name</div>
+        <div class="font-semibold text-2xl">Due Date</div>
+        <div class="font-semibold text-2xl">Current Score</div>
+
+        {% for assignment in assignments %}
+            <div>{{ assignment.course.department_code}} {{ assignment.course.number }} {{ assignment.course.season }} {{ assignment.course.year }}</div>
+            <div>{{ assignment.name }}</div>
+            <div>
+                {% set delta = (assignment.due_date - current_time) %}
+                {{ assignment.due_date.strftime("%A, %B %-d at %I:%M %p") }}
+                {% if delta.days != None %}
+                    ({{ delta.days }}d, {{ delta.seconds // 60 // 60 }}h)
+                {% elif delta.hours != None %}
+                    ({{ delta.seconds // 60 // 60 }}h, {{ delta.seconds // 60 }})
+                {% else %}
+                    ({{ delta.seconds // 60 }}m, {{ delta.seconds }})
+                {% endif %}
+            </div>
+            <div>{{ 0 }}</div>
+        {% endfor %}
+    </div>
+
+    <h1 class="font-bold text-3xl my-6">Courses</h1>
+
+    <div class="text-xl">
+        {% if courses == None %}
+        <div class="text-center text-xl">No Courses</div>
         {% else %}
-            <h3>No assignments currently due.</h3>
+        {% for course in courses %}
+        <a class="lorange text-xl" href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.department_code }} {{ course.number }} {{ course.title }}: {{ course.season }} {{ course.year }}</a>
+        {% endfor %}
         {% endif %}
     </div>
-    <div id="course-panel">
-        <h1>Courses</h1>
-        {% if courses %}
-            {% for course in courses %}
-            <a href="/course/{{course.id}}">{{course.title}}</a>
-            <br>
-            {% endfor %}
-        {% else %}
-            <h2> No courses enrolled. </h2>
-        {% endif %}
-    </div>
+
 {% endblock %}
