@@ -11,29 +11,35 @@
         <div class="font-semibold text-2xl">Course</div>
         <div class="font-semibold text-2xl">Assignment Name</div>
         <div class="font-semibold text-2xl">Due Date</div>
-        <div class="font-semibold text-2xl">Current Score</div>
+        <div class="font-semibold text-2xl text-center">Current Score</div>
 
         {% for assignment in assignments %}
-            <a class="orange text-xl" href="/course/{{assignment.course.id}}">{{assignment.course.department_code}} {{ assignment.course.number }} {{ assignment.course.season }} {{ assignment.course.year }}</a>
-            <a class="lorange text-xl" href="/assignment/{{assignment.id}}">{{ assignment.name }}</a>
-            <div>
-                {% set delta = (assignment.due_date - current_time) %}
-                {{ assignment.due_date.strftime("%A, %B %-d at %I:%M %p") }}
-                {% if delta.days != None %}
-                    ({{ delta.days }}d, {{ delta.seconds // 60 // 60 }}h)
-                {% elif delta.hours != None %}
-                    ({{ delta.seconds // 60 // 60 }}h, {{ delta.seconds // 60 }})
-                {% else %}
-                    ({{ delta.seconds // 60 }}m, {{ delta.seconds }})
-                {% endif %}
-            </div>
-            <div>{{ 0 }}</div>
+            {% if assignment.due_date > current_time %}
+                <a class="orange text-xl" href="/course/{{assignment.course.id}}">{{assignment.course.department_code}} {{ assignment.course.number }} {{ assignment.course.season }} {{ assignment.course.year }}</a>
+                <a class="lorange text-xl" href="/assignment/{{assignment.id}}">{{ assignment.name }}</a>
+                <div>{{ assignment.due_date.strftime("%A, %B %-d at %I:%M %p") }}</div>
+                <div class="text-center">{{ 0 }}</div>
+            {% endif %}
         {% endfor %}
     </div>
+	<h1 class="font-bold text-3xl my-6">Past Assignments</h1>
+    <div class="grid grid-cols-4 space-y-2 text-xl">
+        <div class="font-semibold text-2xl">Course</div>
+        <div class="font-semibold text-2xl">Assignment Name</div>
+        <div class="font-semibold text-2xl">Due Date</div>
+        <div class="font-semibold text-2xl text-center">Current Score</div>
 
+        {% for assignment in assignments %}
+		    {% if assignment.due_date < current_time %}
+                <a class="orange text-xl" href="/course/{{assignment.course.id}}">{{assignment.course.department_code}} {{ assignment.course.number }} {{ assignment.course.season }} {{ assignment.course.year }}</a>
+                <a class="lorange text-xl" href="/assignment/{{assignment.id}}">{{ assignment.name }}</a>
+                <div>{{ assignment.due_date.strftime("%A, %B %-d at %I:%M %p") }}</div>
+                <div class="text-center">{{ 0 }}</div>
+			{% endif %}
+        {% endfor %}
+    </div>
     <h1 class="font-bold text-3xl my-6">Courses</h1>
-
-    <div class="text-xl flex flex-col">
+    <div class="flex flex-col text-xl">
         {% if courses == None %}
         <div class="text-center text-xl">No Courses</div>
         {% else %}
