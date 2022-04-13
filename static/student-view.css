@@ -126,7 +126,12 @@
         height: auto;
         max-height: none;
     }
-    .question-stat > span:nth-child(3) {
-        font-size: 0.75rem;
+    .question-stat {
+        font-size: 0.6rem;
+        align-items: center;
     }
+    .question-stat > span:nth-child(4) {
+        width: 12.5%;
+    }
+
 }
