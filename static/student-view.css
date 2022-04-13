@@ -32,16 +32,32 @@
 .question-stat > span {
     margin-right: 5%;
 }
-.question-stat > span:last-child {
+/* .question-stat > span:last-child {
     flex-grow: 1;
     background-color: gray;
+} */
+.question-bar {
+    flex-grow: 1;
+    display: flex;
+    border-radius: 1rem;
+    text-align: center;
+}
+
+.question-bar span:first-child {
+    width: 75%;
+    background-color: lightgreen;
+}
+
+.question-bar span:last-child {
+    background-color: lightcoral;
+    flex-grow: 1;
 }
 
 #test-cases {
-    margin-top: 1rem;
     width: 100%;
     height: 35%;
     max-height: 20rem;
+    margin-bottom: 2rem;
 }
 
 #submit-new-version {
@@ -82,19 +98,35 @@
 
 .test-case {
     width: 20%;
-    height: 50%;
+    height: 25%;
     max-width: 3rem;
-    max-height: 8rem;
+    min-height: 3rem;
     background-color: gray;
     margin: 0.2rem;
     margin-top: 1rem;
     color: white;
     text-align: center;
 }
+.test-case:hover {
+    font-weight: bolder;
+}
+
 .pass {
     background-color: green;
 }
 
 .fail {
     background-color: red;
+}
+
+/* Phone media query */
+@media screen and (max-width: 768px) {
+    #test-case-container, #test-cases, #question-container, #submission-history {
+        overflow: hidden;
+        height: auto;
+        max-height: none;
+    }
+    .question-stat > span:nth-child(3) {
+        font-size: 0.75rem;
+    }
 }
