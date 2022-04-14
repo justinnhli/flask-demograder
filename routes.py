@@ -79,9 +79,11 @@ def download_file(file_id):
     return f'{file_id=}' # TODO
 
 
+# --------------------------- 
 # FORMS
+# ---------------------------
 
-
+# User Form
 @blueprint.route('/forms/user/', defaults={'user_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/user/<int:user_id>', methods=('GET', 'POST'))
 def user_form(user_id):
@@ -89,11 +91,10 @@ def user_form(user_id):
     form = UserForm()
     # if the form is being submitted, process it for data
     if form.validate_on_submit():
+        # if there is an ID, this is editing an existing User
         if form.id.data:
-            # if there is an ID, this is editing an existing User
             # make sure that the submitted ID is the same as the user ID
             if not (context['user'].admin or int(form.id.data) == user_id):
-                print('hi')
                 abort(403)
             user = User.query.get(form.id.data).first()
             user.preferred_name = form.preferred_name.data.strip()
@@ -103,8 +104,8 @@ def user_form(user_id):
                 user.email = form.email.data.strip()
                 user.admin = form.admin.data
                 user.faculty = form.faculty.data
+        # otherwise, this is creating a new User        
         else:
-            # otherwise, this is creating a new User
             user = User(
                 preferred_name=form.preferred_name.data.strip(),
                 family_name=form.family_name.data.strip(),
@@ -114,9 +115,9 @@ def user_form(user_id):
             )
         db.session.add(user)
         db.session.commit()
-        return redirect(url_for('demograder.home')) # FIXME
+        return redirect(url_for('demograder.home'))
     # the form is not being submitted
-    if user_id is not None:
+    if user_id:
         # a user ID is provided; set the defaults to the user being edited
         user = User.query.get(user_id).first()
         form.id.default = user.id
@@ -132,12 +133,12 @@ def user_form(user_id):
     return render_template('forms/user.html', form=form, **context)
 
 
+# Course Form
 @blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>', methods=('GET', 'POST'))
 def course_form(course_id):
     context = get_context(course=course_id, min_role='faculty')
     form = CourseForm()
-
     if form.validate_on_submit():
         # extract the emails from the instructor & student fields
         instructor_emails = extract_emails(form.instructors.data.strip())
@@ -145,10 +146,9 @@ def course_form(course_id):
         # retrieve/generate User objects for the email addresses
         instructors = map(check_db_user, instructor_emails)
         students = map(check_db_user, student_emails)
-
+        
         # if the course already exists in the DB
         if form.id.data:
-            # is there anything that should be restrictured to just admin?
             course = Course.query.get(int(form.id.data))
             if not course:
                 abort(403)
@@ -158,7 +158,6 @@ def course_form(course_id):
             course.number = form.number.data.strip()
             course.section = form.section.data.strip()
             course.title = form.title.data.strip()
-
         # if the course doesn't already exist in the DB
         else:
             course = Course(
@@ -179,9 +178,7 @@ def course_form(course_id):
         db.session.add(course)
         db.session.commit()
         return redirect(url_for('demograder.home'))
-
     # pre-fills the fields if the course_id is specified in the URL
-    # happens when they load the page initially
     elif course_id:
         course = Course.query.filter_by(id=course_id).first()
         form.id.default = course.id
@@ -191,6 +188,7 @@ def course_form(course_id):
         form.number.default = course.number
         form.section.default = course.section
         form.title.default = course.title
+        # create str representation of users to show in text boxes
         instructor_str = ''
         student_str = ''
         for user in course.instructors:
@@ -200,30 +198,26 @@ def course_form(course_id):
         form.instructors.default = instructor_str
         form.students.default = student_str
         form.process()
-    
     return render_template('forms/course.html', form=form, **context)
 
 
-# NEW ROUTE for Assignments
-# double check that these URLs are correct
+# Assignment Form
 @blueprint.route('/forms/course/<int:course_id>/assignment/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>/assignment/<int:assignment_id>', methods=('GET', 'POST'))
 def assignment_form(course_id=None, assignment_id=None):
     context = get_context(course_id=course_id, assignment_id=assignment_id, min_role='faculty')
     form = AssignmentForm()
+    # check course exists in db
     course = Course.query.filter_by(id=course_id).first()
     if not course:
         abort(403)
-    # goes here when the form is actually submitted
     if form.validate_on_submit():
-
         # if the assignment already exists in the DB
         if form.id.data:
             assignment = context['assignment']
             assignment.course_id = course_id
             assignment.name = form.name.data.strip()
             assignment.due_date = form.due_date.data
-            
         # if the assignment doesn't already exist in the DB
         else:
             assignment = Assignment(
@@ -231,12 +225,9 @@ def assignment_form(course_id=None, assignment_id=None):
                 name=form.name.data.strip(),
                 due_date=form.due_date.data,
             )
-        # commit this assignment to the DB
         db.session.add(assignment)
         db.session.commit()
-        # end, redirecct to home page
         return redirect(url_for('demograder.home'))
-
     # if the id is specified in the URL, pre-fill the form with existing data
     # this implies that the assignment already exists in the DB
     elif assignment_id:
@@ -249,22 +240,20 @@ def assignment_form(course_id=None, assignment_id=None):
     else:
         form.course_id.default = context["course"].id
         form.process()
-        
     return render_template('forms/assignment.html', form=form, **context)
 
 
-# new route for questions
+# Question Form
 @blueprint.route('/forms/assignment/<assignment_id>/question/', defaults={'question_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/assignment/<assignment_id>/question/<question_id>', methods=('GET', 'POST'))
 def question_form(assignment_id=None, question_id=None):
     context = get_context(assignment_id=assignment_id, question_id=question_id, min_role='faculty')
     form = QuestionForm()
+    # check assignment exists in db
     assignment = Assignment.query.filter_by(id=assignment_id).first()
     if not assignment:
         abort(403)
-    # goes here when the form is actually submitted
     if form.validate_on_submit():
-
         # if the question already exists in the DB
         if form.id.data:
             question = context['question']
@@ -274,7 +263,6 @@ def question_form(assignment_id=None, question_id=None):
             question.hide_output = form.hide_output.data
             question.visible = form.visible.data
             question.locked = form.locked.data
-            
         # if the question doesn't already exist in the DB
         else:
             question = Question(
@@ -285,12 +273,9 @@ def question_form(assignment_id=None, question_id=None):
                 visible = form.visible.data,
                 locked = form.locked.data
             )
-        # commit this assignment to the DB
         db.session.add(question)
         db.session.commit()
-        # end, redirecct to home page
         return redirect(url_for('demograder.home'))
-
     # if the id is specified in the URL, pre-fill the form with existing data
     # this implies that the question already exists in the DB
     elif question_id:
@@ -306,8 +291,8 @@ def question_form(assignment_id=None, question_id=None):
     else:
         form.assignment_id.default = context["assignment"].id
         form.process()
-        
     return render_template('forms/question.html', form=form, **context)
+
 
 # --------------------------- 
 # UTILITY FUNCTIONS
