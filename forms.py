@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, HiddenField, StringField, SubmitField, \
-                    SelectField, DateField
+                    SelectField, DateField, TextAreaField
 from wtforms.validators import InputRequired, Regexp
 
 from .models import User
@@ -60,8 +60,8 @@ class CourseForm(FlaskForm):
     section = StringField('Section Number')
     title = StringField('Course Title')
     add_instructor = BooleanField('Add Me As Instructor')
-    instructors = StringField('Instructors')
-    students = StringField('Students')
+    instructors = TextAreaField('Instructors')
+    students = TextAreaField('Students')
     submit = SubmitField('Submit')
 
     # Are we representing this in the form or will these get added later?

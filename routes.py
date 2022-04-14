@@ -138,29 +138,20 @@ def course_form(course_id):
     context = get_context(course=course_id, min_role='faculty')
     form = CourseForm()
 
-    # add logic for the 'add me as instructor' option from form
-    # ask about how this should work
-
-    # goes here when the form is actually submitted
     if form.validate_on_submit():
-
         # extract the emails from the instructor & student fields
         instructor_emails = extract_emails(form.instructors.data.strip())
         student_emails = extract_emails(form.students.data.strip())
-
         # retrieve/generate User objects for the email addresses
         instructors = map(check_db_user, instructor_emails)
         students = map(check_db_user, student_emails)
-        
-        print(student_emails)
 
         # if the course already exists in the DB
         if form.id.data:
             # is there anything that should be restrictured to just admin?
-            q = Course.query.get(int(form.id.data))
-            if not q:
+            course = Course.query.get(int(form.id.data))
+            if not course:
                 abort(403)
-            course = q.first()
             course.season = form.season.data.strip()
             course.year = form.year.data.strip()
             course.department_code = form.department_code.data.strip()
@@ -178,16 +169,15 @@ def course_form(course_id):
                 section=form.section.data.strip(),
                 title=form.title.data.strip(),
             )
-        
         # add the Users for instructors and students to the course
         for user in instructors:
             course.instructors.append(user)
         for user in students:
             course.students.append(user)
-    
+        if form.add_instructor:
+            course.instructors.append(context['user'])
         db.session.add(course)
         db.session.commit()
-
         return redirect(url_for('demograder.home'))
 
     # pre-fills the fields if the course_id is specified in the URL
@@ -204,9 +194,9 @@ def course_form(course_id):
         instructor_str = ''
         student_str = ''
         for user in course.instructors:
-            instructor_str += str(user) + '\n'
+            instructor_str += str(user).strip(' <>') + '\n'
         for user in course.students:
-            student_str += str(user) + '\n'
+            student_str += str(user).strip(' <>') + '\n'
         form.instructors.default = instructor_str
         form.students.default = student_str
         form.process()
@@ -342,23 +332,16 @@ def check_db_user(email):
       - else generates and returns a new user object with the email
     '''
     # query the db for the target user 
-    # (not totally sure how querying works in sqlalchemy)
-    #   - will it return None if no email found?
-    #     - put in try, catch just incase
-   
     user = User.query.filter_by(email=email).first()
-    # usr.first()
     if user: 
         return user
-   
+    # create new user if email not in db
     new_user = User(
         preferred_name='',
         family_name='',
         email=email,
-        # what should these last two be set to?
         admin=False,
         faculty=False,
-        # other attributes to define?
         )
     db.session.add(new_user)
     db.session.commit()
