@@ -149,8 +149,8 @@ def course_form(course_id):
         student_emails = extract_emails(form.students.data.strip())
 
         # retrieve/generate User objects for the email addresses
-        instructor_emails = map(check_db_user, instructor_emails)
-        student_emails = map(check_db_user, student_emails)
+        instructors = map(check_db_user, instructor_emails)
+        students = map(check_db_user, student_emails)
         
         print(student_emails)
 
@@ -180,9 +180,9 @@ def course_form(course_id):
             )
         
         # add the Users for instructors and students to the course
-        for user in instructor_emails:
+        for user in instructors:
             course.instructors.append(user)
-        for user in student_emails:
+        for user in students:
             course.students.append(user)
     
         db.session.add(course)
@@ -201,8 +201,14 @@ def course_form(course_id):
         form.number.default = course.number
         form.section.default = course.section
         form.title.default = course.title
-        form.instructors.default = course.instructors
-        form.students.default = course.students
+        instructor_str = ''
+        student_str = ''
+        for user in course.instructors:
+            instructor_str += str(user) + '\n'
+        for user in course.students:
+            student_str += str(user) + '\n'
+        form.instructors.default = instructor_str
+        form.students.default = student_str
         form.process()
     
     return render_template('forms/course.html', form=form, **context)
