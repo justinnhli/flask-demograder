@@ -158,6 +158,10 @@ class Question(db.Model):
         secondaryjoin=(id == QuestionDependency.producer_id),
         backref='consumed_by',
     )
+    
+    @property
+    def assignment(self):
+        return Assignment.get(self.assignment_id)
 
 
 class QuestionFile(db.Model):
