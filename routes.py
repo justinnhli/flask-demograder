@@ -67,6 +67,8 @@ def sizeof_fmt(num, suffix="B"):
 @blueprint.route("/overview")
 def admin_overview():
     context = get_context()
+    if context["role"] < Role.ADMIN:
+		    abort(401)
     context["users"] = User.query.all()
     context["courses"] = Course.query.all()
     context["database_size"] = sizeof_fmt(os.path.getsize("database.sqlite"))
@@ -75,12 +77,16 @@ def admin_overview():
 @blueprint.route("/overview/users")
 def users_overview():
     context = get_context()
+    if context["role"] < Role.ADMIN:
+		    abort(401)
     context["users"] = User.query.all()
     return render_template("users_overview.html", **context)
 
 @blueprint.route("/overview/courses")
 def courses_overview():
     context = get_context()
+    if context["role"] < Role.ADMIN:
+		    abort(401)
     context["courses"] = Course.query.all()
     return render_template("courses_overview.html", **context)
 

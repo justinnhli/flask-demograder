@@ -24,13 +24,13 @@
                     <div class="text-right space-x-5">
                         {% if user %}
                         <!-- Admin Button -->
-                        {# if role >= Role.ADMIN #}
+                        {% if role >= Role.ADMIN %}
 		                <a class="inline-block col-span-1" href="/overview">
                             <div class="admin-button flex w-8 h-8 items-center justify-center rounded-md">
     		                    <i class="fa-solid fa-wrench"></i>
                             </div>
             		    </a>
-                        {# endif #}
+                        {% endif %}
 
 			            <div id="user" class="inline-block justify-center lg:justify-end items-end text-center col-span-1">
 		                    {% if alternate_view %}
