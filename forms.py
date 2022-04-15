@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, HiddenField, StringField, SubmitField
+from wtforms import BooleanField, HiddenField, StringField, SubmitField, \
+                    SelectField, DateField, TextAreaField
 from wtforms.validators import InputRequired, Regexp
 
 from .models import User
@@ -45,4 +46,45 @@ class UserForm(FlaskForm):
     )
     admin = BooleanField('Admin')
     faculty = BooleanField('Faculty')
+    submit = SubmitField('Submit')
+
+
+class CourseForm(FlaskForm):
+    id = HiddenField('id')
+    season = SelectField(u'Season', choices=['Fall', 'Spring', 'Summer', 'Winter'])
+
+    # is there a way to do a year dropdown field?
+    year = StringField('Year')
+    department_code = StringField('Department Code')
+    number = StringField('Course Number')
+    section = StringField('Section Number')
+    title = StringField('Course Title')
+    add_instructor = BooleanField('Add Me As Instructor')
+    instructors = TextAreaField('Instructors')
+    students = TextAreaField('Students')
+    submit = SubmitField('Submit')
+
+    # Are we representing this in the form or will these get added later?
+    # assignments = 
+
+
+class AssignmentForm(FlaskForm):
+    id = HiddenField('id')
+    course_id = HiddenField('course_id')
+    name = StringField('Assignment Name')
+
+    # should we use a different date format?
+    # default for DateField is: format='%Y-%m-%d'
+    due_date = DateField('Due Date')
+    submit = SubmitField('Submit')
+
+
+class QuestionForm(FlaskForm):
+    id = HiddenField('id')
+    assignment_id = StringField('Assignment ID')
+    cooldown_seconds = StringField('Cooldown seconds')
+    timeout_seconds = StringField('Timeout seconds')
+    hide_output = BooleanField('Hide Output')
+    visible = BooleanField('Visible')
+    locked = BooleanField('Locked')
     submit = SubmitField('Submit')

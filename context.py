@@ -2,7 +2,7 @@ from enum import IntEnum
 
 from flask import session, request, abort
 
-from .models import User, Course
+from .models import User, Course, Assignment, Question
 
 
 class Role(IntEnum):
@@ -34,14 +34,24 @@ def _set_viewer_context(context, url_args, **kwargs):
 
 
 def _set_course_context(context, url_args, **kwargs):
-    # TODO determine question, assignment, and course
-    if 'course_id' in kwargs:
+    '''
+    this methods sets context for course or assignment or question,
+    assigning whichever ones are specified in the argument dictionary
+    '''
+    context['question'] = None
+    context['assignment'] = None
+    context['course'] = None
+    if kwargs.get('question_id', None):
+        context['question'] = Question.query.filter_by(id=kwargs['question_id']).first()
+        context['assignment'] = context['question'].assignment
+        context['course'] = context['assignment'].course
+    elif kwargs.get('assignment_id', None):
+        context['assignment'] = Assignment.query.filter_by(id=kwargs['assignment_id']).first()
+        context['course'] = context['assignment'].course
+    elif 'course_id' in kwargs:
         context['course'] = Course.query.filter_by(id=kwargs['course_id']).first()
-    elif False:
-        # FIXME get the course based on the assignment
-        pass
-    else:
-        context['course'] = None
+        if context['assignment'] and context['course'].id != context['assignment'].course.id:
+            abort(403)   
 
 
 def _set_instructor_context(context, url_args, **kwargs):
@@ -152,6 +162,7 @@ def get_context(**kwargs):
         # check if the viewer is related to the course
         if context['alternate_view'] and not (context['instructor'] or context['student']):
             forbidden(context)
+    _set_instructor_context(context, url_args, **kwargs)
     _set_role_context(context, url_args, **kwargs)
     # check if the viewer meets the minimum role requirements
     if Role[kwargs.get('min_role', 'student').upper()] > context['role']:
