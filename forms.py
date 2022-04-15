@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, HiddenField, StringField, SubmitField, SelectField
+from wtforms import BooleanField, HiddenField, StringField, SubmitField, \
+                    SelectField, DateField, TextAreaField
 from wtforms.validators import InputRequired, Regexp
 
 from .models import User
@@ -59,10 +60,31 @@ class CourseForm(FlaskForm):
     section = StringField('Section Number')
     title = StringField('Course Title')
     add_instructor = BooleanField('Add Me As Instructor')
-    instructors = StringField('Instructors')
-    students = StringField('Students')
+    instructors = TextAreaField('Instructors')
+    students = TextAreaField('Students')
     submit = SubmitField('Submit')
 
     # Are we representing this in the form or will these get added later?
     # assignments = 
 
+
+class AssignmentForm(FlaskForm):
+    id = HiddenField('id')
+    course_id = HiddenField('course_id')
+    name = StringField('Assignment Name')
+
+    # should we use a different date format?
+    # default for DateField is: format='%Y-%m-%d'
+    due_date = DateField('Due Date')
+    submit = SubmitField('Submit')
+
+
+class QuestionForm(FlaskForm):
+    id = HiddenField('id')
+    assignment_id = StringField('Assignment ID')
+    cooldown_seconds = StringField('Cooldown seconds')
+    timeout_seconds = StringField('Timeout seconds')
+    hide_output = BooleanField('Hide Output')
+    visible = BooleanField('Visible')
+    locked = BooleanField('Locked')
+    submit = SubmitField('Submit')

@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
-from .forms import UserForm, CourseForm
+from .forms import UserForm, CourseForm, AssignmentForm, QuestionForm
 from .models import db, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
@@ -79,9 +79,11 @@ def download_file(file_id):
     return f'{file_id=}' # TODO
 
 
+# --------------------------- 
 # FORMS
+# ---------------------------
 
-
+# User Form
 @blueprint.route('/forms/user/', defaults={'user_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/user/<int:user_id>', methods=('GET', 'POST'))
 def user_form(user_id):
@@ -89,11 +91,10 @@ def user_form(user_id):
     form = UserForm()
     # if the form is being submitted, process it for data
     if form.validate_on_submit():
+        # if there is an ID, this is editing an existing User
         if form.id.data:
-            # if there is an ID, this is editing an existing User
             # make sure that the submitted ID is the same as the user ID
             if not (context['user'].admin or int(form.id.data) == user_id):
-                print('hi')
                 abort(403)
             user = User.query.get(form.id.data).first()
             user.preferred_name = form.preferred_name.data.strip()
@@ -103,8 +104,8 @@ def user_form(user_id):
                 user.email = form.email.data.strip()
                 user.admin = form.admin.data
                 user.faculty = form.faculty.data
+        # otherwise, this is creating a new User        
         else:
-            # otherwise, this is creating a new User
             user = User(
                 preferred_name=form.preferred_name.data.strip(),
                 family_name=form.family_name.data.strip(),
@@ -114,9 +115,9 @@ def user_form(user_id):
             )
         db.session.add(user)
         db.session.commit()
-        return redirect(url_for('demograder.home')) # FIXME
+        return redirect(url_for('demograder.home'))
     # the form is not being submitted
-    if user_id is not None:
+    if user_id:
         # a user ID is provided; set the defaults to the user being edited
         user = User.query.get(user_id).first()
         form.id.default = user.id
@@ -132,70 +133,52 @@ def user_form(user_id):
     return render_template('forms/user.html', form=form, **context)
 
 
+# Course Form
 @blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>', methods=('GET', 'POST'))
 def course_form(course_id):
-    context = get_context(course=course_id)
+    context = get_context(course=course_id, min_role='faculty')
     form = CourseForm()
-
-    # add logic for the 'add me as instructor' option from form
-    # ask about how this should work
-
     if form.validate_on_submit():
-
         # extract the emails from the instructor & student fields
         instructor_emails = extract_emails(form.instructors.data.strip())
         student_emails = extract_emails(form.students.data.strip())
-
         # retrieve/generate User objects for the email addresses
-        instructor_emails = map(check_db_user, instructor_emails)
-        student_emails = map(check_db_user, student_emails)
-
+        instructors = map(check_db_user, instructor_emails)
+        students = map(check_db_user, student_emails)
+        
+        # if the course already exists in the DB
         if form.id.data:
-            # is there anything that should be restrictured to just admin?
-            q = Course.query.get(int(form.id.data))
-            if not q:
+            course = Course.query.get(int(form.id.data))
+            if not course:
                 abort(403)
-            course = q.first()
             course.season = form.season.data.strip()
             course.year = form.year.data.strip()
             course.department_code = form.department_code.data.strip()
             course.number = form.number.data.strip()
             course.section = form.section.data.strip()
             course.title = form.title.data.strip()
-
-            # TODO:
-            # - for the instructors & the students:
-            #   - isolate the email addresses (parse function)
-            #   - check with the username if there is already a User for them
-            #     - if already user, grab that user and do course.instructors.append(user) / course.students.append(user)
-            #     - else: creaate a new user for them, with just email (name, etc. = '') and then append
-
+        # if the course doesn't already exist in the DB
         else:
             course = Course(
-                season = form.season.data.strip(),
-                year = form.year.data.strip(),
-                department_code = form.department_code.data.strip(),
-                number = form.number.data.strip(),
-                section = form.section.data.strip(),
-                title = form.title.data.strip(),
-                instructors = [],
-                students = [],
+                season=form.season.data.strip(),
+                year=form.year.data.strip(),
+                department_code=form.department_code.data.strip(),
+                number=form.number.data.strip(),
+                section=form.section.data.strip(),
+                title=form.title.data.strip(),
             )
-        
         # add the Users for instructors and students to the course
-        for user in instructor_emails:
+        for user in instructors:
             course.instructors.append(user)
-        for user in student_emails:
+        for user in students:
             course.students.append(user)
-    
+        if form.add_instructor:
+            course.instructors.append(context['user'])
         db.session.add(course)
         db.session.commit()
-
-        # TODO need to add student adding based on email addresses
-
         return redirect(url_for('demograder.home'))
-
+    # pre-fills the fields if the course_id is specified in the URL
     elif course_id:
         course = Course.query.filter_by(id=course_id).first()
         form.id.default = course.id
@@ -205,10 +188,110 @@ def course_form(course_id):
         form.number.default = course.number
         form.section.default = course.section
         form.title.default = course.title
-        form.instructors.default = course.instructors
-        form.students.default = course.students
+        # create str representation of users to show in text boxes
+        instructor_str = ''
+        student_str = ''
+        for user in course.instructors:
+            instructor_str += str(user).strip(' <>') + '\n'
+        for user in course.students:
+            student_str += str(user).strip(' <>') + '\n'
+        form.instructors.default = instructor_str
+        form.students.default = student_str
         form.process()
     return render_template('forms/course.html', form=form, **context)
+
+
+# Assignment Form
+@blueprint.route('/forms/course/<int:course_id>/assignment/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/forms/course/<int:course_id>/assignment/<int:assignment_id>', methods=('GET', 'POST'))
+def assignment_form(course_id=None, assignment_id=None):
+    context = get_context(course_id=course_id, assignment_id=assignment_id, min_role='faculty')
+    form = AssignmentForm()
+    # check course exists in db
+    course = Course.query.filter_by(id=course_id).first()
+    if not course:
+        abort(403)
+    if form.validate_on_submit():
+        # if the assignment already exists in the DB
+        if form.id.data:
+            assignment = context['assignment']
+            assignment.course_id = course_id
+            assignment.name = form.name.data.strip()
+            assignment.due_date = form.due_date.data
+        # if the assignment doesn't already exist in the DB
+        else:
+            assignment = Assignment(
+                course_id=course_id,
+                name=form.name.data.strip(),
+                due_date=form.due_date.data,
+            )
+        db.session.add(assignment)
+        db.session.commit()
+        return redirect(url_for('demograder.home'))
+    # if the id is specified in the URL, pre-fill the form with existing data
+    # this implies that the assignment already exists in the DB
+    elif assignment_id:
+        assignment = Assignment.query.filter_by(id=assignment_id).first()
+        form.id.default = assignment.id
+        form.course_id.default = assignment.course_id
+        form.name.default = assignment.name
+        form.due_date.default = assignment.due_date
+        form.process()
+    else:
+        form.course_id.default = context["course"].id
+        form.process()
+    return render_template('forms/assignment.html', form=form, **context)
+
+
+# Question Form
+@blueprint.route('/forms/assignment/<assignment_id>/question/', defaults={'question_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/forms/assignment/<assignment_id>/question/<question_id>', methods=('GET', 'POST'))
+def question_form(assignment_id=None, question_id=None):
+    context = get_context(assignment_id=assignment_id, question_id=question_id, min_role='faculty')
+    form = QuestionForm()
+    # check assignment exists in db
+    assignment = Assignment.query.filter_by(id=assignment_id).first()
+    if not assignment:
+        abort(403)
+    if form.validate_on_submit():
+        # if the question already exists in the DB
+        if form.id.data:
+            question = context['question']
+            question.assignment_id = assignment_id
+            question.cooldown_seconds = form.cooldown_seconds.data.strip()
+            question.timeout_seconds = form.timeout_seconds.data.strip()
+            question.hide_output = form.hide_output.data
+            question.visible = form.visible.data
+            question.locked = form.locked.data
+        # if the question doesn't already exist in the DB
+        else:
+            question = Question(
+                assignment_id=assignment_id,
+                cooldown_seconds=form.cooldown_seconds.data.strip(),
+                timeout_seconds = form.timeout_seconds.data.strip(),
+                hide_output = form.hide_output.data,
+                visible = form.visible.data,
+                locked = form.locked.data
+            )
+        db.session.add(question)
+        db.session.commit()
+        return redirect(url_for('demograder.home'))
+    # if the id is specified in the URL, pre-fill the form with existing data
+    # this implies that the question already exists in the DB
+    elif question_id:
+        question = Question.query.filter_by(id=question_id).first()
+        form.id.default = question.id
+        form.assignment_id.default = question.assignment_id
+        form.cooldown_seconds.default = question.cooldown_seconds
+        form.timeout_seconds.default = question.timeout_seconds
+        form.hide_output.default = question.hide_output
+        form.visible.default = question.visible
+        form.locked.default = question.locked
+        form.process()
+    else:
+        form.assignment_id.default = context["assignment"].id
+        form.process()
+    return render_template('forms/question.html', form=form, **context)
 
 
 # --------------------------- 
@@ -234,24 +317,17 @@ def check_db_user(email):
       - else generates and returns a new user object with the email
     '''
     # query the db for the target user 
-    # (not totally sure how querying works in sqlalchemy)
-    #   - will it return None if no email found?
-    #     - put in try, catch just incase
-   
     user = User.query.filter_by(email=email).first()
-    # usr.first()
     if user: 
         return user
-   
+    # create new user if email not in db
     new_user = User(
-            preferred_name='',
-            family_name='',
-            email=email,
-            # what should these last two be set to?
-            admin=False,
-            faculty=False,
-            # other attributes to define?
-            )
+        preferred_name='',
+        family_name='',
+        email=email,
+        admin=False,
+        faculty=False,
+        )
     db.session.add(new_user)
     db.session.commit()
     return new_user

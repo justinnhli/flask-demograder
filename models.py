@@ -119,6 +119,8 @@ class Course(db.Model):
 class Assignment(db.Model):
     __tablename__ = 'assignments'
     id = db.Column(db.Integer, primary_key=True)
+
+    # is the person filling out the form expected to know the course_id?
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
     name = db.Column(db.String, nullable=False)
     due_date = db.Column(db.DateTime, nullable=True)
@@ -156,6 +158,10 @@ class Question(db.Model):
         secondaryjoin=(id == QuestionDependency.producer_id),
         backref='consumed_by',
     )
+    
+    @property
+    def assignment(self):
+        return Assignment.get(self.assignment_id)
 
 
 class QuestionFile(db.Model):
