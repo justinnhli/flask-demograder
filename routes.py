@@ -100,7 +100,6 @@ def course_view(course_id):
 def assignment_view(assignment_id):
     context = get_context()
     context['assignment'] = Assignment.query.get(assignment_id)
-    print(context['assignment'].questions)
     context['course'] = Course.query.get(context['assignment'].course_id)
     return render_template('assignment-student.html', **context)
 
@@ -110,7 +109,6 @@ def question_view(question_id):
     context = get_context()
     context['question'] = Question.query.get(question_id)
     context['course'] = Course.query.get(context['question'].course_id)
-    print(context)
     return render_template('question-student.html', **context)
 
 
