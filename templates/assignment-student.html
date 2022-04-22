@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %} Demograder {% endblock %}
+{% block content %}
+<a href="/course/{{course.id}}"><h2>{{course.department_code}} {{course.number}}: {{course.title}}</h2></a>
+<h2 style="margin-bottom: 1rem;">{{assignment.name}} (79%)</h2>
+<div id="test-cases">
+    <div id="submit-new-version">Submit New Version</div>
+    <div id="summary-bar"></div>
+    <div id="test-case-container">
+        <span class="test-case pass">Pass</span>
+        <span class="test-case fail">Fail</span>
+        {% for i in range(20) %}
+        <span class="test-case">TBD</span>
+        {% endfor %}
+    </div>
+</div>
+<div id="question-container">
+    {% for i in range(20) %}
+    <div class="question-stat">
+        <span>Question Name</span>
+        <span>MiniMax.py</span>
+        <span class="question-bar">
+            <span>
+                3
+            </span>
+            <span>
+                1
+            </span>
+        </span>
+        <span>May 28th, 2021 5:35:10PM</span>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,6 +1,7 @@
+from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
-from .models import db, User, Course, Assignment, Question, QuestionFile
+from .models import Student, Submission, db, User, Course, Assignment, Question, QuestionFile
 
 
 def install_fixtures(app):

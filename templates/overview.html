@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% import "card.html" as card %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block content %}
+<div class="mt-8">
+    <h1 class="text-3xl font-bold">Instance Overview</h1>
+    <div class="grid grid-cols-3 gap-8 mt-6 grid-rows-2">
+		
+		<!-- Student and Instructor Add Buttons -->
+		<div class="bg0 col-span-1 rounded-sm outline outline-bg2">
+			<div class="grid grid-cols-2">
+				<div class="flex flex-col p-6 space-y-2">
+					<div class="text-4xl space-x-2"><i class="fa-solid fa-user-group"></i><span>{{ users|length }}</span></div>
+					<div class="text-2xl fold-bold">USERS</div>
+				</div>
+				<div class="flex justify-center items-center">
+					<a class="block bg-purple px-4 py-1 rounded-md outline outline-dark-purple font-extrabold text-white" href="{{ url_for('demograder.user_form') }}">
+						New user
+					</a>
+				</div>
+			</div>
+			<hr class="card-divider">
+			<div class="py-4 mx-8 space-x-1">
+				<a class="lorange font-semibold" href="{{ url_for('demograder.users_overview') }}">View users</a> <span>&gt;</span>
+			</div>
+		</div>
+
+		<div class="bg0 col-span-1 rounded-sm outline outline-bg2">
+			<div class="grid grid-cols-2">
+				<div class="flex flex-col p-6 space-y-2">
+					<div class="text-4xl space-x-2"><i class="fa-solid fa-building-columns"></i><span>{{ courses|length }}</span></div>
+					<div class="text-2xl fold-bold">COURSES</div>
+				</div>
+				<div class="flex justify-center items-center">
+					<a class="block bg-purple px-4 py-1 rounded-md outline outline-dark-purple font-extrabold text-white" href="{{ url_for('demograder.course_form') }}">
+						New course
+					</a>
+				</div>
+			</div>
+			<hr class="card-divider">
+			<div class="py-4 mx-8 space-x-1">
+				<a class="lorange font-semibold" href="{{ url_for('demograder.courses_overview') }}">View courses</a> <span>&gt;</span>
+			</div>
+		</div>
+		
+		<!-- Instance Overview -->
+		<div class="bg0 col-span-1 rounded-sm outline outline-bg2 p-6 space-y-4 row-span-2 text-xl">
+			<h1 class="font-bold text-4xl">Instance</h1>
+			<div class="grid grid-cols-2">
+				<div>Demograder</div>
+				<a class="block lorange" href="https://github.com/justinnhli/flask-demograder/commit/6f77a93c26a54761fa9e4ab695b9eee809be5bfe">git+6f77a9</a>
+			</div>
+			<div class="grid grid-cols-2">
+				<div>Database Size</div>
+				<div>{{ database_size }}</div>
+			</div>
+			<div class="grid grid-cols-2">
+				<div>Running Jobs</div>
+				<div>0</div>
+			</div>
+		</div>
+
+    </div>
+</div>
+{% endblock %}

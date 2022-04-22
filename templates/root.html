@@ -5,7 +5,21 @@
 {% block breadcrumb %}&nbsp;{% endblock %}
 
 {% block content %}
-    <div style="font-size:200%; text-align:center; padding:4em 0;">
-        <a href="{{ url_for('auth.login') }}">Login</a> to continue
+<!-- Horizontally align prompt -->
+<div class="grid grid-cols-1 md:grid-cols-5 xl:grid-cols-3 h-full">
+    <!-- Vertical align -->
+    <div class="col-span-3 md:col-span-3 xl:col-span-1 col-start-1 md:col-start-2 xl:col-start-2 grid grid-rows-none sm:grid-rows-3">
+        <div class="row-span-1 row-start-2">
+            <div class="bg0 rounded-lg grid grid-rows-2 sm:grid-rows-2 grid-flow-col">
+                <div class="row-span-1 text-center my-6 sm:my-12">
+                    <div class="lorange font-extrabold text-2xl mb-2">demograder</div>
+                    Sign in with your Oxy email
+                </div>
+                <div class="row-start-0 sm:row-start-0 flex justify-center text-xl sm:text-3xl">
+                    <a class="aqua underline font-medium" href="{{ url_for('auth.login') }}">Login with Google</a>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 {% endblock %}
