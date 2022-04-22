@@ -76,12 +76,12 @@ def _set_role_context(context, url_args, **kwargs):
             Role.FACULTY,
         )
         context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.FACULTY)
-    # elif context['instructor']:
-    #     context['role'] = min(
-    #         Role[url_args.get('role', 'instructor').upper()],
-    #         Role.INSTRUCTOR,
-    #     )
-    #     context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.INSTRUCTOR)
+    elif context['instructor']:
+        context['role'] = min(
+            Role[url_args.get('role', 'instructor').upper()],
+            Role.INSTRUCTOR,
+        )
+        context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.INSTRUCTOR)
     else:
         context['role'] = Role.STUDENT
         context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.STUDENT)
@@ -141,11 +141,7 @@ def get_context(**kwargs):
         if not (viewer_is_student or viewer_is_instructor):
             forbidden(context)
     _set_course_context(context, url_args, **kwargs)
-    course = None
-    if 'course' in context:
-        course = context['course']
-    _set_instructor_context(context, url_args, **kwargs)
-    _set_student_context(context, url_args, **kwargs)
+    course = context['course']
     # check if both the user and the viewer are related to the course
     if course:
         _set_instructor_context(context, url_args, **kwargs)
