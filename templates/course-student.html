@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Demograder{% endblock %}
+{% block content %}
+    {% if course %}
+    <h1>{{course.title}}</h1>
+    {% for assignment in course.assignments %}
+        <h2>{{assignment.name}}</h2>
+        <h3>{{assignment.due_date}}</h3>
+        <h4>{{assignment.score}}</h4>
+    {% endfor %}
+    {% else %}
+    <h1>No course found.</h1>
+    {% endif %}
+{% endblock %}
