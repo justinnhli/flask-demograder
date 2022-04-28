@@ -7,6 +7,9 @@ body {background-color:#EEEEEC; font-family:Open Sans,Helvetica,Arial,sans-serif
 #navbar {clear:both;}
 #breadcrumb {float:left;}
 #quicklinks {float:right;}
+a {
+	color: var(--lorange) !important; /* Kept overriding with 'inherit' */
+}
 
 #content {clear:both; width:100%;}
 

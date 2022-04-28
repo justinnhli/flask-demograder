@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <link href="./home-student.css" rel="stylesheet">
+    </head>
+    <!--
+        REFER TO models.py for info
+        • What large and small decisions are students making?
+            - Submission/Resubmission of an assignment
+            - When to submit (if they have time, or need to submit now)
+            - If they need to make changes
+            - Where they're failing.
+        • What are some edge cases that students might face?
+            - Submitting for multiple classes at the same time
+        • What do they need to know to make those decisions?
+            - Assignment name, course, due date, testcases, sub score
+        Current needs:
+        - Assignments and their due dates (high)
+            - closest due dates should be at top
+            - only show due dates currently needed?
+        - Courses and their corresponding assignments (med)
+        - Assignments and their corresponding submissions (high)
+    -->
+    <body style="margin-left: 2rem">
+        <h1 style="display: inline-block; color: rgb(255, 140, 0);">
+            demograder
+        </h1>
+        <h3 style="display: inline-block; color: rgb(255, 140, 0); text-align: right;">
+            clinscott@oxy.edu | <a href="#">Logout</a>
+        </h3>
+        <h4>Role: Student</h4>
+        <!--
+            Serves as course panel, showing courses and corresponding colors.
+            Should have course names, and relevant assignments due!
+        -->
+        <div id="course-panel">
+            <div class="course-color-panel">
+                <table>
+                    <tr><th>Course Name</th><th>Semester/Year</th></tr>
+                    <tr class="c1" style="cursor:pointer;">
+                        <td><u>COMP 229</u></td>
+                        <td>Spring 2022</td>
+                    </tr>
+                    <tr class="c2">
+                        <td>COMP 229</td>
+                        <td>Spring 2023</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <br>
+        <!--
+            Serves as submission panel, showing the submission which are categorized
+            by a course id, assignment id, sub time, score
+
+            Color should be representative of the COURSE??
+                - Idea: the assignment a student is working is
+        -->
+        <div id="sub-panel">
+            <table>
+                <tr>
+                    <th>Course:Semester</th>
+                    <th>Assignment Name</th>
+                    <th>File</th>
+                    <th>Submission Time</th>
+                    <th>Score</th>
+                </tr>
+                <tr class="c1">
+                    <td>COMP 229::Spring 2022</td>
+                    <td>P2:MiniMax</td>
+                    <td>Rainfall.py</td>
+                    <td>4:34:23 AM</td>
+                    <td>5/5</td>
+                </tr>
+                <tr class="c2">
+                    <td>COMP 229::Spring 2023</td>
+                    <td>P2:MiniMax</td>
+                    <td>Rainfall.py</td>
+                    <td>4:34:23 AM</td>
+                    <td>3/5</td>
+                </tr>
+                <tr class="c2">
+                    <td>COMP 229::Spring 2023</td>
+                    <td>P2:MiniMax</td>
+                    <td>Rainfall.py</td>
+                    <td>4:34:23 AM</td>
+                    <td>3/5</td>
+                </tr>
+                <tr class="c2">
+                    <td>COMP 229::Spring 2023</td>
+                    <td>P2:MiniMax</td>
+                    <td>Rainfall.py</td>
+                    <td>4:34:23 AM</td>
+                    <td>3/5</td>
+                </tr>
+                <tr>
+                    <td>Homework.py</td>
+                    <td>Homework 3</td>
+                    <td>12:07:34 AM</td>
+                    <td>TBA/5</d>
+                </tr>
+                <tr>
+                    <td>Homework.py</td>
+                    <td>Homework 3</td>
+                    <td>12:07:34 AM</td>
+                    <td>1/5</d>
+                </tr>
+                <tr>
+                    <td>Homework.py</td>
+                    <td>Homework 3</td>
+                    <td>12:07:34 AM</td>
+                    <td>2.5/5</d>
+                </tr>
+            </table>
+        </div>
+
+    </body>
+</html>

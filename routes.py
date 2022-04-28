@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, url_for, redirect, abort
+from pandas import concat
 from werkzeug.utils import secure_filename
 
-from .context import get_context, Role
+from .context import _set_student_context, get_context, Role
 from .forms import UserForm
 from .models import db, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
@@ -27,6 +28,17 @@ def home():
         context['questions'] = Question.query.all()
         context['question_files'] = QuestionFile.query.all()
         return render_template('home-admin.html', **context)
+    elif context['role'] >= Role.STUDENT:
+        # Assuming the alternative view takes care of the difference with MASQ?
+        context['courses'] = context['user'].courses_taking
+        context['assignments'] = []
+        # Yeah, don't think this is completely correct. I was trying to figure out
+        # how to natural join the assignments 
+        # with just the array of courses I get from context['courses']
+        # but I don't get anything.
+        for course in context['courses']:
+            context['assignments'] += course.assignments
+        return render_template('home-student.html', **context)
     else:
         return render_template('home.html', **context)
 
@@ -38,7 +50,9 @@ def user_view(user_id):
 
 @blueprint.route('/course/<int:course_id>')
 def course_view(course_id):
-    return f'{course_id=}' # TODO
+    context = get_context()
+    context['course'] = Course.query.get(course_id)
+    return render_template('course-student.html', **context)
 
 
 @blueprint.route('/question/<int:question_id>')
