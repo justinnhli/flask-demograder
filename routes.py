@@ -40,7 +40,6 @@ def user_view(user_id):
 def course_view(course_id):
     context = get_context()
     context['course'] = Course.query.get(course_id)
-    print(context['course'].assignments[0].questions)
     return render_template('course-student.html', **context)
 
 
