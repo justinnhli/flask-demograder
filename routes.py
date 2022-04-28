@@ -2,13 +2,16 @@ from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
-from .forms import UserForm
+from .forms import UserForm, CourseForm
 from .models import db, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
 blueprint = Blueprint(name='demograder', import_name='demograder')
 
 
+# --------------------------- 
+# ROUTES
+# ---------------------------
 @blueprint.route('/')
 def root():
     context = get_context(login_required=False)
@@ -90,6 +93,7 @@ def user_form(user_id):
             # if there is an ID, this is editing an existing User
             # make sure that the submitted ID is the same as the user ID
             if not (context['user'].admin or int(form.id.data) == user_id):
+                print('hi')
                 abort(403)
             user = User.query.get(form.id.data).first()
             user.preferred_name = form.preferred_name.data.strip()
@@ -131,12 +135,126 @@ def user_form(user_id):
 @blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>', methods=('GET', 'POST'))
 def course_form(course_id):
-    pass
+    context = get_context(course=course_id)
+    form = CourseForm()
+
+    # add logic for the 'add me as instructor' option from form
+    # ask about how this should work
+
+    if form.validate_on_submit():
+
+        # extract the emails from the instructor & student fields
+        instructor_emails = extract_emails(form.instructors.data.strip())
+        student_emails = extract_emails(form.students.data.strip())
+
+        # retrieve/generate User objects for the email addresses
+        instructor_emails = map(check_db_user, instructor_emails)
+        student_emails = map(check_db_user, student_emails)
+
+        if form.id.data:
+            # is there anything that should be restrictured to just admin?
+            q = Course.query.get(int(form.id.data))
+            if not q:
+                abort(403)
+            course = q.first()
+            course.season = form.season.data.strip()
+            course.year = form.year.data.strip()
+            course.department_code = form.department_code.data.strip()
+            course.number = form.number.data.strip()
+            course.section = form.section.data.strip()
+            course.title = form.title.data.strip()
+            course.instructors = form.instructors.data.strip()
+            course.students = parsed_students
+
+        else:
+            course = Course(
+                season = form.season.data.strip(),
+                year = form.year.data.strip(),
+                department_code = form.department_code.data.strip(),
+                number = form.number.data.strip(),
+                section = form.section.data.strip(),
+                title = form.title.data.strip(),
+                instructors = [],
+                students = [],
+            )
+        
+        # add the Users for instructors and students to the course
+        for user in instructor_emails:
+            course.instructors.append(user)
+        for user in student_emails:
+            course.students.append(user)
+    
+        db.session.add(course)
+        db.session.commit()
+
+        # TODO need to add student adding based on email addresses
+
+        return redirect(url_for('demograder.home'))
+
+    elif course_id:
+        course = Course.query.filter_by(id=course_id).first()
+        form.id.default = course.id
+        form.season.default = course.season
+        form.year.default = course.year
+        form.department_code.default = course.department_code
+        form.number.default = course.number
+        form.section.default = course.section
+        form.title.default = course.title
+        form.instructors.default = course.instructors
+        form.students.default = course.students
+        form.process()
+    return render_template('forms/course.html', form=form, **context)
 
 
-# REDIRECTS
+# --------------------------- 
+# UTILITY FUNCTIONS
+# ---------------------------
+def extract_emails(students):
+    '''
+    in: text/str list of all the students being enrolled
+    return: a list of just the email addresses
+    desc: grabs the email addresses from the 'students' field
+    '''
+    students_list = [item.strip(',/-.') for item in students.split(' ') if '@' in item]
+    return students_list
 
 
+def check_db_user(email):
+    '''
+    in: str email address
+    return: User object
+    desc: 
+      - checks the db for a user with the provided email
+      - returns the target User object if they exist,
+      - else generates and returns a new user object with the email
+    '''
+    # query the db for the target user 
+    # (not totally sure how querying works in sqlalchemy)
+    #   - will it return None if no email found?
+    #     - put in try, catch just incase
+   
+    user = User.query.filter_by(email=email).first()
+    # usr.first()
+    if user: 
+        return user
+   
+    new_user = User(
+            preferred_name='',
+            family_name='',
+            email=email,
+            # what should these last two be set to?
+            admin=False,
+            faculty=False,
+            # other attributes to define?
+            )
+    db.session.add(new_user)
+    db.session.commit()
+    return new_user
+
+
+# --------------------------- 
+# ERROR HANDLERS
+# ---------------------------
 @blueprint.errorhandler(401)
 def unauthorized_error(error):
     return redirect(url_for('demograder.root'))
