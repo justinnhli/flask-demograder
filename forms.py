@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, HiddenField, StringField, SubmitField, SelectField
+from wtforms import BooleanField, HiddenField, StringField, SubmitField, \
+                    SelectField, DateField
 from wtforms.validators import InputRequired, Regexp
 
 from .models import User
@@ -66,3 +67,13 @@ class CourseForm(FlaskForm):
     # Are we representing this in the form or will these get added later?
     # assignments = 
 
+
+class AssignmentForm(FlaskForm):
+    id = HiddenField('id')
+    course_id = HiddenField('course_id')
+    name = StringField('Assignment Name')
+
+    # should we use a different date format?
+    # default for DateField is: format='%Y-%m-%d'
+    due_date = DateField('Due Date')
+    submit = SubmitField('Submit')
