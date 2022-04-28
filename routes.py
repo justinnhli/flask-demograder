@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
 from .forms import UserForm
-from .models import db, User, Course, Assignment, Question, QuestionFile
+from .models import db, Student, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
 blueprint = Blueprint(name='demograder', import_name='demograder')
@@ -38,7 +38,9 @@ def user_view(user_id):
 
 @blueprint.route('/course/<int:course_id>')
 def course_view(course_id):
-    return f'{course_id=}' # TODO
+    context = get_context()
+    context['course'] = Course.query.get(course_id)
+    return render_template('course-student.html', **context)
 
 
 @blueprint.route('/question/<int:question_id>')
