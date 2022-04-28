@@ -2,7 +2,7 @@ from enum import IntEnum
 
 from flask import session, request, abort
 
-from .models import User, Course
+from .models import User, Course, Assignment
 
 
 class Role(IntEnum):
@@ -35,11 +35,22 @@ def _set_viewer_context(context, url_args, **kwargs):
 
 def _set_course_context(context, url_args, **kwargs):
     # TODO determine question, assignment, and course
-    if 'course_id' in kwargs:
-        context['course'] = Course.query.filter_by(id=kwargs['course_id']).first()
+    if kwargs.get('assignment_id', None):
+        context['assignment'] = Assignment.query.filter_by(id=kwargs['assignment_id']).first()
     elif False:
         # FIXME get the course based on the assignment
         pass
+    else:
+        context['assignment'] = None
+    
+    if 'course_id' in kwargs:
+        context['course'] = Course.query.filter_by(id=kwargs['course_id']).first()
+        if context['assignment'] and  context['course'].id != context['assignment'].course.id:
+            abort(403)
+
+    elif context['assignment']:
+        context['course'] = context['assingment'].course
+        
     else:
         context['course'] = None
 

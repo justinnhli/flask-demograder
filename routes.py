@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
-from .forms import UserForm, CourseForm
+from .forms import UserForm, CourseForm, AssignmentForm
 from .models import db, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
@@ -141,6 +141,7 @@ def course_form(course_id):
     # add logic for the 'add me as instructor' option from form
     # ask about how this should work
 
+    # goes here when the form is actually submitted
     if form.validate_on_submit():
 
         # extract the emails from the instructor & student fields
@@ -151,6 +152,7 @@ def course_form(course_id):
         instructor_emails = map(check_db_user, instructor_emails)
         student_emails = map(check_db_user, student_emails)
 
+        # if the course already exists in the DB
         if form.id.data:
             # is there anything that should be restrictured to just admin?
             q = Course.query.get(int(form.id.data))
@@ -166,16 +168,17 @@ def course_form(course_id):
             course.instructors = form.instructors.data.strip()
             course.students = parsed_students
 
+        # if the course doesn't already exist in the DB
         else:
             course = Course(
-                season = form.season.data.strip(),
-                year = form.year.data.strip(),
-                department_code = form.department_code.data.strip(),
-                number = form.number.data.strip(),
-                section = form.section.data.strip(),
-                title = form.title.data.strip(),
-                instructors = [],
-                students = [],
+                season=form.season.data.strip(),
+                year=form.year.data.strip(),
+                department_code=form.department_code.data.strip(),
+                number=form.number.data.strip(),
+                section=form.section.data.strip(),
+                title=form.title.data.strip(),
+                instructors=[],
+                students=[],
             )
         
         # add the Users for instructors and students to the course
@@ -187,10 +190,10 @@ def course_form(course_id):
         db.session.add(course)
         db.session.commit()
 
-        # TODO need to add student adding based on email addresses
-
         return redirect(url_for('demograder.home'))
 
+    # pre-fills the fields if the course_id is specified in the URL
+    # happens when they load the page initially
     elif course_id:
         course = Course.query.filter_by(id=course_id).first()
         form.id.default = course.id
@@ -203,7 +206,65 @@ def course_form(course_id):
         form.instructors.default = course.instructors
         form.students.default = course.students
         form.process()
+    
     return render_template('forms/course.html', form=form, **context)
+
+
+# NEW ROUTE for Assignments
+# double check that these URLs are correct
+# @blueprint.route('/forms/course/assignment/', methods=('GET', 'POST'))
+@blueprint.route('/forms/course/<int:course_id>/assignment/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/forms/course/<int:course_id>/assignment/<int:assignment_id>', methods=('GET', 'POST'))
+def assignment_form(course_id=None, assignment_id=None):
+    
+    context = get_context(course_id=course_id, assignment_id=assignment_id, min_role='faculty')
+    form = AssignmentForm()
+    print(course_id)
+    course = Course.query.filter_by(id=course_id).first()
+    if not course:
+        abort(403)
+    # goes here when the form is actually submitted
+    
+    if form.validate_on_submit():
+
+        # if the assignment already exists in the DB
+        if form.id.data:
+        #     q = Assignment.query.get(int(form.id.data))
+        #     if not q:
+        #         abort(403)
+            assignment = context['assignment']
+            assignment.course_id = course_id
+            assignment.name = form.name.data.strip()
+            assignment.due_date = form.due_date.data
+            
+        # if the assignment doesn't already exist in the DB
+        else:
+            assignment = Assignment(
+                course_id=course_id,
+                name=form.name.data.strip(),
+                due_date=form.due_date.data,
+            )
+        # commit this assignment to the DB
+        db.session.add(assignment)
+        db.session.commit()
+
+        # end, redirecct to home page
+        return redirect(url_for('demograder.home'))
+
+    # if the id is specified in the URL, pre-fill the form with existing data
+    # this implies that the assignment already exists in the DB
+    elif assignment_id:
+        assignment = Assignment.query.filter_by(id=assignment_id).first()
+        form.id.default = assignment.id
+        form.course_id.default = assignment.course_id
+        form.name.default = assignment.name
+        form.due_date.default = assignment.due_date
+        form.process()
+    else:
+        form.course_id.default = context["course"].id
+        form.process()
+        
+    return render_template('forms/assignment.html', form=form, **context)
 
 
 # --------------------------- 
