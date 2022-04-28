@@ -1,3 +1,4 @@
+from ast import Assign
 from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
@@ -41,9 +42,22 @@ def course_view(course_id):
     return f'{course_id=}' # TODO
 
 
-@blueprint.route('/question/<int:question_id>')
+@blueprint.route("/assignment/<int:assignment_id>")
+def assignment_view(assignment_id):
+    context = get_context()
+    context['assignment'] = Assignment.query.get(assignment_id)
+    print(context['assignment'].questions)
+    context['course'] = Course.query.get(context['assignment'].course_id)
+    return render_template('assignment-student.html', **context)
+
+
+@blueprint.route("/question/<int:question_id>")
 def question_view(question_id):
-    return f'{question_id=}' # TODO
+    context = get_context()
+    context['question'] = Question.query.get(question_id)
+    context['course'] = Course.query.get(context['question'].course_id)
+    print(context)
+    return render_template('question-student.html', **context)
 
 
 @blueprint.route('/submission/<int:submission_id>')
