@@ -29,8 +29,15 @@ def home():
         context['question_files'] = QuestionFile.query.all()
         return render_template('home-admin.html', **context)
     elif context['role'] >= Role.STUDENT:
-        context['courses'] = Course.query.all()
-        context['assignments'] = Assignment.query.all()
+        # Assuming the alternative view takes care of the difference with MASQ?
+        context['courses'] = context['user'].courses_taking
+        context['assignments'] = []
+        # Yeah, don't think this is completely correct. I was trying to figure out
+        # how to natural join the assignments 
+        # with just the array of courses I get from context['courses']
+        # but I don't get anything.
+        for course in context['courses']:
+            context['assignments'] += course.assignments
         return render_template('home-student.html', **context)
     else:
         return render_template('home.html', **context)
