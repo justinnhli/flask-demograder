@@ -4,30 +4,24 @@
     {% if course %}
     <!-- All headings are UNstyled by default in Tailwind... -->
     <!-- Also some stuff is hardcoded atm. -->
-    <h1>{{course.title}}</h1>
+    <h1>{{course.department_code}} {{course.number}}: {{course.title}}</h1>
     <h2>Assignments</h2>
-    <table style="width: 75%;">
+    <table style="width: 100%;">
         {% for assignment in course.assignments %}
             <tr>
-                <th>{{assignment.name}}</th>
-                <th>Current Score: 75%</th>
-                <th>{{assignment.due_date}}</th>
+                <td>{{assignment.name}} (Current Score: 75%)</td>
+                <td>due {{assignment.due_date.strftime("%A, %B %-d, %Y %I:%M:%S %p")}}</td>
             </tr>
             <tr>
-                <td>MiniMax.py</td>
-                <td>Score: 75%</td>
-                <td style="display: flex; height: 1rem; height: 100%;">
-                    <div style="background-color: green; width: 75%; text-align: center;">3</div>
-                    <div style="flex-grow: 1; background-color: red; text-align: center;">1</div>
-                </td>
-            </tr>
-            <h4>{{assignment.score}}</h4> <!-- Not sure how to get score -->
-            <!-- {% for question in assignment.questions %}
-                <h2>{{question.id}}</h2>
-                {% for submission in question.submissions %}
-                <h2>{{submission.id}}</h2> 
+                {% for question in assignment.questions %}
+                    <td><li><a href="#">Insert Question Name Here</a></li></td> <!-- Question name? -->
+                    <td style="display: flex; height: 1rem; height: 100%;">
+                        <div style="background-color: green; width: 75%; text-align: center;">3</div>
+                        <div style="flex-grow: 1; background-color: red; text-align: center;">1</div>
+                    </td>
                 {% endfor %}
-            {% endfor %} -->
+                
+            </tr>
         {% endfor %}
     </table>
     {% else %}
