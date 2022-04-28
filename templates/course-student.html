@@ -9,7 +9,7 @@
     <table style="width: 100%;">
         {% for assignment in course.assignments %}
             <tr>
-                <td>{{assignment.name}} (Current Score: 75%)</td>
+                <td><a href="/assignment/{{assignment.id}}">{{assignment.name}}</a> (Current Score: 75%)</td>
                 <td>due {{assignment.due_date.strftime("%A, %B %-d, %Y %I:%M:%S %p")}}</td>
             </tr>
             <tr>
