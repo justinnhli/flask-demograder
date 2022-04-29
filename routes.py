@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
-from .forms import UserForm, CourseForm, AssignmentForm
+from .forms import UserForm, CourseForm, AssignmentForm, QuestionForm
 from .models import db, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
@@ -212,26 +212,19 @@ def course_form(course_id):
 
 # NEW ROUTE for Assignments
 # double check that these URLs are correct
-def assignment_form(course_id=None, assignment_id=None):
-@blueprint.route('/forms/course/<int:course_id>/assignment/<int:assignment_id>', methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>/assignment/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
-# @blueprint.route('/forms/course/assignment/', methods=('GET', 'POST'))
-    
+@blueprint.route('/forms/course/<int:course_id>/assignment/<int:assignment_id>', methods=('GET', 'POST'))
+def assignment_form(course_id=None, assignment_id=None):
     context = get_context(course_id=course_id, assignment_id=assignment_id, min_role='faculty')
     form = AssignmentForm()
-    print(course_id)
     course = Course.query.filter_by(id=course_id).first()
     if not course:
         abort(403)
     # goes here when the form is actually submitted
-    
     if form.validate_on_submit():
 
         # if the assignment already exists in the DB
         if form.id.data:
-        #     q = Assignment.query.get(int(form.id.data))
-        #     if not q:
-        #         abort(403)
             assignment = context['assignment']
             assignment.course_id = course_id
             assignment.name = form.name.data.strip()
@@ -247,7 +240,6 @@ def assignment_form(course_id=None, assignment_id=None):
         # commit this assignment to the DB
         db.session.add(assignment)
         db.session.commit()
-
         # end, redirecct to home page
         return redirect(url_for('demograder.home'))
 
@@ -266,6 +258,61 @@ def assignment_form(course_id=None, assignment_id=None):
         
     return render_template('forms/assignment.html', form=form, **context)
 
+
+@blueprint.route('/forms/assignment/<int:assignment_id>/question/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/forms/assignment/<int:assignment_id>/question/<int:question_id>', methods=('GET', 'POST'))
+def assignment_form(assignment_id=None, question_id=None):
+    context = get_context(assignment_id=assignment_id, question_id=question_id, min_role='faculty')
+    form = QuestionForm()
+    assignment = Assignment.query.filter_by(id=assignment_id).first()
+    if not assignment:
+        abort(403)
+    # goes here when the form is actually submitted
+    if form.validate_on_submit():
+
+        # if the question already exists in the DB
+        if form.id.data:
+            question = context['question']
+            question.assignment_id = assignment_id
+            question.cooldown_seconds = form.cooldown_seconds.data.strip()
+            question.timeout_seconds = form.timeout_seconds.data.strip()
+            question.hide_output = form.hide_output.data
+            question.visible = form.visible.data
+            question.locked = form.locked.data
+            
+        # if the question doesn't already exist in the DB
+        else:
+            question = Question(
+                assignment_id=assignment_id,
+                cooldown_seconds=form.cooldown_seconds.data.strip(),
+                timeout_seconds = form.timeout_seconds.data.strip(),
+                hide_output = form.hide_output.data,
+                visible = form.visible.data,
+                locked = form.locked.data
+            )
+        # commit this assignment to the DB
+        db.session.add(question)
+        db.session.commit()
+        # end, redirecct to home page
+        return redirect(url_for('demograder.home'))
+
+    # if the id is specified in the URL, pre-fill the form with existing data
+    # this implies that the question already exists in the DB
+    elif question_id:
+        question = Question.query.filter_by(id=question_id).first()
+        form.id.default = question.id
+        form.assignment_id.default = question.assignment_id
+        form.cooldown_seconds.default = question.cooldown_seconds
+        form.timeout_seconds.default = question.timeout_seconds
+        form.hide_output.default = question.hide_output
+        form.visible.default = question.visible
+        form.locked.default = question.locked
+        form.process()
+    else:
+        form.assignment_id.default = context["assignment"].id
+        form.process()
+        
+    return render_template('forms/question.html', form=form, **context)
 
 # --------------------------- 
 # UTILITY FUNCTIONS
