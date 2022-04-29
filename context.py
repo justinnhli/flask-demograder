@@ -2,7 +2,7 @@ from enum import IntEnum
 
 from flask import session, request, abort
 
-from .models import User, Course
+from .models import User, Course, Assignment, Question
 
 
 class Role(IntEnum):
@@ -162,6 +162,7 @@ def get_context(**kwargs):
         # check if the viewer is related to the course
         if context['alternate_view'] and not (context['instructor'] or context['student']):
             forbidden(context)
+    _set_instructor_context(context, url_args, **kwargs)
     _set_role_context(context, url_args, **kwargs)
     # check if the viewer meets the minimum role requirements
     if Role[kwargs.get('min_role', 'student').upper()] > context['role']:

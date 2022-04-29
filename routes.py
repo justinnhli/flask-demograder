@@ -2,13 +2,16 @@ from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
-from .forms import UserForm
+from .forms import UserForm, CourseForm, AssignmentForm, QuestionForm
 from .models import db, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
 blueprint = Blueprint(name='demograder', import_name='demograder')
 
 
+# --------------------------- 
+# ROUTES
+# ---------------------------
 @blueprint.route('/')
 def root():
     context = get_context(login_required=False)
@@ -101,8 +104,8 @@ def user_form(user_id):
                 user.email = form.email.data.strip()
                 user.admin = form.admin.data
                 user.faculty = form.faculty.data
+        # otherwise, this is creating a new User        
         else:
-            # otherwise, this is creating a new User
             user = User(
                 preferred_name=form.preferred_name.data.strip(),
                 family_name=form.family_name.data.strip(),
