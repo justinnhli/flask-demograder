@@ -36,7 +36,15 @@ def _set_viewer_context(context, url_args, **kwargs):
 def _set_course_context(context, url_args, **kwargs):
     # TODO determine question, assignment, and course
     if kwargs.get('assignment_id', None):
+        context['course'] = Course.query.filter_by(id=kwargs['course_id']).first()
         context['assignment'] = Assignment.query.filter_by(id=kwargs['assignment_id']).first()
+    elif False:
+        # FIXME get the course based on the assignment
+        pass
+    else:
+        context['assignment'] = None
+    if 'course_id' in kwargs:
+    
     elif False:
         # FIXME get the course based on the assignment
         pass
