@@ -89,24 +89,23 @@ def download_file(file_id):
 def user_form(user_id):
     context = get_context(user=user_id)
     form = UserForm()
-    # if the form is being submitted, process it for data
     if form.validate_on_submit():
-        # if there is an ID, this is editing an existing User
+        # if the form is being submitted, process it for data
         if form.id.data:
-            # make sure that the submitted ID is the same as the user ID
+             # if there is an ID, this is editing an existing User
             if not (context['user'].admin or int(form.id.data) == user_id):
-                print('hi')
+                # make sure that the submitted ID is the same as the user ID
                 abort(403)
             user = User.query.get(form.id.data).first()
             user.preferred_name = form.preferred_name.data.strip()
             user.family_name = form.family_name.data.strip()
-            # only an admin can change the email or the admin/faculty statuses
             if context['user'].admin:
+                # only an admin can change the email or the admin/faculty statuses
                 user.email = form.email.data.strip()
                 user.admin = form.admin.data
                 user.faculty = form.faculty.data
-        # otherwise, this is creating a new User        
         else:
+            # otherwise, this is creating a new User
             user = User(
                 preferred_name=form.preferred_name.data.strip(),
                 family_name=form.family_name.data.strip(),
@@ -117,8 +116,8 @@ def user_form(user_id):
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('demograder.home'))
-    # the form is not being submitted
     if user_id:
+        # the form is not being submitted
         # a user ID is provided; set the defaults to the user being edited
         user = User.query.get(user_id).first()
         form.id.default = user.id
@@ -127,8 +126,8 @@ def user_form(user_id):
         form.email.default = user.email
         form.admin.default = user.admin
         form.faculty.default = user.faculty
-        # disable the email field for non-admins
         if context['role'] < Role.ADMIN:
+            # disable the email field for non-admins
             form.email.render_kw['disabled'] = ''
         form.process()
     return render_template('forms/user.html', form=form, **context)
@@ -148,8 +147,8 @@ def course_form(course_id):
         instructors = map(check_db_user, instructor_emails)
         students = map(check_db_user, student_emails)
         
-        # if the course already exists in the DB
         if form.id.data:
+             # if the course already exists in the DB
             course = Course.query.get(int(form.id.data))
             if not course:
                 abort(403)
@@ -160,8 +159,8 @@ def course_form(course_id):
             course.number = form.number.data.strip()
             course.section = form.section.data.strip()
             course.title = form.title.data.strip()
-        # if the course doesn't already exist in the DB
         else:
+            # if the course doesn't already exist in the DB
             course = Course(
                 season=form.season.data.strip(),
                 year=form.year.data.strip(),
@@ -181,8 +180,8 @@ def course_form(course_id):
         db.session.commit()
 
         return redirect(url_for('demograder.home'))
-    # pre-fills the fields if the course_id is specified in the URL
     elif course_id:
+        # pre-fills the fields if the course_id is specified in the URL
         course = Course.query.filter_by(id=course_id).first()
         form.id.default = course.id
         form.season.default = course.season
@@ -215,14 +214,14 @@ def assignment_form(course_id=None, assignment_id=None):
     if not course:
         abort(403)
     if form.validate_on_submit():
-        # if the assignment already exists in the DB
         if form.id.data:
+             # if the assignment already exists in the DB
             assignment = context['assignment']
             assignment.course_id = course_id
             assignment.name = form.name.data.strip()
             assignment.due_date = form.due_date.data
-        # if the assignment doesn't already exist in the DB
         else:
+            # if the assignment doesn't already exist in the DB
             assignment = Assignment(
                 course_id=course_id,
                 name=form.name.data.strip(),
@@ -231,9 +230,9 @@ def assignment_form(course_id=None, assignment_id=None):
         db.session.add(assignment)
         db.session.commit()
         return redirect(url_for('demograder.home'))
-    # if the id is specified in the URL, pre-fill the form with existing data
-    # this implies that the assignment already exists in the DB
     elif assignment_id:
+        # if the id is specified in the URL, pre-fill the form with existing data
+        # this implies that the assignment already exists in the DB
         assignment = Assignment.query.filter_by(id=assignment_id).first()
         form.id.default = assignment.id
         form.course_id.default = assignment.course_id
@@ -252,13 +251,13 @@ def assignment_form(course_id=None, assignment_id=None):
 def question_form(assignment_id=None, question_id=None):
     context = get_context(assignment_id=assignment_id, question_id=question_id, min_role='faculty')
     form = QuestionForm()
-    # check assignment exists in db
     assignment = Assignment.query.filter_by(id=assignment_id).first()
     if not assignment:
+         # check assignment exists in db
         abort(403)
     if form.validate_on_submit():
-        # if the question already exists in the DB
         if form.id.data:
+             # if the question already exists in the DB
             question = context['question']
             question.assignment_id = assignment_id
             question.cooldown_seconds = form.cooldown_seconds.data.strip()
@@ -266,8 +265,8 @@ def question_form(assignment_id=None, question_id=None):
             question.hide_output = form.hide_output.data
             question.visible = form.visible.data
             question.locked = form.locked.data
-        # if the question doesn't already exist in the DB
         else:
+            # if the question doesn't already exist in the DB
             question = Question(
                 assignment_id=assignment_id,
                 cooldown_seconds=form.cooldown_seconds.data.strip(),
@@ -279,9 +278,9 @@ def question_form(assignment_id=None, question_id=None):
         db.session.add(question)
         db.session.commit()
         return redirect(url_for('demograder.home'))
-    # if the id is specified in the URL, pre-fill the form with existing data
-    # this implies that the question already exists in the DB
-    elif question_id:
+    elif question_id: 
+        # if the id is specified in the URL, pre-fill the form with existing data
+        # this implies that the question already exists in the DB
         question = Question.query.filter_by(id=question_id).first()
         form.id.default = question.id
         form.assignment_id.default = question.assignment_id
