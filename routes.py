@@ -149,8 +149,8 @@ def course_form(course_id):
         student_emails = extract_emails(form.students.data.strip())
 
         # retrieve/generate User objects for the email addresses
-        instructor_emails = map(check_db_user, instructor_emails)
-        student_emails = map(check_db_user, student_emails)
+        instructors = map(check_db_user, instructor_emails)
+        students = map(check_db_user, student_emails)
         
         print(student_emails)
 
@@ -167,8 +167,6 @@ def course_form(course_id):
             course.number = form.number.data.strip()
             course.section = form.section.data.strip()
             course.title = form.title.data.strip()
-            course.instructors = form.instructors.data.strip()
-            course.students = parsed_students
 
         # if the course doesn't already exist in the DB
         else:
@@ -182,9 +180,9 @@ def course_form(course_id):
             )
         
         # add the Users for instructors and students to the course
-        for user in instructor_emails:
+        for user in instructors:
             course.instructors.append(user)
-        for user in student_emails:
+        for user in students:
             course.students.append(user)
     
         db.session.add(course)
@@ -203,8 +201,14 @@ def course_form(course_id):
         form.number.default = course.number
         form.section.default = course.section
         form.title.default = course.title
-        form.instructors.default = course.instructors
-        form.students.default = course.students
+        instructor_str = ''
+        student_str = ''
+        for user in course.instructors:
+            instructor_str += str(user) + '\n'
+        for user in course.students:
+            student_str += str(user) + '\n'
+        form.instructors.default = instructor_str
+        form.students.default = student_str
         form.process()
     
     return render_template('forms/course.html', form=form, **context)
@@ -260,9 +264,9 @@ def assignment_form(course_id=None, assignment_id=None):
 
 
 # new route for questions
-@blueprint.route('/forms/assignment/<int:assignment_id>/question/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
-@blueprint.route('/forms/assignment/<int:assignment_id>/question/<int:question_id>', methods=('GET', 'POST'))
-def assignment_form(assignment_id=None, question_id=None):
+@blueprint.route('/forms/assignment/<assignment_id>/question/', defaults={'question_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/forms/assignment/<assignment_id>/question/<question_id>', methods=('GET', 'POST'))
+def question_form(assignment_id=None, question_id=None):
     context = get_context(assignment_id=assignment_id, question_id=question_id, min_role='faculty')
     form = QuestionForm()
     assignment = Assignment.query.filter_by(id=assignment_id).first()
