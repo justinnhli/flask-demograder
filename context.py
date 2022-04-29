@@ -34,14 +34,24 @@ def _set_viewer_context(context, url_args, **kwargs):
 
 
 def _set_course_context(context, url_args, **kwargs):
-    # TODO determine question, assignment, and course
-    if 'course_id' in kwargs:
+    '''
+    this methods sets context for course or assignment or question,
+    assigning whichever ones are specified in the argument dictionary
+    '''
+    context['question'] = None
+    context['assignment'] = None
+    context['course'] = None
+    if kwargs.get('question_id', None):
+        context['question'] = Question.query.filter_by(id=kwargs['question_id']).first()
+        context['assignment'] = context['question'].assignment
+        context['course'] = context['assignment'].course
+    elif kwargs.get('assignment_id', None):
+        context['assignment'] = Assignment.query.filter_by(id=kwargs['assignment_id']).first()
+        context['course'] = context['assignment'].course
+    elif 'course_id' in kwargs:
         context['course'] = Course.query.filter_by(id=kwargs['course_id']).first()
-    elif False:
-        # FIXME get the course based on the assignment
-        pass
-    else:
-        context['course'] = None
+        if context['assignment'] and context['course'].id != context['assignment'].course.id:
+            abort(403)   
 
 
 def _set_instructor_context(context, url_args, **kwargs):
