@@ -212,10 +212,10 @@ def course_form(course_id):
 
 # NEW ROUTE for Assignments
 # double check that these URLs are correct
-# @blueprint.route('/forms/course/assignment/', methods=('GET', 'POST'))
-@blueprint.route('/forms/course/<int:course_id>/assignment/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
-@blueprint.route('/forms/course/<int:course_id>/assignment/<int:assignment_id>', methods=('GET', 'POST'))
 def assignment_form(course_id=None, assignment_id=None):
+@blueprint.route('/forms/course/<int:course_id>/assignment/<int:assignment_id>', methods=('GET', 'POST'))
+@blueprint.route('/forms/course/<int:course_id>/assignment/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
+# @blueprint.route('/forms/course/assignment/', methods=('GET', 'POST'))
     
     context = get_context(course_id=course_id, assignment_id=assignment_id, min_role='faculty')
     form = AssignmentForm()
