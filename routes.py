@@ -260,9 +260,9 @@ def assignment_form(course_id=None, assignment_id=None):
 
 
 # new route for questions
-@blueprint.route('/forms/assignment/<assignment_id>/question/', defaults={'question_id': None}, methods=('GET', 'POST'))
-@blueprint.route('/forms/assignment/<assignment_id>/question/<question_id>', methods=('GET', 'POST'))
-def question_form(assignment_id=None, question_id=None):
+@blueprint.route('/forms/assignment/<int:assignment_id>/question/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/forms/assignment/<int:assignment_id>/question/<int:question_id>', methods=('GET', 'POST'))
+def assignment_form(assignment_id=None, question_id=None):
     context = get_context(assignment_id=assignment_id, question_id=question_id, min_role='faculty')
     form = QuestionForm()
     assignment = Assignment.query.filter_by(id=assignment_id).first()
