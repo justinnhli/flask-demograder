@@ -28,8 +28,8 @@ def login_redirect():
         elif 'given_name' in user_info:
             preferred_name = user_info['given_name']
         else:
-            preferred_name = 'PREFERRED_NAME_PLACEHOLDER'
-        family_name = user_info.get('family_name', 'FAMILY_NAME_PLACEHOLDER')
+            preferred_name = ''
+        family_name = user_info.get('family_name', '')
         if user:
             user.preferred_name = preferred_name
             user.family_name = family_name

@@ -8,8 +8,8 @@ db = SQLAlchemy()
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    preferred_name = db.Column(db.String, nullable=False)
-    family_name = db.Column(db.String, nullable=False)
+    preferred_name = db.Column(db.String, nullable=False, default='')
+    family_name = db.Column(db.String, nullable=False, default='')
     email = db.Column(db.String, nullable=False, unique=True, index=True)
     admin = db.Column(db.Boolean, nullable=False, default=False)
     faculty = db.Column(db.Boolean, nullable=False, default=False)
