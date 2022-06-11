@@ -39,6 +39,14 @@ class User(db.Model, UserMixin):
         # this method is required by flask-login
         return self.email
 
+    def courses_with_student(self, student):
+        # return courses that the user teaches and the student is enrolled
+        return User.query # FIXME
+
+    def courses_with_coinstructor(self, user):
+        # return courses that the user teaches and the other user is also an instructor
+        return User.query # FIXME
+
 
 class Instructor(db.Model):
     __tablename__ = 'instructors'
