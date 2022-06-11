@@ -93,7 +93,7 @@ def user_form(user_id):
             # make sure that the submitted ID is the same as the user ID
             if not (context['user'].admin or int(form.id.data) == user_id):
                 abort(403)
-            user = User.query.get(form.id.data).first()
+            user = User.query.get(form.id.data)
             user.preferred_name = form.preferred_name.data.strip()
             user.family_name = form.family_name.data.strip()
             # only an admin can change the email or the admin/faculty statuses
