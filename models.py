@@ -73,13 +73,16 @@ class Student(db.Model):
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False, index=True)
 
 
+SEASONS = ['Fall', 'Winter', 'Spring', 'Summer']
+
+
 class Course(db.Model):
     __tablename__ = 'courses'
     __table_args__ = (
         db.UniqueConstraint('season', 'year', 'department_code', 'number', 'section'),
     )
     id = db.Column(db.Integer, primary_key=True)
-    season = db.Column(db.Enum('Fall', 'Winter', 'Spring', 'Summer'), nullable=False)
+    season = db.Column(db.Enum(*SEASONS), nullable=False)
     year = db.Column(db.Integer, nullable=False)
     department_code = db.Column(db.String, nullable=False)
     number = db.Column(db.String, nullable=False)
