@@ -46,3 +46,19 @@ class UserForm(FlaskForm):
     admin = BooleanField('Admin')
     faculty = BooleanField('Faculty')
     submit = SubmitField('Submit')
+
+    @staticmethod
+    def for_user(user_id, context):
+        form = UserForm()
+        if user_id is not None:
+            user = User.query.get(user_id)
+            form.id.default = user.id
+            form.preferred_name.default = user.preferred_name
+            form.family_name.default = user.family_name
+            form.email.default = user.email
+            form.admin.default = user.admin
+            form.faculty.default = user.faculty
+            # disable the email field for non-admins
+            if context['role'] < Role.ADMIN:
+                form.email.render_kw['disabled'] = ''
+        return form

@@ -83,9 +83,11 @@ def download_file(file_id):
 @blueprint.route('/forms/user/<int:user_id>', methods=('GET', 'POST'))
 def user_form(user_id):
     context = get_context(user=user_id)
-    form = UserForm()
-    # if the form is being submitted, process it for data
-    if form.validate_on_submit():
+    form = UserForm.for_user(user_id, context)
+    if not form.is_submitted():
+        form.process()
+        return render_template('forms/user.html', form=form, **context)
+    elif form.validate():
         if form.id.data:
             # if there is an ID, this is editing an existing User
             # make sure that the submitted ID is the same as the user ID
@@ -111,21 +113,6 @@ def user_form(user_id):
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('demograder.home')) # FIXME
-    # the form is not being submitted
-    if user_id is not None:
-        # a user ID is provided; set the defaults to the user being edited
-        user = User.query.get(user_id).first()
-        form.id.default = user.id
-        form.preferred_name.default = user.preferred_name
-        form.family_name.default = user.family_name
-        form.email.default = user.email
-        form.admin.default = user.admin
-        form.faculty.default = user.faculty
-        # disable the email field for non-admins
-        if context['role'] < Role.ADMIN:
-            form.email.render_kw['disabled'] = ''
-        form.process()
-    return render_template('forms/user.html', form=form, **context)
 
 
 @blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
