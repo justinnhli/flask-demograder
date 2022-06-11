@@ -1,8 +1,10 @@
+import re
+
 from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
-from .forms import UserForm
+from .forms import UserForm, CourseForm
 from .models import db, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
@@ -115,10 +117,58 @@ def user_form(user_id):
         return redirect(url_for('demograder.home')) # FIXME
 
 
+def find_emails(text):
+    return [
+        re_match.group(0) for re_match in
+        re.finditer(r'[0-9a-z._]+@[0-9a-z]+(\.[0-9a-z]+)+', text, flags=re.IGNORECASE)
+    ]
+
+
 @blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>', methods=('GET', 'POST'))
 def course_form(course_id):
-    pass
+    context = get_context(course_id=course_id, min_role=Role.INSTRUCTOR.name)
+    form = CourseForm.for_course(course_id, context)
+    if not form.is_submitted():
+        form.process()
+        return render_template('forms/course.html', form=form, **context)
+    elif form.validate():
+        if form.id.data:
+            # if there is an ID, this is editing an existing Course
+            # make sure that the submitted ID is the same as the course ID
+            if not (context['user'].admin or int(form.id.data) == user_id):
+                abort(403)
+            course = Course.query.get(form.id.data)
+            course.season = form.season.data.strip() # FIXME
+            course.year = int(form.year.data)
+            course.department_code = form.department_code.data.strip()
+            course.number = int(form.number.data)
+            course.section = int(form.section.data)
+            course.title = form.title.data.strip()
+        else:
+            # otherwise, this is creating a new Course
+            course = Course(
+                season=form.season.data, # FIXME
+                year=int(form.year.data),
+                department_code = form.department_code.data.strip(),
+                number=int(form.number.data),
+                section=int(form.section.data),
+                title=form.title.data.strip(),
+            )
+        for instructor_str in form.instructors.data:
+            course.instructors.append(User.query.filter_by(email=find_emails(instructor_str)[0]).first())
+        for student_str in form.enrolled_students.choices:
+            if student_str not in form.enrolled_students.data:
+                course.students.remove(User.query.filter_by(email=find_emails(student_str)[0]).first())
+        for email in find_emails(form.new_students.data.strip()):
+            user = User.query.filter_by(email=email).first()
+            if not user:
+                user = User(email=email)
+                db.session.add(user)
+            course.students.append(user)
+        db.session.add(course)
+        db.session.commit()
+        return redirect(url_for('demograder.home')) # FIXME redirect to course
 
 
 # REDIRECTS

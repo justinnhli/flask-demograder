@@ -1,8 +1,14 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, HiddenField, StringField, SubmitField
+from wtforms.widgets import ListWidget, CheckboxInput
+from wtforms import BooleanField, HiddenField, StringField, SubmitField, SelectMultipleField, TextAreaField, SelectField, DecimalField
 from wtforms.validators import InputRequired, Regexp
 
-from .models import User
+from .models import User, Course, SEASONS
+
+
+class MultiCheckboxField(SelectMultipleField):
+    widget = ListWidget(prefix_label=False)
+    option_widget = CheckboxInput()
 
 
 def unique(cls, fields):
@@ -61,4 +67,62 @@ class UserForm(FlaskForm):
             # disable the email field for non-admins
             if context['role'] < Role.ADMIN:
                 form.email.render_kw['disabled'] = ''
+        return form
+
+
+class CourseForm(FlaskForm):
+    id = HiddenField('id')
+    season = SelectField('Season', choices=SEASONS)
+    year = DecimalField('Year', places=0)
+    department_code = StringField(
+        'Department Code',
+        default='COMP',
+        validators=[
+            InputRequired(),
+        ],
+    )
+    number = DecimalField(
+        'Course Number',
+        places=0,
+        validators=[
+            InputRequired(),
+        ],
+    )
+    section = DecimalField('Section', places=0, default=0)
+    title = StringField(
+        'Title',
+        validators=[
+            InputRequired(),
+        ],
+    )
+    instructors = MultiCheckboxField('Instructors')
+    enrolled_students = MultiCheckboxField('Enrolled Students')
+    new_students = TextAreaField('New Students')
+    submit = SubmitField('Submit')
+
+    @staticmethod
+    def for_course(course_id, context):
+        form = CourseForm()
+        form.instructors.choices = [
+            str(user) for user in 
+            User.query.filter_by(faculty=True).all()
+        ]
+        if course_id is None:
+            # FIXME set form.season.default
+            # FIXME set form.year.default
+            form.instructors.default = [str(context['viewer']),]
+            form.enrolled_students.choices = []
+        else:
+            course = Course.query.get(course_id)
+            form.id.default = course.id
+            form.season.default = course.season
+            form.year.default = int(course.year)
+            form.department_code.default = course.department_code
+            form.number.default = int(course.number)
+            form.section.default = int(course.section)
+            form.title.default = course.title
+            form.instructors.default = [str(user) for user in course.instructors]
+            students = [str(user) for user in course.students]
+            form.enrolled_students.choices = students
+            form.enrolled_students.default = students
         return form
