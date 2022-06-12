@@ -154,6 +154,7 @@ class Question(db.Model):
     __tablename__ = 'questions'
     id = db.Column(db.Integer, primary_key=True)
     assignment_id = db.Column(db.Integer, db.ForeignKey('assignments.id'), nullable=False)
+    due_date = db.Column(db.DateTime, nullable=True)
     cooldown_seconds = db.Column(db.Integer, default=10)
     timeout_seconds = db.Column(db.Integer, default=10)
     hide_output = db.Column(db.Boolean, default=False)
