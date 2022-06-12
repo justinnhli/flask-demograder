@@ -181,23 +181,13 @@ def assignment_form(course_id, assignment_id):
         form.process()
         return render_template('forms/assignment.html', form=form, **context)
     elif form.validate():
-        due_date = form.due_date.data
-        if due_date:
-            due_date = DateTime(
-                due_date.year, due_date.month, due_date.day,
-                int(form.due_hour.data), int(form.due_minute.data),
-            )
-        else:
-            due_date = None
         if form.id.data:
             assignment = Assignment.query.get(form.id.data)
             assignment.name = form.name.data.strip()
-            assignment.due_date = due_date
         else:
             assignment = Assignment(
                 course_id=course_id,
                 name=form.name.data.strip(),
-                due_date=due_date,
             )
         db.session.add(assignment)
         db.session.commit()

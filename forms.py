@@ -132,17 +132,7 @@ class AssignmentForm(FlaskForm):
     id = HiddenField('id')
     course_id = HiddenField('course_id')
     course = StringField('Course', render_kw={})
-    name = StringField(
-        'Name', 
-        validators=[InputRequired()],
-    )
-    due_date = DateField(
-        'Due Date',
-        validators=[Optional()],
-    )
-    due_hour = SelectField(choices=[f'{hour:02d}' for hour in range(24)])
-    due_minute = SelectField(choices=[f'{minute:02d}' for minute in range(60)])
-    # FIXME dependencies
+    name = StringField( 'Name',  validators=[InputRequired()])
     submit = SubmitField('Submit')
 
     @staticmethod

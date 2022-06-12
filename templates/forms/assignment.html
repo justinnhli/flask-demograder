@@ -6,30 +6,14 @@
 {% block breadcrumb %}&nbsp;{% endblock %}
 
 {% block content %}
-    <h1>New/Edit Course</h1>
+    <h1>New/Edit Assignment</h1>
     <form method="POST" action="{{ url_for('demograder.assignment_form', course_id=form.course_id.default, assignment_id=form.id.default) }}">
         <table class="form-table">
             {{ render_field(form.course) }}
             {{ render_field(form.name) }}
-            {{ render_field(form.due_date) }}
-            <tr{% if form.due_hour.errors or form.due_minute.errors %} class="form-field-error"{% endif %}>
-                <th><label>Due Time:</label></th>
-                <td>
-                    {{ form.due_hour }}:{{ form.due_minute }}
-                    {% if form.due_hour.errors or form.due_minute.errors %}
-                    <ul class="form-field-error-list">
-                        {% for error in form.due_hour.errors %}
-                        <li>{{ error }}</li>
-                        {% endfor %}
-                        {% for error in form.due_minute.errors %}
-                        <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                </td>
-            </tr>
         </table>
         {{ form.id }}
+        {{ form.course_id }}
         {{ form.csrf_token }}
         <p>{{ form.submit }}</p>
     </form>

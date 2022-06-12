@@ -129,15 +129,11 @@ class Assignment(db.Model):
     __tablename__ = 'assignments'
     id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-    name = db.Column(db.String, nullable=False)
-    due_date = db.Column(db.DateTime, nullable=True)
+    name = db.Column(db.String, nullable=False, default='')
     questions = db.relationship('Question', backref='assignment')
 
     def __str__(self):
-        if self.due_date:
-            return f'{self.name} ({self.due_date})'
-        else:
-            return self.name
+        return self.name
 
 
 class QuestionDependency(db.Model):
