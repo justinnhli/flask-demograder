@@ -65,7 +65,7 @@ class UserForm(FlaskForm):
             form.admin.default = user.admin
             form.faculty.default = user.faculty
             # disable the email field for non-admins
-            if context['role'] < Role.ADMIN:
+            if context['role'] < context['Role'].ADMIN:
                 form.email.render_kw['disabled'] = ''
         return form
 
