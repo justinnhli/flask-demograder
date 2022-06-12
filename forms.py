@@ -3,7 +3,7 @@ from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms import BooleanField, HiddenField, StringField, SubmitField, SelectMultipleField, TextAreaField, SelectField, DecimalField, DateField
 from wtforms.validators import InputRequired, Regexp, Optional
 
-from .models import SEASONS, User, Course, Assignment
+from .models import SEASONS, User, Course, Assignment, Question
 
 
 class MultiCheckboxField(SelectMultipleField):
@@ -132,4 +132,46 @@ class AssignmentForm(FlaskForm):
                 form.due_date.default = assignment.due_date.date
                 form.due_hour.default = f'{assignment.due_date.hour:02d}'
                 form.due_minute.default = f'{assignment.due_date.minute:02d}'
+        return form
+
+
+class QuestionForm(FlaskForm):
+    id = HiddenField('id')
+    assignment_id = HiddenField('assignment_id')
+    course = StringField('Course', render_kw={})
+    assignment = StringField('Assignment', render_kw={})
+    name = StringField( 'Name',  validators=[InputRequired()])
+    due_date = DateField( 'Due Date', validators=[Optional()])
+    due_hour = SelectField(choices=[f'{hour:02d}' for hour in range(24)])
+    due_minute = SelectField(choices=[f'{minute:02d}' for minute in range(60)])
+    cooldown = DecimalField('Cooldown (sec)', places=0, default=10)
+    timeout = DecimalField('Timeout (sec)', places=0, default=10)
+    visible = BooleanField('Visible')
+    locked = BooleanField('Locked')
+    hide_output = BooleanField('Hide Output')
+    # FIXME files
+    # FIXME dependencies
+    submit = SubmitField('Submit')
+
+    @staticmethod
+    def for_question(question_id, context):
+        question = Question.query.get(question_id)
+        form = QuestionForm()
+        form.id.default = question_id
+        form.assignment_id.default = context['assignment'].id
+        form.course.default = str(context['course'])
+        form.course.render_kw['disabled'] = ''
+        form.assignment.default = str(context['assignment'])
+        form.assignment.render_kw['disabled'] = ''
+        if question_id is not None:
+            form.name.default = question.name
+            if question.due_date:
+                form.due_date.default = question.due_date.date
+                form.due_hour.default = f'{question.due_date.hour:02d}'
+                form.due_minute.default = f'{question.due_date.minute:02d}'
+            form.cooldown.default = question.cooldown_seconds
+            form.timeout.default = question.timeout_seconds
+            form.visible.default = question.visible
+            form.locked.default = question.locked
+            form.hide_output.default = question.hide_output
         return form

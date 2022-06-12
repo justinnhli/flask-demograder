@@ -5,7 +5,7 @@ from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
-from .forms import UserForm, CourseForm, AssignmentForm
+from .forms import UserForm, CourseForm, AssignmentForm, QuestionForm
 from .models import db, User, Course, Assignment, Question, QuestionFile
 from .dispatch import evaluate_submission
 
@@ -190,6 +190,39 @@ def assignment_form(course_id, assignment_id):
                 name=form.name.data.strip(),
             )
         db.session.add(assignment)
+        db.session.commit()
+        return redirect(url_for('demograder.home')) # FIXME redirect to assignment
+
+
+@blueprint.route('/forms/question/<int:assignment_id>/', defaults={'question_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/forms/question/<int:assignment_id>/<int:question_id>/', methods=('GET', 'POST'))
+def question_form(assignment_id, question_id):
+    context = get_context(assignment_id=assignment_id, question_id=question_id, min_role=Role.INSTRUCTOR.name)
+    form = QuestionForm.for_question(question_id, context)
+    if not form.is_submitted():
+        form.process()
+        return render_template('forms/question.html', form=form, **context)
+    elif form.validate():
+        due_date = form.due_date.data
+        if due_date:
+            due_date = DateTime(
+                due_date.year, due_date.month, due_date.day,
+                int(form.due_hour.data), int(form.due_minute.data),
+            )
+        else:
+            due_date = None
+        if form.id.data:
+            question = Question.query.get(form.id.data)
+        else:
+            question = Question(assignment_id=assignment_id)
+        question.name = form.name.data.strip()
+        question.due_date = due_date
+        question.cooldown = form.cooldown.data
+        question.timeout = form.timeout.data
+        question.visible = form.visible.data
+        question.locked = form.locked.data
+        question.hide_output = form.hide_output.data
+        db.session.add(question)
         db.session.commit()
         return redirect(url_for('demograder.home')) # FIXME redirect to assignment
 

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "forms/_utils.html" import render_field %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block breadcrumb %}&nbsp;{% endblock %}
+
+{% block content %}
+    <h1>New/Edit Question</h1>
+    <form method="POST" action="{{ url_for('demograder.question_form', assignment_id=form.assignment_id.default, question_id=form.id.default) }}">
+        <table class="form-table">
+            {{ render_field(form.course) }}
+            {{ render_field(form.assignment) }}
+            {{ render_field(form.name) }}
+            {{ render_field(form.due_date) }}
+            <tr{% if form.due_hour.errors or form.due_minute.errors %} class="form-field-error"{% endif %}>
+                <!-- FIXME disable due time if date is unset -->
+                <th><label>Due Time:</label></th>
+                <td>
+                    {{ form.due_hour }}:{{ form.due_minute }}
+                    {% if form.due_hour.errors or form.due_minute.errors %}
+                    <ul class="form-field-error-list">
+                        {% for error in form.due_hour.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                        {% for error in form.due_minute.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </td>
+            </tr>
+            {{ render_field(form.cooldown) }}
+            {{ render_field(form.timeout) }}
+            {{ render_field(form.visible) }}
+            {{ render_field(form.locked) }}
+            {{ render_field(form.hide_output) }}
+        </table>
+        {{ form.id }}
+        {{ form.assignment_id }}
+        {{ form.csrf_token }}
+        <p>{{ form.submit }}</p>
+    </form>
+{% endblock %}
