@@ -39,13 +39,21 @@ class User(db.Model, UserMixin):
         # this method is required by flask-login
         return self.email
 
-    def courses_with_student(self, student):
+    def courses_with_student(self, user):
         # return courses that the user teaches and the student is enrolled
-        return User.query # FIXME
+        return Course.query.join(
+            Instructor.query.filter_by(user_id=self.id).subquery()
+        ).join(
+            Student.query.filter_by(user_id=user.id).subquery()
+        )
 
     def courses_with_coinstructor(self, user):
         # return courses that the user teaches and the other user is also an instructor
-        return User.query # FIXME
+        return Course.query.join(
+            Instructor.query.filter_by(user_id=self.id).subquery()
+        ).join(
+            Instructor.query.filter_by(user_id=user.id).subquery()
+        )
 
 
 class Instructor(db.Model):
@@ -57,19 +65,6 @@ class Instructor(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False, index=True)
 
-    def courses_with_student(self, user):
-        return Course.query.join(
-            Instructor.query.filter_by(user_id=user.id).subquery()
-        ).join(
-            Student.query.filter_by(user_id=user.id).subquery()
-        )
-
-    def courses_with_coinstructor(self, user):
-        return Course.query.join(
-            Instructor.query.filter_by(user_id=user.id).subquery()
-        ).join(
-            Instructor.query.filter_by(user_id=user.id).subquery()
-        )
 
 class Student(db.Model):
     __tablename__ = 'students'
