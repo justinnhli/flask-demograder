@@ -1,9 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms.widgets import ListWidget, CheckboxInput
-from wtforms import BooleanField, HiddenField, StringField, SubmitField, SelectMultipleField, TextAreaField, SelectField, DecimalField
-from wtforms.validators import InputRequired, Regexp
+from wtforms import BooleanField, HiddenField, StringField, SubmitField, SelectMultipleField, TextAreaField, SelectField, DecimalField, DateField
+from wtforms.validators import InputRequired, Regexp, Optional
 
-from .models import SEASONS, User, Course
+from .models import SEASONS, User, Course, Assignment
 
 
 class MultiCheckboxField(SelectMultipleField):
@@ -125,4 +125,38 @@ class CourseForm(FlaskForm):
             ]
             form.enrolled_students.choices = students
             form.enrolled_students.default = students
+        return form
+
+
+class AssignmentForm(FlaskForm):
+    id = HiddenField('id')
+    course_id = HiddenField('course_id')
+    course = StringField('Course', render_kw={})
+    name = StringField(
+        'Name', 
+        validators=[InputRequired()],
+    )
+    due_date = DateField(
+        'Due Date',
+        validators=[Optional()],
+    )
+    due_hour = SelectField(choices=[f'{hour:02d}' for hour in range(24)])
+    due_minute = SelectField(choices=[f'{minute:02d}' for minute in range(60)])
+    # FIXME dependencies
+    submit = SubmitField('Submit')
+
+    @staticmethod
+    def for_assignment(assignment_id, context):
+        assignment = Assignment.query.get(assignment_id)
+        form = AssignmentForm()
+        form.id.default = assignment_id
+        form.course_id.default = context['course'].id
+        form.course.default = str(context['course'])
+        form.course.render_kw['disabled'] = ''
+        if assignment_id is not None:
+            form.name.default = assignment.name
+            if assignment.due_date:
+                form.due_date.default = assignment.due_date.date
+                form.due_hour.default = f'{assignment.due_date.hour:02d}'
+                form.due_minute.default = f'{assignment.due_date.minute:02d}'
         return form
