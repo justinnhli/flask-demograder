@@ -3,7 +3,7 @@ from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms import BooleanField, HiddenField, StringField, SubmitField, SelectMultipleField, TextAreaField, SelectField, DecimalField
 from wtforms.validators import InputRequired, Regexp
 
-from .models import User, Course, SEASONS
+from .models import SEASONS, User, Course
 
 
 class MultiCheckboxField(SelectMultipleField):
@@ -35,7 +35,7 @@ def unique(cls, fields):
 
 class UserForm(FlaskForm):
     id = HiddenField('id')
-    preferred_name = StringField('Preferred name')
+    preferred_name = StringField('Preferred Name')
     family_name = StringField('Family Name')
     email = StringField(
         'Email',
@@ -77,23 +77,17 @@ class CourseForm(FlaskForm):
     department_code = StringField(
         'Department Code',
         default='COMP',
-        validators=[
-            InputRequired(),
-        ],
+        validators=[InputRequired()],
     )
     number = DecimalField(
         'Course Number',
         places=0,
-        validators=[
-            InputRequired(),
-        ],
+        validators=[InputRequired()],
     )
-    section = DecimalField('Section', places=0, default=0)
+    section = DecimalField('Section', places=0, default=0) # FIXME uniqueness check
     title = StringField(
         'Title',
-        validators=[
-            InputRequired(),
-        ],
+        validators=[InputRequired()],
     )
     instructors = MultiCheckboxField('Instructors')
     enrolled_students = MultiCheckboxField('Enrolled Students')
@@ -122,7 +116,13 @@ class CourseForm(FlaskForm):
             form.section.default = int(course.section)
             form.title.default = course.title
             form.instructors.default = [str(user) for user in course.instructors]
-            students = [str(user) for user in course.students]
+            students = [
+                str(user) for user in 
+                sorted(
+                    course.students,
+                    key=(lambda student: (student.family_name, student.preferred_name, student.email)),
+                )
+            ]
             form.enrolled_students.choices = students
             form.enrolled_students.default = students
         return form
