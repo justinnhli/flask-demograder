@@ -154,21 +154,28 @@ class Question(db.Model):
     __tablename__ = 'questions'
     id = db.Column(db.Integer, primary_key=True)
     assignment_id = db.Column(db.Integer, db.ForeignKey('assignments.id'), nullable=False)
+    name = db.Column(db.String, nullable=False, default='')
     due_date = db.Column(db.DateTime, nullable=True)
     cooldown_seconds = db.Column(db.Integer, default=10)
     timeout_seconds = db.Column(db.Integer, default=10)
-    hide_output = db.Column(db.Boolean, default=False)
     visible = db.Column(db.Boolean, default=False)
     locked = db.Column(db.Boolean, default=False)
+    hide_output = db.Column(db.Boolean, default=False)
     files = db.relationship('QuestionFile', backref='question')
     submission = db.relationship('Submission', backref='question')
     consumes = db.relationship(
-        'User',
+        'Question',
         secondary='question_dependencies',
         primaryjoin=(id == QuestionDependency.consumer_id),
         secondaryjoin=(id == QuestionDependency.producer_id),
         backref='consumed_by',
     )
+
+    def __str__(self):
+        if self.due_date:
+            return f'{self.name} ({self.due_date})'
+        else:
+            return self.name
 
 
 class QuestionFile(db.Model):
