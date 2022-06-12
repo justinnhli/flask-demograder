@@ -16,6 +16,12 @@ class User(db.Model, UserMixin):
     logged_in = db.Column(db.Boolean, nullable=False, default=False)
     submissions = db.relationship('Submission', backref='user')
 
+    def __lt__(self, other):
+        return (
+            (self.family_name, self.preferred_name, self.email)
+            < (other.family_name, other.preferred_name, other.email)
+        )
+
     def __str__(self):
         return f'{self.full_name} <{self.email}>'
 

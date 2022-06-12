@@ -105,13 +105,7 @@ class CourseForm(FlaskForm):
             form.section.default = int(course.section)
             form.title.default = course.title
             form.instructors.default = [str(user) for user in course.instructors]
-            students = [
-                str(user) for user in 
-                sorted(
-                    course.students,
-                    key=(lambda student: (student.family_name, student.preferred_name, student.email)),
-                )
-            ]
+            students = [str(user) for user in sorted(course.students)]
             form.enrolled_students.choices = students
             form.enrolled_students.default = students
         return form
