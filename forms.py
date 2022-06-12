@@ -74,21 +74,10 @@ class CourseForm(FlaskForm):
     id = HiddenField('id')
     season = SelectField('Season', choices=SEASONS)
     year = DecimalField('Year', places=0)
-    department_code = StringField(
-        'Department Code',
-        default='COMP',
-        validators=[InputRequired()],
-    )
-    number = DecimalField(
-        'Course Number',
-        places=0,
-        validators=[InputRequired()],
-    )
+    department_code = StringField( 'Department Code', default='COMP', validators=[InputRequired()])
+    number = DecimalField('Course Number', places=0, validators=[InputRequired()])
     section = DecimalField('Section', places=0, default=0) # FIXME uniqueness check
-    title = StringField(
-        'Title',
-        validators=[InputRequired()],
-    )
+    title = StringField('Title', validators=[InputRequired()])
     instructors = MultiCheckboxField('Instructors')
     enrolled_students = MultiCheckboxField('Enrolled Students')
     new_students = TextAreaField('New Students')
