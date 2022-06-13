@@ -35,6 +35,28 @@
             {{ render_field(form.visible) }}
             {{ render_field(form.locked) }}
             {{ render_field(form.hide_output) }}
+            <tr{% if form.dependencies.errors %} class="form-field-error"{% endif %}>
+                <th><label>Dependencies:</label></th>
+                <td>
+                    <ul>
+                    {% for dependency_form in form.dependencies %}
+                        <li>
+                            {{ dependency_form.is_dependency }}{{ dependency_form.question.data }}
+                            (use {{ dependency_form.submissions_used }} submissions; source files viewable {{ dependency_form.viewable }})
+                            {{ dependency_form.question_id }}
+                        </li>
+                    {% endfor %}
+                    </ul>
+                    <!-- FIXME untested -->
+                    {% if form.dependencies.errors %}
+                    <ul class="form-field-error-list">
+                        {% for error in form.dependencies.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </td>
+            </tr>
         </table>
         {{ form.id }}
         {{ form.assignment_id }}

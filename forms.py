@@ -1,9 +1,11 @@
+from werkzeug.datastructures import MultiDict
 from flask_wtf import FlaskForm
+from wtforms import BooleanField, DateField, DecimalField, FieldList, FormField, HiddenField, SelectField, SelectMultipleField, StringField, SubmitField, TextAreaField, Form
 from wtforms.widgets import ListWidget, CheckboxInput
-from wtforms import BooleanField, HiddenField, StringField, SubmitField, SelectMultipleField, TextAreaField, SelectField, DecimalField, DateField
 from wtforms.validators import InputRequired, Regexp, Optional
 
 from .models import SEASONS, User, Course, Assignment, Question
+from .models import QuestionDependency
 
 
 class MultiCheckboxField(SelectMultipleField):
@@ -135,6 +137,14 @@ class AssignmentForm(FlaskForm):
         return form
 
 
+class QuestionDependencyForm(Form):
+    question_id = HiddenField('question_id')
+    question = StringField('question')
+    is_dependency = BooleanField(default=False)
+    submissions_used = SelectField('Submissions Used', choices=['all', 'latest'])
+    viewable = BooleanField('source file viewable')
+
+
 class QuestionForm(FlaskForm):
     id = HiddenField('id')
     assignment_id = HiddenField('assignment_id')
@@ -150,13 +160,43 @@ class QuestionForm(FlaskForm):
     locked = BooleanField('Locked')
     hide_output = BooleanField('Hide Output')
     # FIXME files
-    # FIXME dependencies
+    dependencies = FieldList(FormField(QuestionDependencyForm))
     submit = SubmitField('Submit')
 
     @staticmethod
     def for_question(question_id, context):
         question = Question.query.get(question_id)
+        other_questions = []
+        for assignment in question.assignment.course.assignments:
+            other_questions.extend(assignment.questions)
+        if question_id is not None:
+            other_questions = [
+                other_question for other_question in other_questions 
+                if other_question.id != question.id
+            ]
         form = QuestionForm()
+        if not form.dependencies:
+            # only add dependencies if they haven't been added already
+            for other_question in other_questions:
+                question_dependency = QuestionDependency.query.filter_by(
+                    producer_id=other_question.id,
+                    consumer_id=question.id,
+                ).first()
+                if question_dependency:
+                    form.dependencies.append_entry({
+                        'question_id': other_question.id,
+                        'question': other_question.name,
+                        'is_dependency': True,
+                        'submissions_used': question_dependency.input_type,
+                        'viewable': question_dependency.viewable,
+                    })
+                else:
+                    form.dependencies.append_entry({
+                        'question_id': other_question.id,
+                        'question': other_question.name,
+                        'submissions_used': 'latest',
+                        'viewable': True,
+                    })
         form.id.data = question_id
         form.assignment_id.data = context['assignment'].id
         form.course.data = str(context['course'])

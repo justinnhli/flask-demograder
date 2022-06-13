@@ -6,7 +6,8 @@ from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
 from .forms import UserForm, CourseForm, AssignmentForm, QuestionForm
-from .models import db, User, Course, Assignment, Question, QuestionFile
+from .models import db, User, Course, Assignment, Question
+from .models import QuestionDependency, QuestionFile
 from .dispatch import evaluate_submission
 
 blueprint = Blueprint(name='demograder', import_name='demograder')
@@ -211,6 +212,23 @@ def question_form(assignment_id, question_id):
             question = Question.query.get(form.id.data)
         else:
             question = Question(assignment_id=assignment_id)
+        for dependency_form in form.dependencies:
+            question_dependency = QuestionDependency.query.filter_by(
+                producer_id=int(dependency_form.question_id.data),
+                consumer_id=question.id,
+            ).first()
+            if dependency_form.is_dependency.data:
+                if not question_dependency:
+                    question_dependency = QuestionDependency(
+                        producer_id=int(dependency_form.question_id.data),
+                        consumer_id=question.id,
+                    )
+                question_dependency.input_type = dependency_form.submissions_used.data
+                question_dependency.viewable = dependency_form.viewable.data
+                db.session.add(question_dependency)
+            else:
+                if question_dependency:
+                    db.session.delete(question_dependency)
         question.name = form.name.data.strip()
         question.due_date = due_date
         question.cooldown = form.cooldown.data
