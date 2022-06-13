@@ -7,7 +7,7 @@
 
 {% block content %}
     <h1>New/Edit Course</h1>
-    <form method="POST" action="{{ url_for('demograder.course_form', course_id=form.id.default) }}">
+    <form method="POST" action="{{ url_for('demograder.course_form', course_id=form.id.data) }}">
         <table class="form-table">
             {{ render_field(form.season) }}
             {{ render_field(form.year) }}

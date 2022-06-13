@@ -7,7 +7,7 @@
 
 {% block content %}
     <h1>New/Edit User</h1>
-    <form method="POST" action="{{ url_for('demograder.user_form', user_id=form.id.default) }}">
+    <form method="POST" action="{{ url_for('demograder.user_form', user_id=form.id.data) }}">
         <table class="form-table">
             {{ render_field(form.preferred_name) }}
             {{ render_field(form.family_name) }}

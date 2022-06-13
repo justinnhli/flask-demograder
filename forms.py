@@ -58,12 +58,12 @@ class UserForm(FlaskForm):
         form = UserForm()
         if user_id is not None:
             user = User.query.get(user_id)
-            form.id.default = user.id
-            form.preferred_name.default = user.preferred_name
-            form.family_name.default = user.family_name
-            form.email.default = user.email
-            form.admin.default = user.admin
-            form.faculty.default = user.faculty
+            form.id.data = user.id
+            form.preferred_name.data = user.preferred_name
+            form.family_name.data = user.family_name
+            form.email.data = user.email
+            form.admin.data = user.admin
+            form.faculty.data = user.faculty
             # disable the email field for non-admins
             if context['role'] < context['Role'].ADMIN:
                 form.email.render_kw['disabled'] = ''
@@ -91,23 +91,23 @@ class CourseForm(FlaskForm):
             User.query.filter_by(faculty=True).all()
         ]
         if course_id is None:
-            # FIXME set form.season.default
-            # FIXME set form.year.default
-            form.instructors.default = [str(context['viewer']),]
+            # FIXME set form.season.data
+            # FIXME set form.year.data
+            form.instructors.data = [str(context['viewer']),]
             form.enrolled_students.choices = []
         else:
             course = Course.query.get(course_id)
-            form.id.default = course.id
-            form.season.default = course.season
-            form.year.default = int(course.year)
-            form.department_code.default = course.department_code
-            form.number.default = int(course.number)
-            form.section.default = int(course.section)
-            form.title.default = course.title
-            form.instructors.default = [str(user) for user in course.instructors]
+            form.id.data = course.id
+            form.season.data = course.season
+            form.year.data = int(course.year)
+            form.department_code.data = course.department_code
+            form.number.data = int(course.number)
+            form.section.data = int(course.section)
+            form.title.data = course.title
+            form.instructors.data = [str(user) for user in course.instructors]
             students = [str(user) for user in sorted(course.students)]
             form.enrolled_students.choices = students
-            form.enrolled_students.default = students
+            form.enrolled_students.data = students
         return form
 
 
@@ -122,16 +122,16 @@ class AssignmentForm(FlaskForm):
     def for_assignment(assignment_id, context):
         assignment = Assignment.query.get(assignment_id)
         form = AssignmentForm()
-        form.id.default = assignment_id
-        form.course_id.default = context['course'].id
-        form.course.default = str(context['course'])
+        form.id.data = assignment_id
+        form.course_id.data = context['course'].id
+        form.course.data = str(context['course'])
         form.course.render_kw['disabled'] = ''
         if assignment_id is not None:
-            form.name.default = assignment.name
+            form.name.data = assignment.name
             if assignment.due_date:
-                form.due_date.default = assignment.due_date.date
-                form.due_hour.default = f'{assignment.due_date.hour:02d}'
-                form.due_minute.default = f'{assignment.due_date.minute:02d}'
+                form.due_date.data = assignment.due_date.date
+                form.due_hour.data = f'{assignment.due_date.hour:02d}'
+                form.due_minute.data = f'{assignment.due_date.minute:02d}'
         return form
 
 
@@ -157,21 +157,21 @@ class QuestionForm(FlaskForm):
     def for_question(question_id, context):
         question = Question.query.get(question_id)
         form = QuestionForm()
-        form.id.default = question_id
-        form.assignment_id.default = context['assignment'].id
-        form.course.default = str(context['course'])
+        form.id.data = question_id
+        form.assignment_id.data = context['assignment'].id
+        form.course.data = str(context['course'])
         form.course.render_kw['disabled'] = ''
-        form.assignment.default = str(context['assignment'])
+        form.assignment.data = str(context['assignment'])
         form.assignment.render_kw['disabled'] = ''
         if question_id is not None:
-            form.name.default = question.name
+            form.name.data = question.name
             if question.due_date:
-                form.due_date.default = question.due_date.date
-                form.due_hour.default = f'{question.due_date.hour:02d}'
-                form.due_minute.default = f'{question.due_date.minute:02d}'
-            form.cooldown.default = question.cooldown_seconds
-            form.timeout.default = question.timeout_seconds
-            form.visible.default = question.visible
-            form.locked.default = question.locked
-            form.hide_output.default = question.hide_output
+                form.due_date.data = question.due_date.date
+                form.due_hour.data = f'{question.due_date.hour:02d}'
+                form.due_minute.data = f'{question.due_date.minute:02d}'
+            form.cooldown.data = question.cooldown_seconds
+            form.timeout.data = question.timeout_seconds
+            form.visible.data = question.visible
+            form.locked.data = question.locked
+            form.hide_output.data = question.hide_output
         return form

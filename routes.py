@@ -88,7 +88,6 @@ def user_form(user_id):
     context = get_context(user=user_id)
     form = UserForm.for_user(user_id, context)
     if not form.is_submitted():
-        form.process()
         return render_template('forms/user.html', form=form, **context)
     elif form.validate():
         if form.id.data:
@@ -131,7 +130,6 @@ def course_form(course_id):
     context = get_context(course_id=course_id, min_role=Role.INSTRUCTOR.name)
     form = CourseForm.for_course(course_id, context)
     if not form.is_submitted():
-        form.process()
         return render_template('forms/course.html', form=form, **context)
     elif form.validate():
         if form.id.data:
@@ -178,7 +176,6 @@ def assignment_form(course_id, assignment_id):
     context = get_context(course_id=course_id, assignment_id=assignment_id, min_role=Role.INSTRUCTOR.name)
     form = AssignmentForm.for_assignment(assignment_id, context)
     if not form.is_submitted():
-        form.process()
         return render_template('forms/assignment.html', form=form, **context)
     elif form.validate():
         if form.id.data:
@@ -200,7 +197,6 @@ def question_form(assignment_id, question_id):
     context = get_context(assignment_id=assignment_id, question_id=question_id, min_role=Role.INSTRUCTOR.name)
     form = QuestionForm.for_question(question_id, context)
     if not form.is_submitted():
-        form.process()
         return render_template('forms/question.html', form=form, **context)
     elif form.validate():
         due_date = form.due_date.data
