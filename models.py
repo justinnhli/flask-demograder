@@ -146,7 +146,7 @@ class QuestionDependency(db.Model):
     producer_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
     consumer_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
     input_type = db.Column(db.Enum('all', 'latest'), nullable=False) # TODO default value
-    submitters = db.Column(db.Enum('instructors', 'everyone'), nullable=False) # TODO default value
+    submitters = db.Column(db.Enum('instructors', 'everyone'), nullable=False, default='everyone') # TODO default value
     viewable = db.Column(db.Boolean, default=True)
 
 
