@@ -177,6 +177,10 @@ class Question(db.Model):
         else:
             return self.name
 
+    @property
+    def course(self):
+        return Course.query.get(self.assignment.id)
+
 
 class QuestionFile(db.Model):
     __tablename__ = 'question_files'
