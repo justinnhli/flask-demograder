@@ -84,7 +84,7 @@ def _set_role_context(context, url_args, **kwargs):
             Role.FACULTY,
         )
         context['alternate_view'] = context['alternate_view'] or (context['role'] != Role.FACULTY)
-    elif context['instructor']:
+    elif context.get('instructor', False):
         context['role'] = min(
             Role[url_args.get('role', 'instructor').upper()],
             Role.INSTRUCTOR,
