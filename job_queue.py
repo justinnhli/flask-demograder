@@ -63,7 +63,7 @@ class JobQueue:
     1. The main-thread creates a JobData about the job with a unique ID.
     That ID is added to the wait-queue.
 
-    2. The in-thread gets an ID from the wait-queue and gets the job function
+    2. The run-thread gets an ID from the wait-queue and gets the job function
     and arguments from the main-thread cache. If the maximum number of
     processes has been reached, it waits for the has-idle-process condition.
     Once the condition is met, the thread adds the job and its ID to the
@@ -74,7 +74,7 @@ class JobQueue:
     run-queue, then runs it. The ID of the job and its result are put in the
     result-queue. The process completes and terminates.
 
-    4. The out-thread gets the result from the result-queue, and runs the
+    4. The result-thread gets the result from the result-queue, and runs the
     callback functions. The has-idle-process condition is then notified so a
     new process can spawn if necessary.
     """
