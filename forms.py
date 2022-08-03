@@ -2,7 +2,7 @@ from werkzeug.datastructures import MultiDict
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, DateField, DecimalField, FieldList, FormField, HiddenField, SelectField, SelectMultipleField, StringField, SubmitField, TextAreaField, Form
 from wtforms.widgets import ListWidget, CheckboxInput
-from wtforms.validators import InputRequired, Regexp, Optional
+from wtforms.validators import ValidationError, InputRequired, Regexp, Optional
 
 from .models import SEASONS, User, Course, Assignment, Question
 from .models import QuestionDependency
@@ -160,8 +160,13 @@ class QuestionForm(FlaskForm):
     visible = BooleanField('Visible')
     locked = BooleanField('Locked')
     hide_output = BooleanField('Hide Output')
-    # FIXME files
     dependencies = FieldList(FormField(QuestionDependencyForm))
+    # cannot be "filenames" due to namespace collision in WTForm
+    file_names = StringField(
+        'Filenames',
+        description='The filenames to be submitted, separated by commas.',
+    ) 
+    script = TextAreaField('Script')
     submit = SubmitField('Submit')
 
     def update_for(self, question_id, context):
@@ -204,6 +209,8 @@ class QuestionForm(FlaskForm):
                     'submissions_used': 'latest',
                     'viewable': True,
                 })
+        self.file_names.data = ','.join(question_file.filename for question_file in question.filenames)
+        self.script.data = question.script
 
     @staticmethod
     def build(context):
@@ -214,3 +221,14 @@ class QuestionForm(FlaskForm):
         form.assignment.data = str(context['assignment'])
         form.assignment.render_kw['disabled'] = ''
         return form
+
+    def validate_filenames(form, field):
+        question_id = form.id.data
+        if question_id is None:
+            return
+        question = Question.query.get(question_id)
+        filenames = [filename.strip() for filename in form.file_names.data.split(',')]
+        if not filenames:
+            return
+        if len(filenames) != len(set(filenames)):
+            raise ValidationError('filenames must be unique')

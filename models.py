@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy.orm import validates
@@ -161,7 +163,12 @@ class Question(db.Model):
     visible = db.Column(db.Boolean, default=False)
     locked = db.Column(db.Boolean, default=False)
     hide_output = db.Column(db.Boolean, default=False)
-    files = db.relationship('QuestionFile', backref='question')
+    script = db.Column(db.String, nullable=False, default=dedent('''
+        #!/bin/bash
+
+        exit 1 # FIXME
+    ''').strip())
+    filenames = db.relationship('QuestionFile', backref='question')
     submission = db.relationship('Submission', backref='question')
     consumes = db.relationship(
         'Question',

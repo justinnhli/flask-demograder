@@ -57,6 +57,8 @@
                     {% endif %}
                 </td>
             </tr>
+            {{ render_field(form.file_names) }}
+            {{ render_field(form.script) }}
         </table>
         {{ form.id }}
         {{ form.assignment_id }}
