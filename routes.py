@@ -133,7 +133,7 @@ def find_emails(text):
 @blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>', methods=('GET', 'POST'))
 def course_form(course_id):
-    context = get_context(course_id=course_id, min_role=Role.INSTRUCTOR.name)
+    context = get_context(course_id=course_id, min_role=Role.INSTRUCTOR)
     form = CourseForm.build(context)
     if not form.is_submitted():
         if course_id is not None:
@@ -181,7 +181,7 @@ def course_form(course_id):
 @blueprint.route('/forms/assignment/<int:course_id>/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/assignment/<int:course_id>/<int:assignment_id>/', methods=('GET', 'POST'))
 def assignment_form(course_id, assignment_id):
-    context = get_context(course_id=course_id, assignment_id=assignment_id, min_role=Role.INSTRUCTOR.name)
+    context = get_context(course_id=course_id, assignment_id=assignment_id, min_role=Role.INSTRUCTOR)
     form = AssignmentForm.build(context)
     if not form.is_submitted():
         if assignment_id is not None:
@@ -204,7 +204,7 @@ def assignment_form(course_id, assignment_id):
 @blueprint.route('/forms/question/<int:assignment_id>/', defaults={'question_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/question/<int:assignment_id>/<int:question_id>/', methods=('GET', 'POST'))
 def question_form(assignment_id, question_id):
-    context = get_context(assignment_id=assignment_id, question_id=question_id, min_role=Role.INSTRUCTOR.name)
+    context = get_context(assignment_id=assignment_id, question_id=question_id, min_role=Role.INSTRUCTOR)
     form = QuestionForm.build(context)
     if not form.is_submitted():
         if question_id is not None:

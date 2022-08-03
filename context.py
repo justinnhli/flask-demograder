@@ -162,6 +162,6 @@ def get_context(**kwargs):
             forbidden(context)
     _set_role_context(context, url_args, **kwargs)
     # check if the viewer meets the minimum role requirements
-    if Role[kwargs.get('min_role', 'student').upper()] > context['role']:
+    if kwargs.get('min_role', Role.STUDENT) > context['role']:
         forbidden(context)
     return context
