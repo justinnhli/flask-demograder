@@ -47,6 +47,16 @@ class User(db.Model, UserMixin):
         # this method is required by flask-login
         return self.email
 
+    def enrolled_in(self):
+        return Course.query.join(
+            Student.query.filter_by(user_id=self.id).subquery()
+        )
+
+    def instructing(self):
+        return Course.query.join(
+            Instructor.query.filter_by(user_id=self.id).subquery()
+        )
+
     def courses_with_student(self, user):
         # return courses that the user teaches and the student is enrolled
         return Course.query.join(
@@ -127,6 +137,21 @@ class Course(db.Model):
             self.section,
         ])
 
+    @property
+    def semester(self):
+        return f'{self.season} {self.year}'
+
+    @property
+    def course_number(self):
+        if self.section == 0:
+            return f'{self.department_code} {self.number}'
+        else:
+            return f'{self.department_code} {self.number} {self.section}'
+
+    @property
+    def visible_assignments(self):
+        return tuple(assignment for assignment in self.assignments if assignment.visible)
+
 
 class Assignment(db.Model):
     __tablename__ = 'assignments'
@@ -138,6 +163,13 @@ class Assignment(db.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def visible(self):
+        return any(question.visible for question in self.questions)
+
+    @property
+    def visible_questions(self):
+        return tuple(question for question in self.questions if question.visible)
 
 class QuestionDependency(db.Model):
     __tablename__ = 'question_dependencies'
