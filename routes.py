@@ -29,7 +29,7 @@ def home():
 
 @blueprint.route('/admin')
 def admin():
-    context = get_context()
+    context = get_context(min_role=Role.ADMIN)
     context['users'] = User.query.all()
     context['courses'] = Course.query.all()
     context['assignments'] = Assignment.query.all()
