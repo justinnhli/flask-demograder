@@ -91,7 +91,7 @@ class JobQueue:
             max_processes = cpu_count()
         if max_processes is None:
             max_processes = 4
-        self._max_processes: int = max_processes
+        self._max_processes: int = max_processes # TODO use multiprocessing.Pool instead?
         # variables
         self._num_processes = 0
         self.job_data: Dict[int, JobData] = {}
