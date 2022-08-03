@@ -11,6 +11,7 @@ body {background-color:#EEEEEC; font-family:Open Sans,Helvetica,Arial,sans-serif
 #content {clear:both; width:100%;}
 
 a, a:visited {color:#DE6F3E;}
+abbr {cursor:help;}
 
 table.form-table {border-collapse:collapse; border:none;}
 table.form-table tr.form-field-error {background-color:#E67C73;}
