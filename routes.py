@@ -87,8 +87,10 @@ def download_file(file_id):
 @blueprint.route('/forms/user/<int:user_id>', methods=('GET', 'POST'))
 def user_form(user_id):
     context = get_context(user=user_id)
-    form = UserForm.for_user(user_id, context)
+    form = UserForm.build(context)
     if not form.is_submitted():
+        if user_id is not None:
+            form.update_for(user_id, context)
         return render_template('forms/user.html', form=form, **context)
     elif form.validate():
         if form.id.data:
@@ -129,8 +131,10 @@ def find_emails(text):
 @blueprint.route('/forms/course/<int:course_id>', methods=('GET', 'POST'))
 def course_form(course_id):
     context = get_context(course_id=course_id, min_role=Role.INSTRUCTOR.name)
-    form = CourseForm.for_course(course_id, context)
+    form = CourseForm.build(context)
     if not form.is_submitted():
+        if course_id is not None:
+            form.update_for(course_id, context)
         return render_template('forms/course.html', form=form, **context)
     elif form.validate():
         if form.id.data:
@@ -175,8 +179,10 @@ def course_form(course_id):
 @blueprint.route('/forms/assignment/<int:course_id>/<int:assignment_id>/', methods=('GET', 'POST'))
 def assignment_form(course_id, assignment_id):
     context = get_context(course_id=course_id, assignment_id=assignment_id, min_role=Role.INSTRUCTOR.name)
-    form = AssignmentForm.for_assignment(assignment_id, context)
+    form = AssignmentForm.build(context)
     if not form.is_submitted():
+        if assignment_id is not None:
+            form.update_for(assignment_id, context)
         return render_template('forms/assignment.html', form=form, **context)
     elif form.validate():
         if form.id.data:
@@ -196,8 +202,10 @@ def assignment_form(course_id, assignment_id):
 @blueprint.route('/forms/question/<int:assignment_id>/<int:question_id>/', methods=('GET', 'POST'))
 def question_form(assignment_id, question_id):
     context = get_context(assignment_id=assignment_id, question_id=question_id, min_role=Role.INSTRUCTOR.name)
-    form = QuestionForm.for_question(question_id, context)
+    form = QuestionForm.build(context)
     if not form.is_submitted():
+        if question_id is not None:
+            form.update_for(question_id, context)
         return render_template('forms/question.html', form=form, **context)
     elif form.validate():
         due_date = form.due_date.data

@@ -55,21 +55,21 @@ class UserForm(FlaskForm):
     faculty = BooleanField('Faculty')
     submit = SubmitField('Submit')
 
+    def update_for(self, user_id, context):
+        user = User.query.get(user_id)
+        self.id.data = user.id
+        self.preferred_name.data = user.preferred_name
+        self.family_name.data = user.family_name
+        self.email.data = user.email
+        self.admin.data = user.admin
+        self.faculty.data = user.faculty
+        # disable the email field for non-admins
+        if context['role'] < context['Role'].ADMIN:
+            self.email.render_kw['disabled'] = ''
+
     @staticmethod
-    def for_user(user_id, context):
-        form = UserForm()
-        if user_id is not None:
-            user = User.query.get(user_id)
-            form.id.data = user.id
-            form.preferred_name.data = user.preferred_name
-            form.family_name.data = user.family_name
-            form.email.data = user.email
-            form.admin.data = user.admin
-            form.faculty.data = user.faculty
-            # disable the email field for non-admins
-            if context['role'] < context['Role'].ADMIN:
-                form.email.render_kw['disabled'] = ''
-        return form
+    def build(context):
+        return UserForm()
 
 
 class CourseForm(FlaskForm):
@@ -85,31 +85,31 @@ class CourseForm(FlaskForm):
     new_students = TextAreaField('New Students')
     submit = SubmitField('Submit')
 
+    def update_for(self, course_id, context):
+        course = Course.query.get(course_id)
+        self.id.data = course.id
+        self.season.data = course.season
+        self.year.data = int(course.year)
+        self.department_code.data = course.department_code
+        self.number.data = int(course.number)
+        self.section.data = int(course.section)
+        self.title.data = course.title
+        self.instructors.data = [str(user) for user in course.instructors]
+        students = [str(user) for user in sorted(course.students)]
+        self.enrolled_students.choices = students
+        self.enrolled_students.data = students
+
     @staticmethod
-    def for_course(course_id, context):
+    def build(context):
         form = CourseForm()
         form.instructors.choices = [
             str(user) for user in 
             User.query.filter_by(faculty=True).all()
         ]
-        if course_id is None:
-            # FIXME set form.season.data
-            # FIXME set form.year.data
-            form.instructors.data = [str(context['viewer']),]
-            form.enrolled_students.choices = []
-        else:
-            course = Course.query.get(course_id)
-            form.id.data = course.id
-            form.season.data = course.season
-            form.year.data = int(course.year)
-            form.department_code.data = course.department_code
-            form.number.data = int(course.number)
-            form.section.data = int(course.section)
-            form.title.data = course.title
-            form.instructors.data = [str(user) for user in course.instructors]
-            students = [str(user) for user in sorted(course.students)]
-            form.enrolled_students.choices = students
-            form.enrolled_students.data = students
+        # FIXME set form.season.data by estimating semester
+        # FIXME set form.year.data by estimating semester
+        form.instructors.data = [str(context['viewer']),]
+        form.enrolled_students.choices = []
         return form
 
 
@@ -120,20 +120,21 @@ class AssignmentForm(FlaskForm):
     name = StringField( 'Name',  validators=[InputRequired()])
     submit = SubmitField('Submit')
 
-    @staticmethod
-    def for_assignment(assignment_id, context):
+    def update_for(self, assignment_id, context):
         assignment = Assignment.query.get(assignment_id)
-        form = AssignmentForm()
         form.id.data = assignment_id
+        self.name.data = assignment.name
+        if assignment.due_date:
+            self.due_date.data = assignment.due_date.date
+            self.due_hour.data = f'{assignment.due_date.hour:02d}'
+            self.due_minute.data = f'{assignment.due_date.minute:02d}'
+
+    @staticmethod
+    def build(context):
+        form = AssignmentForm()
         form.course_id.data = context['course'].id
         form.course.data = str(context['course'])
         form.course.render_kw['disabled'] = ''
-        if assignment_id is not None:
-            form.name.data = assignment.name
-            if assignment.due_date:
-                form.due_date.data = assignment.due_date.date
-                form.due_hour.data = f'{assignment.due_date.hour:02d}'
-                form.due_minute.data = f'{assignment.due_date.minute:02d}'
         return form
 
 
@@ -163,55 +164,53 @@ class QuestionForm(FlaskForm):
     dependencies = FieldList(FormField(QuestionDependencyForm))
     submit = SubmitField('Submit')
 
-    @staticmethod
-    def for_question(question_id, context):
+    def update_for(self, question_id, context):
         question = Question.query.get(question_id)
+        self.id.data = question_id
+        self.name.data = question.name
+        if question.due_date:
+            self.due_date.data = question.due_date.date
+            self.due_hour.data = f'{question.due_date.hour:02d}'
+            self.due_minute.data = f'{question.due_date.minute:02d}'
+        self.cooldown.data = question.cooldown_seconds
+        self.timeout.data = question.timeout_seconds
+        self.visible.data = question.visible
+        self.locked.data = question.locked
+        self.hide_output.data = question.hide_output
         other_questions = []
         for assignment in question.assignment.course.assignments:
             other_questions.extend(assignment.questions)
-        if question_id is not None:
-            other_questions = [
-                other_question for other_question in other_questions 
-                if other_question.id != question.id
-            ]
+        other_questions = [
+            other_question for other_question in other_questions 
+            if other_question.id != question.id
+        ]
+        for other_question in other_questions:
+            question_dependency = QuestionDependency.query.filter_by(
+                producer_id=other_question.id,
+                consumer_id=question.id,
+            ).first()
+            if question_dependency:
+                self.dependencies.append_entry({
+                    'question_id': other_question.id,
+                    'question': other_question.name,
+                    'is_dependency': True,
+                    'submissions_used': question_dependency.input_type,
+                    'viewable': question_dependency.viewable,
+                })
+            else:
+                self.dependencies.append_entry({
+                    'question_id': other_question.id,
+                    'question': other_question.name,
+                    'submissions_used': 'latest',
+                    'viewable': True,
+                })
+
+    @staticmethod
+    def build(context):
         form = QuestionForm()
-        if not form.dependencies:
-            # only add dependencies if they haven't been added already
-            for other_question in other_questions:
-                question_dependency = QuestionDependency.query.filter_by(
-                    producer_id=other_question.id,
-                    consumer_id=question.id,
-                ).first()
-                if question_dependency:
-                    form.dependencies.append_entry({
-                        'question_id': other_question.id,
-                        'question': other_question.name,
-                        'is_dependency': True,
-                        'submissions_used': question_dependency.input_type,
-                        'viewable': question_dependency.viewable,
-                    })
-                else:
-                    form.dependencies.append_entry({
-                        'question_id': other_question.id,
-                        'question': other_question.name,
-                        'submissions_used': 'latest',
-                        'viewable': True,
-                    })
-        form.id.data = question_id
         form.assignment_id.data = context['assignment'].id
         form.course.data = str(context['course'])
         form.course.render_kw['disabled'] = ''
         form.assignment.data = str(context['assignment'])
         form.assignment.render_kw['disabled'] = ''
-        if question_id is not None:
-            form.name.data = question.name
-            if question.due_date:
-                form.due_date.data = question.due_date.date
-                form.due_hour.data = f'{question.due_date.hour:02d}'
-                form.due_minute.data = f'{question.due_date.minute:02d}'
-            form.cooldown.data = question.cooldown_seconds
-            form.timeout.data = question.timeout_seconds
-            form.visible.data = question.visible
-            form.locked.data = question.locked
-            form.hide_output.data = question.hide_output
         return form
