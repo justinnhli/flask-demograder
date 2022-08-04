@@ -1,7 +1,8 @@
-from werkzeug.datastructures import MultiDict
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
-from wtforms import BooleanField, DateField, DecimalField, FieldList, FormField, HiddenField, SelectField, SelectMultipleField, StringField, SubmitField, TextAreaField, Form
+from wtforms import Form
+from wtforms import HiddenField, SubmitField, BooleanField,  DecimalField, StringField, TextAreaField
+from wtforms import SelectField, SelectMultipleField, DateField, FieldList, FormField
 from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms.validators import ValidationError, InputRequired, Regexp, Optional
 
@@ -123,7 +124,7 @@ class AssignmentForm(FlaskForm):
 
     def update_for(self, assignment_id, context):
         assignment = Assignment.query.get(assignment_id)
-        form.id.data = assignment_id
+        self.id.data = assignment_id
         self.name.data = assignment.name
         if assignment.due_date:
             self.due_date.data = assignment.due_date.date
