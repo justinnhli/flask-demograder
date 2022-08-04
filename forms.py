@@ -105,7 +105,7 @@ class CourseForm(FlaskForm):
     def build(context):
         form = CourseForm()
         form.instructors.choices = [
-            str(user) for user in 
+            str(user) for user in
             User.query.filter_by(faculty=True).all()
         ]
         # FIXME set form.season.data by estimating semester
@@ -167,7 +167,7 @@ class QuestionForm(FlaskForm):
     file_names = StringField(
         'Filenames',
         description='The filenames to be submitted, separated by commas.',
-    ) 
+    )
     script = TextAreaField('Script')
     submit = SubmitField('Submit')
 
@@ -188,7 +188,7 @@ class QuestionForm(FlaskForm):
         for assignment in question.assignment.course.assignments:
             other_questions.extend(assignment.questions)
         other_questions = [
-            other_question for other_question in other_questions 
+            other_question for other_question in other_questions
             if other_question.id != question.id
         ]
         for other_question in other_questions:
@@ -224,14 +224,8 @@ class QuestionForm(FlaskForm):
         form.assignment.render_kw['disabled'] = ''
         return form
 
-    def validate_file_names(form, field):
-        question_id = form.id.data
-        if question_id is None:
-            return
-        question = Question.query.get(question_id)
-        filenames = [filename.strip() for filename in form.file_names.data.split(',')]
-        if not filenames:
-            return
+    def validate_file_names(self, field):
+        filenames = [filename.strip() for filename in field.data.split(',')]
         if len(filenames) != len(set(filenames)):
             raise ValidationError('filenames must be unique')
 
