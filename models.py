@@ -1,6 +1,7 @@
 from datetime import datetime as DateTime
 from textwrap import dedent
 
+from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy.orm import validates
@@ -261,7 +262,7 @@ class SubmissionFile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
     question_file_id = db.Column(db.Integer, db.ForeignKey('question_files.id'), nullable=False)
-    filepath = db.Column(db.String, nullable=False)
+    filename = db.Column(db.String, nullable=False)
 
     @property
     def submitter(self):
@@ -278,6 +279,11 @@ class SubmissionFile(db.Model):
     @property
     def course(self):
         return self.assignment.course
+
+    @property
+    def filepath(self):
+        suffix = f'{self.course.id}/{self.assignment.id}/{self.submission.id}/{self.filename}'
+        return current_app.config['SUBMISSION_PATH'].joinpath(suffix)
 
 
 class Result(db.Model):
