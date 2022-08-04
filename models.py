@@ -219,7 +219,7 @@ class Question(db.Model):
 
     @property
     def course(self):
-        return Course.query.get(self.assignment.id)
+        return self.assignment.course
 
 
 class QuestionFile(db.Model):
@@ -247,6 +247,14 @@ class Submission(db.Model):
     def submitter(self):
         return self.user
 
+    @property
+    def assignment(self):
+        return self.question.assignment
+
+    @property
+    def course(self):
+        return self.assignment.course
+
 
 class SubmissionFile(db.Model):
     __tablename__ = 'submission_files'
@@ -257,6 +265,18 @@ class SubmissionFile(db.Model):
     @property
     def submitter(self):
         return self.submission.user
+
+    @property
+    def question(self):
+        return self.submission.question
+
+    @property
+    def assignment(self):
+        return self.question.assignment
+
+    @property
+    def course(self):
+        return self.assignment.course
 
 
 class Result(db.Model):
