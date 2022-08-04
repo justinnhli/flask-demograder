@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ question.name }}
+        {% if question.due_date %}
+        ({{ question.due_date.isoformat(' ') }})
+        {% endif %}
+    </h1>
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('demograder.question_view', question_id=form.question_id.data) }}">
+        <ul>
+        {% for file_submission_form in form.submission_files %}
+            <li>
+                {{ file_submission_form.question_file_id }}
+                {{ file_submission_form.filename }}
+                {{ file_submission_form.filename.data }}: {{ file_submission_form.file }}
+                {% if form.submission_files.errors %}
+                <ul class="form-field-error-list">
+                    {% for error in form.submission_files.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+        {{ form.hidden_tag() }}
+        <p>{{ form.submit }}</p>
+    </form>
+
+    <!-- FIXME previous results -->
+
+{% endblock %}

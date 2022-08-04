@@ -1,5 +1,6 @@
 from werkzeug.datastructures import MultiDict
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField
 from wtforms import BooleanField, DateField, DecimalField, FieldList, FormField, HiddenField, SelectField, SelectMultipleField, StringField, SubmitField, TextAreaField, Form
 from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms.validators import ValidationError, InputRequired, Regexp, Optional
@@ -232,3 +233,28 @@ class QuestionForm(FlaskForm):
             return
         if len(filenames) != len(set(filenames)):
             raise ValidationError('filenames must be unique')
+
+
+class FileSubmissionForm(Form):
+    question_file_id = HiddenField('question_file_id')
+    filename = HiddenField('filename')
+    file = FileField('file')
+
+
+class SubmissionForm(FlaskForm):
+    question_id = HiddenField('question_id')
+    submission_files = FieldList(FormField(FileSubmissionForm))
+    submit = SubmitField('Submit')
+
+    def update_for(self, question_id, context):
+        question = Question.query.get(question_id)
+        self.question_id.data = question_id
+        for question_file in question.filenames:
+            self.submission_files.append_entry({
+                'question_file_id': question_file.id,
+                'filename': question_file.filename,
+            })
+
+    @staticmethod
+    def build(context):
+        return SubmissionForm()

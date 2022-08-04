@@ -5,9 +5,10 @@ from flask import Blueprint, render_template, url_for, redirect, abort
 from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
-from .forms import UserForm, CourseForm, AssignmentForm, QuestionForm
+from .forms import UserForm, CourseForm, AssignmentForm, QuestionForm, SubmissionForm
 from .models import db, User, Course, Assignment, Question
 from .models import QuestionDependency, QuestionFile
+from .models import Submission, SubmissionFile
 from .dispatch import evaluate_submission
 
 blueprint = Blueprint(name='demograder', import_name='demograder')
@@ -48,9 +49,33 @@ def course_view(course_id):
     return f'{course_id=}' # TODO
 
 
-@blueprint.route('/question/<int:question_id>')
+@blueprint.route('/question/<int:question_id>', methods=('GET', 'POST'))
 def question_view(question_id):
-    return f'{question_id=}' # TODO
+    context = get_context(question_id=question_id)
+    form = SubmissionForm()
+    if not form.is_submitted():
+        form.update_for(question_id, context)
+        return render_template('question.html', **context, form=form)
+    elif form.validate_on_submit():
+        submission = Submission(
+            user_id=context['viewer'].id,
+            question_id=question_id,
+        )
+        db.session.add(submission)
+        db.session.commit()
+        for file_submission_form in form.submission_files:
+            submission_file = SubmissionFile(
+                submission_id=submission.id,
+                question_file_id=file_submission_form.question_file_id.data,
+                filename=secure_filename(file_submission_form.file.data.filename),
+            )
+            db.session.add(submission_file)
+            db.session.commit()
+            submission_file.filepath.parent.mkdir(parents=True, exist_ok=True)
+            file_submission_form.file.data.save(submission_file.filepath)
+        db.session.commit()
+        # FIXME dispatch job
+        return redirect(url_for('demograder.question_view', question_id=question_id))
 
 
 @blueprint.route('/submission/<int:submission_id>')
