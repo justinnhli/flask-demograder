@@ -146,6 +146,8 @@ def user_form(user_id):
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('demograder.home')) # FIXME
+    else:
+        return render_template('forms/user.html', form=form, **context)
 
 
 def find_emails(text):
@@ -201,6 +203,8 @@ def course_form(course_id):
         db.session.add(course)
         db.session.commit()
         return redirect(url_for('demograder.course_view', course_id=context['course'].id)) # FIXME
+    else:
+        return render_template('forms/course.html', form=form, **context)
 
 
 @blueprint.route('/forms/assignment/<int:course_id>/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
@@ -224,6 +228,8 @@ def assignment_form(course_id, assignment_id):
         db.session.add(assignment)
         db.session.commit()
         return redirect(url_for('demograder.course_view', course_id=context['course'].id)) # FIXME
+    else:
+        return render_template('forms/assignment.html', form=form, **context)
 
 
 @blueprint.route('/forms/question/<int:assignment_id>/', defaults={'question_id': None}, methods=('GET', 'POST'))
@@ -289,6 +295,8 @@ def question_form(assignment_id, question_id):
         db.session.add(question)
         db.session.commit()
         return redirect(url_for('demograder.course_view', course_id=context['course'].id)) # FIXME
+    else:
+        return render_template('forms/question.html', form=form, **context)
 
 
 # REDIRECTS
