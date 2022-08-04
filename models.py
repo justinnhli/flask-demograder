@@ -234,7 +234,7 @@ class Submission(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
-    uploads = db.relationship('Upload', backref='submission')
+    files = db.relationship('SubmissionFile', backref='submission')
     results = db.relationship('Result', backref='submission')
     dependent_results = db.relationship(
         'Result',
@@ -247,8 +247,8 @@ class Submission(db.Model):
         return self.user
 
 
-class Upload(db.Model):
-    __tablename__ = 'uploads'
+class SubmissionFile(db.Model):
+    __tablename__ = 'submission_files'
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
     filepath = db.Column(db.String, nullable=False)
