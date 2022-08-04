@@ -200,7 +200,7 @@ def course_form(course_id):
             course.students.append(user)
         db.session.add(course)
         db.session.commit()
-        return redirect(url_for('demograder.home')) # FIXME redirect to course
+        return redirect(url_for('demograder.course_view', course_id=context['course'].id)) # FIXME
 
 
 @blueprint.route('/forms/assignment/<int:course_id>/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
@@ -223,7 +223,7 @@ def assignment_form(course_id, assignment_id):
             )
         db.session.add(assignment)
         db.session.commit()
-        return redirect(url_for('demograder.home')) # FIXME redirect to assignment
+        return redirect(url_for('demograder.course_view', course_id=context['course'].id)) # FIXME
 
 
 @blueprint.route('/forms/question/<int:assignment_id>/', defaults={'question_id': None}, methods=('GET', 'POST'))
@@ -288,7 +288,7 @@ def question_form(assignment_id, question_id):
         question.script = form.script.data
         db.session.add(question)
         db.session.commit()
-        return redirect(url_for('demograder.home')) # FIXME redirect to assignment
+        return redirect(url_for('demograder.course_view', course_id=context['course'].id)) # FIXME
 
 
 # REDIRECTS
