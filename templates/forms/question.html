@@ -60,9 +60,7 @@
             {{ render_field(form.file_names) }}
             {{ render_field(form.script) }}
         </table>
-        {{ form.id }}
-        {{ form.assignment_id }}
-        {{ form.csrf_token }}
+        {{ form.hidden_tag() }}
         <p>{{ form.submit }}</p>
     </form>
 {% endblock %}

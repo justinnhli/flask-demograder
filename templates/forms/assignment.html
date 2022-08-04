@@ -12,9 +12,7 @@
             {{ render_field(form.course) }}
             {{ render_field(form.name) }}
         </table>
-        {{ form.id }}
-        {{ form.course_id }}
-        {{ form.csrf_token }}
+        {{ form.hidden_tag() }}
         <p>{{ form.submit }}</p>
     </form>
 {% endblock %}
