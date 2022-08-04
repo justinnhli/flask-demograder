@@ -1,3 +1,4 @@
+from datetime import datetime as DateTime
 from textwrap import dedent
 
 from flask_sqlalchemy import SQLAlchemy
@@ -233,7 +234,7 @@ class Submission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow)
     files = db.relationship('SubmissionFile', backref='submission')
     results = db.relationship('Result', backref='submission')
     dependent_results = db.relationship(
