@@ -224,7 +224,7 @@ class QuestionForm(FlaskForm):
         form.assignment.render_kw['disabled'] = ''
         return form
 
-    def validate_filenames(form, field):
+    def validate_file_names(form, field):
         question_id = form.id.data
         if question_id is None:
             return
