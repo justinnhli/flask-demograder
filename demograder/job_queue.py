@@ -246,7 +246,7 @@ def result_thread_main(job_queue: JobQueue) -> None:
                 job_data.error_callback(process_output.result)
         else:
             if job_data.callback is not None:
-                job_data.callback(process_output.result)
+                job_data.callback(*process_output.result)
         with job_queue.has_idle_process:
             job_queue.terminated_process()
             del job_queue.job_data[process_id]
@@ -282,8 +282,7 @@ def demo():
     """Demonstrate that the job queue works."""
     from time import sleep
 
-    def callback(result):
-        result, start_time, end_time, elapsed = result
+    def callback(result, start_time, end_time, elapsed):
         print(f'{result:2d} ({start_time} to {end_time}; {elapsed:.3f}s total)')
 
     queue = JobQueue(max_processes=4)
