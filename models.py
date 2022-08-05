@@ -248,11 +248,6 @@ class Submission(db.Model):
     timestamp = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow)
     files = db.relationship('SubmissionFile', backref='submission')
     results = db.relationship('Result', backref='submission')
-    dependent_results = db.relationship(
-        'Result',
-        secondary='result_dependencies',
-        backref='depends_on',
-    )
 
     @property
     def submitter(self):
@@ -300,10 +295,42 @@ class Result(db.Model):
     __tablename__ = 'results'
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
+    stdout = db.Column(db.String, nullable=True)
+    stderr = db.Column(db.String, nullable=True)
+    return_code = db.Column(db.Integer, nullable=True)
+    upstream_submissions = db.relationship(
+        'Submission',
+        secondary='result_dependencies',
+        backref='result',
+    )
 
     @property
     def submitter(self):
         return self.submission.user
+
+    @property
+    def question(self):
+        return self.submission.question
+
+    @property
+    def assignment(self):
+        return self.submission.assignment
+
+    @property
+    def course(self):
+        return self.submission.course
+
+    @property
+    def is_tbd(self):
+        return self.return_code is not None
+
+    @property
+    def passed(self):
+        return self.return_code == 0
+
+    @property
+    def failed(self):
+        return not self.passed
 
 
 class ResultDependency(db.Model):
