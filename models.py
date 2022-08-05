@@ -173,6 +173,7 @@ class Assignment(db.Model):
     def visible_questions(self):
         return tuple(question for question in self.questions if question.visible)
 
+
 class QuestionDependency(db.Model):
     __tablename__ = 'question_dependencies'
     __table_args__ = (
@@ -259,7 +260,7 @@ class Submission(db.Model):
 
     @property
     def course(self):
-        return self.assignment.course
+        return self.question.course
 
 
 class SubmissionFile(db.Model):
@@ -279,11 +280,11 @@ class SubmissionFile(db.Model):
 
     @property
     def assignment(self):
-        return self.question.assignment
+        return self.submission.assignment
 
     @property
     def course(self):
-        return self.assignment.course
+        return self.submission.course
 
     @property
     def filepath(self):
