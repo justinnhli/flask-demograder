@@ -247,7 +247,7 @@ class Submission(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow)
-    forbidden = db.Column(db.Boolean, nullable=False, default=False)
+    disabled = db.Column(db.Boolean, nullable=False, default=False)
     files = db.relationship('SubmissionFile', backref='submission')
     results = db.relationship('Result', backref='submission')
 
