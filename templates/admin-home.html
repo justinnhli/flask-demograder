@@ -51,4 +51,10 @@
         <li>{{ question_file.id }}: {{ question_file.filename }}</li>
         {% endfor %}
     </ul>
+    <h2>Submissions</h2>
+    <ul>
+        {% for submission in submissions %}
+        <li>{{ submission.id }}: {{ submission.submitter }} for {{ submission.question }} ({{ submission.timestamp }})</li>
+        {% endfor %}
+    </ul>
 {% endblock %}
