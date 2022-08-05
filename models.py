@@ -268,6 +268,7 @@ class SubmissionFile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
     question_file_id = db.Column(db.Integer, db.ForeignKey('question_files.id'), nullable=False)
+    question_file = db.relationship('QuestionFile')
     filename = db.Column(db.String, nullable=False)
 
     @property
