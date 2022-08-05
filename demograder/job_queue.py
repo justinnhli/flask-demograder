@@ -3,7 +3,7 @@
 from typing import Any, Callable, Dict, Mapping, Optional, Tuple
 from collections import namedtuple
 from itertools import count as sequence
-from multiprocessing import Queue as ProcessQueue, get_context
+from multiprocessing import Queue as ProcessQueue, Process
 from os import cpu_count
 from queue import Queue as ThreadQueue
 from threading import Lock, Condition, Thread
@@ -95,7 +95,6 @@ class JobQueue:
         # variables
         self._num_processes = 0
         self.job_data: Dict[int, JobData] = {}
-        self.context = get_context()
         self.mutex = Lock()
         self.has_idle_process = Condition(self.mutex)
         # queues
@@ -224,7 +223,7 @@ def run_thread_main(job_queue: JobQueue) -> None:
             job_data.args,
             job_data.kwargs,
         ))
-        process = job_queue.context.Process(
+        process = Process(
             target=worker_main,
             args=(job_queue.run_queue, job_queue.result_queue),
             daemon=True,
