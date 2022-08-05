@@ -42,7 +42,7 @@
                     {% for dependency_form in form.dependencies %}
                         <li>
                             {{ dependency_form.is_dependency }}{{ dependency_form.question.data }}
-                            (use {{ dependency_form.submissions_used }} submissions; source files viewable {{ dependency_form.viewable }})
+                            (use {{ dependency_form.submissions_used }} submissions from {{ dependency_form.submitters_used }}; source files viewable {{ dependency_form.viewable }})
                             {{ dependency_form.question_id }}
                         </li>
                     {% endfor %}

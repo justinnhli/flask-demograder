@@ -266,6 +266,7 @@ def question_form(assignment_id, question_id):
                         consumer_id=question.id,
                     )
                 question_dependency.input_type = dependency_form.submissions_used.data
+                question_dependency.submitters = dependency_form.submitters_used.data
                 question_dependency.viewable = dependency_form.viewable.data
                 db.session.add(question_dependency)
             else:
