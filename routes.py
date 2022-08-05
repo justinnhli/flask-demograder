@@ -36,6 +36,7 @@ def admin():
     context['assignments'] = Assignment.query.all()
     context['questions'] = Question.query.all()
     context['question_files'] = QuestionFile.query.all()
+    context['submissions'] = Submission.query.all()
     return render_template('admin-home.html', **context)
 
 

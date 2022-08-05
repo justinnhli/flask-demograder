@@ -204,13 +204,23 @@ class Question(db.Model):
     ''').strip())
     filenames = db.relationship('QuestionFile', backref='question')
     submission = db.relationship('Submission', backref='question')
-    consumes = db.relationship(
-        'Question',
-        secondary='question_dependencies',
-        primaryjoin=(id == QuestionDependency.consumer_id),
-        secondaryjoin=(id == QuestionDependency.producer_id),
-        backref='consumed_by',
+    upstream_dependencies = db.relationship(
+        'QuestionDependency',
+        foreign_keys=QuestionDependency.consumer_id,
+        backref='consumer',
     )
+    downstream_dependencies = db.relationship(
+        'QuestionDependency',
+        foreign_keys=QuestionDependency.producer_id,
+        backref='producer',
+    )
+    # The lack of direct "consumes"/"consumed_by" relationships is deliberate.
+    # SQLAlchemy calls relationships like QuestionDependency "association
+    # objects", as they contain additional information beyond the IDs of what is
+    # being linked. Having `relationship()`s with both the _association_ objects
+    # and the _associated_ objects can lead to race conditions, and the intended
+    # solution is too much of a pain to implement. For details, see
+    # https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#association-object
 
     def __str__(self):
         if self.due_date:
