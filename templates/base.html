@@ -34,7 +34,7 @@
                 </span>
                 {% if role >= Role.ADMIN %}
                 | <span id="admin-nav-bar">
-                    admin
+                    <a href="{{ url_for('demograder.admin') }}">admin</a>
                 </span>
                 {% endif %}
                 {% endif %}
