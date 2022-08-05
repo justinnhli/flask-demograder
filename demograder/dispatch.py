@@ -1,38 +1,25 @@
+from flask import current_app
+
 from .job_queue import JobQueue
-from .models import Question, Submission, Result
-
-JOB_QUEUE = JobQueue(max_processes=3)
+from .workers import evaluate_submission, evaluate_result
 
 
-def prepare_files():
-    pass
+# INITIALIZE JOB QUEUE
 
 
-def enqueue_grade_project():
-    pass
+def create_job_queue(app):
+    return JobQueue(max_processes=app.config['MAX_WORKERS'])
 
 
-def evaluate_project():
-    pass
-
-
-def enqueue_grade_submission():
-    pass
-
-
-def evaluate_submission():
-    pass
-
-
-def enqueue_grade_result():
-    JOB_QUEUE.put(
-        func,
-        args=(filepath, 10),
-        callback=callback,
-        error_callback=error_callback,
+def enqueue_expand_submission(submission_id):
+    current_app.job_queue.put(
+        evaluate_submission,
+        args=(submission_id,),
     )
 
 
-def evaluate_result():
-    # TODO delete existing results
-    pass
+def enqueue_evaluate_result(result_id):
+    current_app.job_queue.put(
+        evaluate_result,
+        args=(result_id,),
+    )
