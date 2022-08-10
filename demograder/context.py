@@ -34,8 +34,8 @@ def _set_viewer_context(context, url_args, **kwargs):
 
 
 def _set_course_context(context, url_args, **kwargs):
-    if 'file_id' in kwargs:
-        context['submission_file'] = SubmissionFile.query.get(kwargs['file_id'])
+    if 'submission_file_id' in kwargs:
+        context['submission_file'] = SubmissionFile.query.get(kwargs['submission_file_id'])
     else:
         context['submission_file'] = None
     if 'result_id' in kwargs:
@@ -48,13 +48,15 @@ def _set_course_context(context, url_args, **kwargs):
     elif context['result']:
         context['submission'] = context['result'].submission
     elif context['submission_file']:
-        context['submission'] = context['file'].submission
+        context['submission'] = context['submission_file'].submission
     else:
         context['submission'] = None
     if 'question_id' in kwargs:
         context['question'] = Question.query.get(kwargs['question_id'])
         if not context['submission']:
             context['submission'] = context['viewer'].submissions(context['question'].id, 1).first()
+    elif context['submission']:
+        context['question'] = context['submission'].question
     else:
         context['question'] = None
     if 'assignment_id' in kwargs:
