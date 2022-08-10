@@ -56,14 +56,14 @@ def _set_instructor_context(context, url_args, **kwargs):
     if context['viewer'].admin:
         context['instructor'] = True
     elif context.get('course', None):
-        context['instructor'] = context['viewer'].teaching(context['course'])
+        context['instructor'] = context['viewer'].is_teaching(context['course'])
     else:
         context['instructor'] = False
 
 
 def _set_student_context(context, url_args, **kwargs):
     if context.get('course', None):
-        context['student'] = context['viewer'].taking(context['course'])
+        context['student'] = context['viewer'].is_taking(context['course'])
     else:
         context['student'] = False
 
@@ -155,7 +155,7 @@ def get_context(**kwargs):
         _set_instructor_context(context, url_args, **kwargs)
         _set_student_context(context, url_args, **kwargs)
         # check if the user is related to the course
-        if not (user.teaching(course) or user.taking(course)):
+        if not (user.is_teaching(course) or user.is_taking(course)):
             forbidden(context)
         # check if the viewer is related to the course
         if context['alternate_view'] and not (context['instructor'] or context['student']):

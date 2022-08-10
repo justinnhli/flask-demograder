@@ -33,10 +33,10 @@ class User(db.Model, UserMixin):
     def full_name(self):
         return f'{self.preferred_name} {self.family_name}'
 
-    def teaching(self, course):
+    def is_teaching(self, course):
         return bool(Instructor.query.filter_by(user_id=self.id, course_id=course.id).first())
 
-    def taking(self, course):
+    def is_taking(self, course):
         return bool(Student.query.filter_by(user_id=self.id, course_id=course.id).first())
 
     def latest_submission(self, question=None):
