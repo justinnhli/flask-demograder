@@ -54,7 +54,7 @@ def course_view(course_id):
 def question_view(question_id):
     context = get_context(question_id=question_id)
     form = SubmissionForm()
-    if not form.is_submitted():
+    if not context['viewer'].may_submit(context['question'].id) or not form.is_submitted():
         form.update_for(question_id, context)
         return render_template('question.html', **context, form=form)
     elif form.validate_on_submit():
