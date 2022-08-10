@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block breadcrumb %}
+    &gt; <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.course_number }}</a>
+    &gt; {{ assignment.name }}
+    &gt; <a href="{{ url_for('demograder.question_view', question_id=question.id) }}">{{ question.name }}</a>
+    &gt; {{ submission.iso_format }} submission
+{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ question.name }} {{ submission.iso_format }} submission
+    </h1>
+
+    <h2>Submitted File(s)</h2>
+    {% if result.submission.files %}
+    <ul>
+    {% for submission_file in result.submission.files %}
+        <li>
+            <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>{{ submission_file.filename }}</code></a>
+            {% if submission_file.filename != submission_file.question_file.filename %}
+            (as <code>{{ submission_file.question_file.filename }}</code>)
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if result.dependent_files %}
+    <h2>Other File(s)</h2>
+    <ul>
+    {% for submission_file in result.dependent_files %}
+        {% if result.question_dependency(submission_file.question.id).viewable %}
+        <li>
+            {% if instructor or submission_file.submitter == viewer %}
+            <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>
+                    {{ submission_file.filename }}
+            </code></a>
+            {% if submission_file.filename != submission_file.question_file.filename %}
+            (as <code>{{ submission_file.question_file.filename }}</code>)
+            {% endif %}
+            {% else %}
+            <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>
+                    {{ submission_file.question_file.filename }}
+            </code></a>
+            {% endif %}
+        </li>
+        {% else %}
+        <li><code>{{ submission_file.question_file.filename }}</code> (hidden)</li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h2>Result</h2>
+    {% if result.passed %}
+    Pass
+    {% elif result.failed %}
+    Fail
+    {% else %}
+    TBD
+    {% endif %}
+
+    <h2>Output</h2>
+    <pre><code>
+        {{ result.stdout }}
+    </code></pre>
+
+    <h2>Error</h2>
+    <pre><code>
+        {{ result.stderr }}
+    </code></pre>
+
+{% endblock %}

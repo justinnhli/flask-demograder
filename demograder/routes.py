@@ -93,7 +93,8 @@ def download_submission(submission_id):
 
 @blueprint.route('/result/<int:result_id>')
 def result_view(result_id):
-    return f'{result_id=}' # TODO
+    context = get_context(result_id=result_id)
+    return render_template('result.html', **context)
 
 
 @blueprint.route('/download_result/<int:result_id>')

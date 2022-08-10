@@ -368,6 +368,16 @@ class Result(db.Model):
         return self.submission.user
 
     @property
+    def dependent_files(self):
+        result = []
+        for submission in self.upstream_submissions:
+            result.extend(submission.files)
+        return result
+
+    def question_dependency(self, question_id):
+        return QuestionDependency.query.filter_by(producer_id=question_id, consumer_id=self.question.id).first()
+
+    @property
     def question(self):
         return self.submission.question
 
