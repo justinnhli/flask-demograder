@@ -13,7 +13,7 @@
         <li>
             <a href="{{ url_for('demograder.question_view', question_id=question.id) }}">{{ question.name }}</a>
             {% if question.due_date %}
-            ({{ question.due_date.isoformat(' ') }})
+            ({{ question.iso_format }})
             {% endif %}
         </li>
         {% endfor %}

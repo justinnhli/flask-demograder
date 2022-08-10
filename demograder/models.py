@@ -266,6 +266,10 @@ class Question(db.Model):
             return self.name
 
     @property
+    def iso_format(self):
+        return self.due_date.strftime('%Y-%m-%d %H:%M:%S')
+
+    @property
     def course(self):
         return self.assignment.course
 
@@ -311,6 +315,10 @@ class Submission(db.Model):
     @property
     def submitter(self):
         return self.user
+
+    @property
+    def iso_format(self):
+        return self.timestamp.strftime('%Y-%m-%d %H:%M:%S')
 
     @property
     def assignment(self):
