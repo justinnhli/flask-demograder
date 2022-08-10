@@ -2,11 +2,8 @@ body {background-color:#EEEEEC; font-family:Open Sans,Helvetica,Arial,sans-serif
 
 #wordmark {float:left; color:#DE6F3E; font-size:1.5em;}
 #wordmark a {text-decoration:none;}
-#user {float:right;}
-
-#navbar {clear:both;}
-#breadcrumb {float:left;}
 #quicklinks {float:right;}
+#breadcrumb {clear:both;}
 
 #content {clear:both; width:100%;}
 

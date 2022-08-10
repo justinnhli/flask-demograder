@@ -12,35 +12,24 @@
         <div id="header">
             <div id="wordmark"><a href="/">demograder</a></div>
             {% if user %}
-            <div id="user">
-                {% if alternate_view %}
-                (<a href="{{ request.path }}">viewing as</a> {{ role.name.lower() }} {{ viewer.email }})
-                {% else %}
-                {{ user.email }}
+            <div id="quicklinks">
+                {% if role >= Role.FACULTY %}
+                {% if role >= Role.ADMIN %}
+                <a href="{{ url_for('demograder.admin') }}">admin</a> |
                 {% endif %}
+                <a href="{{ url_for('demograder.course_form') }}">new course</a> |
+                {% endif %}
+                {% if alternate_view %}
+                <a href="{{ request.path }}">viewing as</a> {{ role.name.lower() }}
+                {% endif %}
+                {{ viewer.email }}
                 | <a href="{{ url_for('auth.logout') }}">logout</a>
             </div>
             {% endif %}
-        </div>
-        {% if user %}
-        <div id="navbar">
             <div id="breadcrumb">
                 {% block breadcrumb %}{% endblock %}
             </div>
-            <div id="quicklinks">
-                {% if role >= Role.FACULTY %}
-                <span id="faculty-nav-bar">
-                    <a href="{{ url_for('demograder.course_form') }}">new course</a>
-                </span>
-                {% if role >= Role.ADMIN %}
-                | <span id="admin-nav-bar">
-                    <a href="{{ url_for('demograder.admin') }}">admin</a>
-                </span>
-                {% endif %}
-                {% endif %}
-            </div>
         </div>
-        {% endif %}
         <div id="content">
             {% block content %}{% endblock %}
         </div>
