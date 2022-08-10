@@ -18,7 +18,6 @@ class User(db.Model, UserMixin):
     admin = db.Column(db.Boolean, nullable=False, default=False)
     faculty = db.Column(db.Boolean, nullable=False, default=False)
     logged_in = db.Column(db.Boolean, nullable=False, default=False)
-    submissions = db.relationship('Submission', backref='user')
 
     def __lt__(self, other):
         return (
@@ -39,11 +38,38 @@ class User(db.Model, UserMixin):
     def is_taking(self, course):
         return bool(Student.query.filter_by(user_id=self.id, course_id=course.id).first())
 
-    def latest_submission(self, question=None):
-        pass # TODO
+    def may_submit(self, question_id):
+        """Determines if a user is allowed to submit to a project.
 
-    def may_submit(self, question):
-        pass # TODO
+        The motivation behind stopping student submissions is to prevent
+        overloading the system, and (in theory) to instill a more thorough
+        manual debugging process. There are three trivial cases when a user can
+        submit:
+
+        * they are a superuser
+        * they are the instructor for the course
+        * they have not submitted to this project before
+
+        If they are not the instructor and have previous submissions, then all
+        of the following must be true for the student to submit:
+
+        * the project is not locked
+        * all their previous submissions for this project have finished running
+        * the cooldown has not passed since their last submission to a question
+        """
+        question = Question.query.get(question_id)
+        if self.admin or self.is_teaching(question.course):
+            return True
+        if question.locked:
+            return False
+        last_submission = self.submissions(project, limit=1).first()
+        if not last_submission:
+            return True
+        if last_submission.num_tbd > 0:
+            return False
+        current_time = UTC.normalize(datetime.now(last_submission.timestamp.tzinfo)) # FIXME
+        submit_time = UTC.normalize(last_submission.timestamp) # FIXME
+        return (current_time - submit_time).seconds > question.cooldown_seconds 
 
     def get_id(self):
         # this method is required by flask-login
@@ -74,6 +100,16 @@ class User(db.Model, UserMixin):
         ).join(
             Instructor.query.filter_by(user_id=user.id).subquery()
         )
+
+    def submissions(self, question_id=None, limit=None):
+        if question_id is None:
+            query = Submission.query.filter_by(user_id=self.id).order_by(Submission.timestamp.desc())
+        else:
+            query = Submission.query.filter_by(user_id=self.id, question_id=question_id).order_by(Submission.timestamp.desc())
+        if limit is None:
+            return query
+        else:
+            return query.limit(limit)
 
 
 class Instructor(db.Model):
@@ -252,6 +288,26 @@ class Submission(db.Model):
     results = db.relationship('Result', backref='submission')
 
     @property
+    def num_results(self):
+        return Result.query.filter_by(submission_id=self.id).count()
+
+    @property
+    def num_passed(self):
+        return Result.query.filter_by(submission_id=self.id, return_code=0).count()
+
+    @property
+    def num_failed(self):
+        return Result.query.filter_by(submission_id=self.id, return_code=1).count()
+
+    @property
+    def num_tbd(self):
+        return Result.query.filter_by(submission_id=self.id, return_code=None).count()
+
+    @property
+    def files_str(self):
+        return ', '.join(file.filename for file in self.files) 
+
+    @property
     def submitter(self):
         return self.user
 
@@ -325,7 +381,7 @@ class Result(db.Model):
 
     @property
     def is_tbd(self):
-        return self.return_code is not None
+        return self.return_code is None
 
     @property
     def passed(self):
@@ -333,7 +389,7 @@ class Result(db.Model):
 
     @property
     def failed(self):
-        return not self.passed
+        return not self.is_tbd and not self.passed
 
 
 class ResultDependency(db.Model):
