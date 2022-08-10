@@ -2,7 +2,7 @@ from enum import IntEnum
 
 from flask import session, request, abort
 
-from .models import User, Course, Assignment, Question
+from .models import User, Course, Assignment, Question, SubmissionFile, Result
 
 
 class Role(IntEnum):
@@ -34,8 +34,27 @@ def _set_viewer_context(context, url_args, **kwargs):
 
 
 def _set_course_context(context, url_args, **kwargs):
+    if 'file_id' in kwargs:
+        context['submission_file'] = SubmissionFile.query.get(kwargs['file_id'])
+    else:
+        context['submission_file'] = None
+    if 'result_id' in kwargs:
+        context['result'] = Result.query.get(kwargs['result_id'])
+    else:
+        context['result'] = None
+    # FIXME this might get confused when we're looking at support files
+    if 'submission_id' in kwargs:
+        context['submission'] = Submission.query.get(kwargs['submission_id'])
+    elif context['result']:
+        context['submission'] = context['result'].submission
+    elif context['submission_file']:
+        context['submission'] = context['file'].submission
+    else:
+        context['submission'] = None
     if 'question_id' in kwargs:
         context['question'] = Question.query.get(kwargs['question_id'])
+        if not context['submission']:
+            context['submission'] = context['viewer'].submissions(context['question'].id, 1).first()
     else:
         context['question'] = None
     if 'assignment_id' in kwargs:
