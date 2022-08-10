@@ -9,7 +9,7 @@ from .forms import UserForm, CourseForm, AssignmentForm, QuestionForm, Submissio
 from .models import db, User, Course, Assignment, Question
 from .models import QuestionDependency, QuestionFile
 from .models import Submission, SubmissionFile
-from .dispatch import evaluate_submission
+from .dispatch import enqueue_evaluate_submission
 
 blueprint = Blueprint(name='demograder', import_name='demograder')
 
@@ -75,7 +75,7 @@ def question_view(question_id):
             submission_file.filepath.parent.mkdir(parents=True, exist_ok=True)
             file_submission_form.file.data.save(submission_file.filepath)
         db.session.commit()
-        # FIXME dispatch job
+        enqueue_evaluate_submission(submission.id)
         return redirect(url_for('demograder.question_view', question_id=question_id))
     else:
         return render_template('question.html', **context, form=form)

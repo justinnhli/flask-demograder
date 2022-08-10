@@ -11,7 +11,7 @@ def create_job_queue(app):
     return JobQueue(max_processes=app.config['MAX_WORKERS'])
 
 
-def enqueue_expand_submission(submission_id):
+def enqueue_evaluate_submission(submission_id):
     current_app.job_queue.put(
         evaluate_submission,
         args=(submission_id,),
