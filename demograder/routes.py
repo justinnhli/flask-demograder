@@ -77,6 +77,8 @@ def question_view(question_id):
         db.session.commit()
         # FIXME dispatch job
         return redirect(url_for('demograder.question_view', question_id=question_id))
+    else:
+        return render_template('question.html', **context, form=form)
 
 
 @blueprint.route('/submission/<int:submission_id>')
