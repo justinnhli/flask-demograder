@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block breadcrumb %}
+    &gt; <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.course_number }}</a>
+    &gt; {{ assignment.name }}
+    {% if submission.submitter == viewer %}
+    &gt; <a href="{{ url_for('demograder.question_view', question_id=question.id) }}">{{ question.name }}</a> <!-- FIXME disable link if they are not the submitter -->
+    &gt; <a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.iso_format }} submission</a>
+    {% else %}
+    &gt; {{ question.name }}
+    &gt; {{ submission.iso_format }} submission
+    {% endif %}
+    &gt; <code>{{ submission_file.question_file.filename }}</code>
+{% endblock %}
+
+{% block content %}
+    <h1>
+        {% if instructor or submission_file.submitter == viewer %}
+        <code>{{ submission_file.filename }}</code>
+        {% if submission_file.filename != submission_file.question_file.filename %}
+        (as <code>{{ submission_file.question_file.filename }}</code>)
+        {% endif %}
+        {% else %}
+        <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>
+                {{ submission_file.question_file.filename }}
+        </code></a>
+        {% endif %}
+    </h1>
+
+    <pre><code>{{ submission_file.contents }}</code></pre>
+{% endblock %}

@@ -102,9 +102,10 @@ def download_result(result_id):
     return f'{result_id=}' # TODO
 
 
-@blueprint.route('/file/<int:file>')
-def file_view(file_id):
-    return f'{file_id=}' # TODO
+@blueprint.route('/file/<int:submission_file_id>')
+def submission_file_view(submission_file_id):
+    context = get_context(submission_file_id=submission_file_id)
+    return render_template('submission_file.html', **context)
 
 
 @blueprint.route('/download_file/<int:file>')

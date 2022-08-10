@@ -20,4 +20,6 @@ table.form-table th {text-align:right;}
 table.form-table ul.form-field-error-list {margin:0; padding-left:1em;}
 table.form-table ul {margin:0; padding-left:0; list-style-type:none;}
 
+pre {background-color:#F5F5F5; border:1px solid #CCCCCC; border-radius:4px;}
+
 #footer {padding:1em; text-align:center;}

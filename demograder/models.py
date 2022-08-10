@@ -349,6 +349,11 @@ class SubmissionFile(db.Model):
         suffix = f'{self.course.id}/{self.assignment.id}/{self.submission.id}/{self.filename}'
         return current_app.config['SUBMISSION_PATH'].joinpath(suffix)
 
+    @property
+    def contents(self):
+        with self.filepath.open() as fd:
+            return fd.read()
+
 
 class Result(db.Model):
     __tablename__ = 'results'
