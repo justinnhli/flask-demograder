@@ -286,6 +286,7 @@ class Submission(db.Model):
     disabled = db.Column(db.Boolean, nullable=False, default=False)
     files = db.relationship('SubmissionFile', backref='submission')
     results = db.relationship('Result', backref='submission')
+    user = db.relationship('User')
 
     @property
     def num_results(self):
@@ -330,7 +331,7 @@ class SubmissionFile(db.Model):
 
     @property
     def submitter(self):
-        return self.submission.user
+        return self.submission.submitter
 
     @property
     def question(self):
