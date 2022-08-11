@@ -62,7 +62,7 @@ class User(db.Model, UserMixin):
             return True
         if question.locked:
             return False
-        last_submission = self.submissions(project, limit=1).first()
+        last_submission = self.submissions(question_id, limit=1).first()
         if not last_submission:
             return True
         if last_submission.num_tbd > 0:
