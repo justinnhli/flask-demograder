@@ -47,7 +47,8 @@ def user_view(user_id):
 
 @blueprint.route('/course/<int:course_id>')
 def course_view(course_id):
-    return f'{course_id=}' # TODO
+    context = get_context(course_id=course_id)
+    return render_template('course.html', **context)
 
 
 @blueprint.route('/question/<int:question_id>', methods=('GET', 'POST'))
