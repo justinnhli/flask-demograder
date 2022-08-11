@@ -13,10 +13,10 @@
             <div id="wordmark"><a href="/">demograder</a></div>
             {% if user %}
             <div id="quicklinks">
-                {% if role >= Role.FACULTY %}
                 {% if role >= Role.ADMIN %}
                 <a href="{{ url_for('demograder.admin') }}">admin</a> |
                 {% endif %}
+                {% if role >= Role.FACULTY %}
                 <a href="{{ url_for('demograder.course_form') }}">new course</a> |
                 {% endif %}
                 {% if alternate_view %}
