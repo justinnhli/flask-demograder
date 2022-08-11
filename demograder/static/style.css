@@ -5,12 +5,15 @@ body {background-color:#EEEEEC; font-family:Open Sans,Helvetica,Arial,sans-serif
 #quicklinks {float:right;}
 #breadcrumb {clear:both;}
 
-#content {clear:both; width:100%;}
+#content {width:100%;}
 
 a, a:visited {color:#DE6F3E;}
 abbr {cursor:help;}
+pre {background-color:#F5F5F5; border:1px solid #CCCCCC; border-radius:4px; padding:1em;}
+table {border-collapse:collapse;}
+span.edit-link {font-size:small;}
 
-table.form-table {border-collapse:collapse; border:none;}
+table.form-table {border:none;}
 table.form-table tr.form-field-error {background-color:#E67C73;}
 table.form-table th, table.form-table td {vertical-align:top;}
 table.form-table th {text-align:right;}
@@ -23,13 +26,11 @@ div.scoreboard a.score.pass {background-color:#57BB8A;}
 div.scoreboard a.score.fail {background-color:#E67C73;}
 div.scoreboard a.score.tbd {background-color:#808080;}
 
-table.submissions-history-table {width:100%; border-collapse:collapse;}
+table.submissions-history-table {width:100%;}
 table.submissions-history-table th, table.submissions-history-table td {border:1px solid #555753;}
 table.submissions-history-table tr:first-child th, table.submissions-history-table tr:first-child td {border-top:none;}
 table.submissions-history-table tr:last-child th, table.submissions-history-table tr:last-child td {border-bottom:none;}
 table.submissions-history-table tr th:first-child, table.submissions-history-table tr td:first-child {border-left:none;}
 table.submissions-history-table tr th:last-child, table.submissions-history-table tr td:last-child {border-right:none;}
-
-pre {background-color:#F5F5F5; border:1px solid #CCCCCC; border-radius:4px;}
 
 #footer {padding:1em; text-align:center;}

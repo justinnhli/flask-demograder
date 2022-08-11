@@ -44,6 +44,7 @@
     </form>
     {% endif %}
 
+    {% if viewer.submissions(question.id).first() %}
     {% if submission.results %}
     <div class="scoreboard">
         {% for result in submission.results %}
@@ -57,10 +58,9 @@
         {% endfor %}
     </div>
     {% else %}
-    There are no results associated with this submission.
+    <p>There are no results associated with this submission.</p>
     {% endif %}
 
-    {% if viewer.submissions(question.id) %}
     <table class="submissions-history-table">
         <tr>
             <th>Time</th>
