@@ -20,9 +20,9 @@
     <ul>
     {% for submission_file in result.submission.files %}
         <li>
-            <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>{{ submission_file.filename }}</code></a>
+            <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>{{ submission_file.question_file.filename }}</code></a>
             {% if submission_file.filename != submission_file.question_file.filename %}
-            (as <code>{{ submission_file.question_file.filename }}</code>)
+            (originally <code>{{ submission_file.filename }}</code>)
             {% endif %}
         </li>
     {% endfor %}
@@ -35,17 +35,9 @@
     {% for submission_file in result.dependent_files %}
         {% if result.question_dependency(submission_file.question.id).viewable %}
         <li>
-            {% if instructor or submission_file.submitter == viewer %}
-            <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>
-                    {{ submission_file.filename }}
-            </code></a>
-            {% if submission_file.filename != submission_file.question_file.filename %}
-            (as <code>{{ submission_file.question_file.filename }}</code>)
-            {% endif %}
-            {% else %}
-            <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>
-                    {{ submission_file.question_file.filename }}
-            </code></a>
+            <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>{{ submission_file.question_file.filename }}</code></a>
+            {% if (instructor or submission_file.submitter == viewer) and submission_file.filename != submission_file.question_file.filename %}
+            (originally <code>{{ submission_file.filename }}</code>)
             {% endif %}
         </li>
         {% else %}

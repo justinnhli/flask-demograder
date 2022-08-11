@@ -12,7 +12,7 @@
     <h1>
         {{ question.name }}
         {% if question.due_date %}
-        ({{ question.iso_format }})
+        (due {{ question.iso_format }})
         {% endif %}
         {% if role >= Role.INSTRUCTOR %}
         <span class="edit-link">(
@@ -72,7 +72,7 @@
             <td>{{ submission.iso_format }}</td>
             <td>
                 {% for submission_file in submission.files %}
-                <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}">{{ submission_file.filename }}</a>
+                <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}">{{ submission_file.question_file.filename }}</a>
                 {{ ", " if not loop.last else "" }}
                 {% endfor %}
             </td>

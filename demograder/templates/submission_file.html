@@ -17,15 +17,9 @@
 
 {% block content %}
     <h1>
-        {% if instructor or submission_file.submitter == viewer %}
-        <code>{{ submission_file.filename }}</code>
-        {% if submission_file.filename != submission_file.question_file.filename %}
-        (as <code>{{ submission_file.question_file.filename }}</code>)
-        {% endif %}
-        {% else %}
-        <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>
-                {{ submission_file.question_file.filename }}
-        </code></a>
+        <code>{{ submission_file.question_file.filename }}</code>
+        {% if (instructor or submission_file.submitter == viewer) and submission_file.filename != submission_file.question_file.filename %}
+        (originally <code>{{ submission_file.filename }}</code>)
         {% endif %}
     </h1>
 
