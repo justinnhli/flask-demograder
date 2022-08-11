@@ -2,7 +2,7 @@ from enum import IntEnum
 
 from flask import session, request, abort
 
-from .models import User, Course, Assignment, Question, SubmissionFile, Result
+from .models import User, Course, Assignment, Question, Submission, SubmissionFile, Result
 
 
 class Role(IntEnum):
