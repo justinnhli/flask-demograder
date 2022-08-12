@@ -22,7 +22,7 @@
                 {% if alternate_view %}
                 <a href="{{ request.path }}">viewing as</a> {{ role.name.lower() }}
                 {% endif %}
-                {{ viewer.email }}
+                <a href="{{ url_for('demograder.user_form', user_id=viewer.id) }}">{{ viewer.email }}</a>
                 | <a href="{{ url_for('auth.logout') }}">logout</a>
             </div>
             {% endif %}
