@@ -190,7 +190,7 @@ def find_emails(text):
 @blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>', methods=('GET', 'POST'))
 def course_form(course_id):
-    context = get_context(course_id=course_id, min_role=Role.INSTRUCTOR)
+    context = get_context(course_id=course_id, min_role=Role.FACULTY)
     form = CourseForm.build(context)
     if not form.is_submitted():
         if course_id is not None:
