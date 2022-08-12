@@ -51,17 +51,15 @@ def course_view(course_id):
     return render_template('course.html', **context)
 
 
-@blueprint.route('/question/<int:question_id>', methods=('GET', 'POST'))
-def question_view(question_id):
-    context = get_context(question_id=question_id)
+def submission_handler(context):
     form = SubmissionForm()
     if not context['viewer'].may_submit(context['question'].id) or not form.is_submitted():
-        form.update_for(question_id, context)
-        return render_template('question.html', **context, form=form)
+        form.update_for(context['question'].id, context)
+        return render_template('submission.html', **context, form=form)
     elif form.validate_on_submit():
         submission = Submission(
             user_id=context['viewer'].id,
-            question_id=question_id,
+            question_id=context['question'].id,
         )
         db.session.add(submission)
         db.session.commit()
@@ -77,14 +75,27 @@ def question_view(question_id):
             file_submission_form.file.data.save(submission_file.filepath)
         db.session.commit()
         enqueue_evaluate_submission(submission.id)
-        return redirect(url_for('demograder.question_view', question_id=question_id))
+        return redirect(url_for('demograder.question_view', question_id=context['question'].id))
     else:
-        return render_template('question.html', **context, form=form)
+        return render_template('submission.html', **context, form=form)
+
+
+@blueprint.route('/question/<int:question_id>', methods=('GET', 'POST'))
+def question_view(question_id):
+    context = get_context(question_id=question_id)
+    # only do the rest if there is no submission at all
+    # otherwise, redirect to the latest submission
+    latest_submission = context['viewer'].latest_submission(question_id)
+    if latest_submission:
+        return redirect(url_for('demograder.submission_view', submission_id=latest_submission.id))
+    else:
+        return submission_handler(context)
 
 
 @blueprint.route('/submission/<int:submission_id>')
 def submission_view(submission_id):
-    return f'{submission_id=}' # TODO
+    context = get_context(submission_id=submission_id)
+    return submission_handler(context)
 
 
 @blueprint.route('/disable_submission/<int:submission_id>')
