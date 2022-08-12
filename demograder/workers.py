@@ -1,11 +1,13 @@
 import sys
 from itertools import product, chain
-from os import chdir, chmod, walk
+from os import chmod, walk
 from os.path import join as join_path
 from pathlib import Path
 from shutil import copyfile
 from subprocess import run as run_process, PIPE
 from tempfile import TemporaryDirectory
+
+# pylint: disable = import-outside-toplevel
 
 sys.path.append(str(Path(__file__).parent))
 
@@ -20,7 +22,7 @@ def evaluate_submission(submission_id):
 
 def expand_submission(submission_id):
     from demograder import create_app
-    from demograder.models import db, User, Student, Instructor, Submission
+    from demograder.models import User, Student, Instructor, Submission
     with create_app(with_queue=False).app_context():
         submission = Submission.query.get(submission_id)
         permute_args = []
@@ -85,7 +87,7 @@ def evaluate_result(result_id):
         with TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
             # write the evaluation script
-            with temp_dir.joinpath('.script').open('w') as fd:
+            with temp_dir.joinpath('.script').open('w', encoding='utf-8') as fd:
                 for line in result.question.script.splitlines():
                     fd.write(line.rstrip())
                     fd.write('\n')

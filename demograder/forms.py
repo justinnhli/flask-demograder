@@ -6,8 +6,7 @@ from wtforms import SelectField, SelectMultipleField, DateField, FieldList, Form
 from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms.validators import ValidationError, InputRequired, Regexp, Optional
 
-from .models import SEASONS, User, Course, Assignment, Question
-from .models import QuestionDependency
+from .models import SEASONS, User, Course, Assignment, Question, QuestionDependency
 
 
 class MultiCheckboxField(SelectMultipleField):
