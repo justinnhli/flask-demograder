@@ -34,16 +34,16 @@ def _set_viewer_context(context, url_args, **kwargs):
 
 
 def _set_course_context(context, url_args, **kwargs):
-    if 'submission_file_id' in kwargs:
+    if kwargs.get('submission_file_id', None):
         context['submission_file'] = SubmissionFile.query.get(kwargs['submission_file_id'])
     else:
         context['submission_file'] = None
-    if 'result_id' in kwargs:
+    if kwargs.get('result_id', None):
         context['result'] = Result.query.get(kwargs['result_id'])
     else:
         context['result'] = None
     # FIXME this might get confused when we're looking at support files
-    if 'submission_id' in kwargs:
+    if kwargs.get('submission_id', None):
         context['submission'] = Submission.query.get(kwargs['submission_id'])
     elif context['result']:
         context['submission'] = context['result'].submission
@@ -51,7 +51,7 @@ def _set_course_context(context, url_args, **kwargs):
         context['submission'] = context['submission_file'].submission
     else:
         context['submission'] = None
-    if 'question_id' in kwargs:
+    if kwargs.get('question_id', None):
         context['question'] = Question.query.get(kwargs['question_id'])
         if not context['submission']:
             context['submission'] = context['viewer'].latest_submission(context['question'].id)
@@ -59,13 +59,13 @@ def _set_course_context(context, url_args, **kwargs):
         context['question'] = context['submission'].question
     else:
         context['question'] = None
-    if 'assignment_id' in kwargs:
+    if kwargs.get('assignment_id', None):
         context['assignment'] = Assignment.query.get(kwargs['assignment_id'])
     elif context['question']:
         context['assignment'] = context['question'].assignment
     else:
         context['assignment'] = None
-    if 'course_id' in kwargs:
+    if kwargs.get('course_id', None):
         context['course'] = Course.query.get(kwargs['course_id'])
     elif context['assignment']:
         context['course'] = context['assignment'].course
