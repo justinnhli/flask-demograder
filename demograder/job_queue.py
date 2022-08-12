@@ -1,5 +1,6 @@
 """A job queue that dispatches jobs to separate processes."""
 
+import logging
 from typing import Any, Callable, Dict, Mapping, Optional, Tuple
 from collections import namedtuple
 from itertools import count as sequence
@@ -210,6 +211,7 @@ def run_thread_main(job_queue: JobQueue) -> None:
     Parameters:
         job_queue (JobQueue): The managing JobQueue.
     """
+    logging.info('run thread started')
     while True:
         process_id = job_queue.wait_queue.get()
         with job_queue.has_idle_process:
@@ -237,6 +239,7 @@ def result_thread_main(job_queue: JobQueue) -> None:
     Parameters:
         job_queue (JobQueue): The managing JobQueue.
     """
+    logging.info('result thread started')
     while True:
         process_output = job_queue.result_queue.get()
         process_id = process_output.process_id
