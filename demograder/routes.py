@@ -19,13 +19,13 @@ def root():
     context = get_context(login_required=False)
     if context['user']:
         return redirect(url_for('demograder.home'))
-    return render_template('root.html')
+    return render_template('login.html')
 
 
 @blueprint.route('/home')
 def home():
     context = get_context()
-    return render_template('home.html', **context)
+    return render_template('student/home.html', **context)
 
 
 @blueprint.route('/admin')
@@ -37,7 +37,7 @@ def admin():
     context['questions'] = Question.query.all()
     context['question_files'] = QuestionFile.query.all()
     context['submissions'] = Submission.query.all()
-    return render_template('admin-home.html', **context)
+    return render_template('admin/home.html', **context)
 
 
 @blueprint.route('/user/<int:user_id>')
@@ -48,7 +48,7 @@ def user_view(user_id):
 @blueprint.route('/course/<int:course_id>')
 def course_view(course_id):
     context = get_context(course_id=course_id)
-    return render_template('course.html', **context)
+    return render_template('student/course.html', **context)
 
 
 @blueprint.route('/question/<int:question_id>', methods=('GET', 'POST'))
@@ -57,7 +57,7 @@ def question_view(question_id):
     form = SubmissionForm()
     if not context['viewer'].may_submit(context['question'].id) or not form.is_submitted():
         form.update_for(context['question'].id, context)
-        return render_template('question.html', **context, form=form)
+        return render_template('student/question.html', **context, form=form)
     elif form.validate_on_submit():
         submission = Submission(
             user_id=context['viewer'].id,
@@ -79,13 +79,13 @@ def question_view(question_id):
         enqueue_evaluate_submission(submission.id)
         return redirect(url_for('demograder.submission_view', submission_id=submission.id))
     else:
-        return render_template('question.html', **context, form=form)
+        return render_template('student/question.html', **context, form=form)
 
 
 @blueprint.route('/submission/<int:submission_id>')
 def submission_view(submission_id):
     context = get_context(submission_id=submission_id)
-    return render_template('submission.html', **context)
+    return render_template('student/submission.html', **context)
 
 
 @blueprint.route('/disable_submission/<int:submission_id>')
@@ -106,7 +106,7 @@ def download_submission(submission_id):
 @blueprint.route('/result/<int:result_id>')
 def result_view(result_id):
     context = get_context(result_id=result_id)
-    return render_template('result.html', **context)
+    return render_template('student/result.html', **context)
 
 
 @blueprint.route('/download_result/<int:result_id>')
@@ -117,7 +117,7 @@ def download_result(result_id):
 @blueprint.route('/file/<int:submission_file_id>')
 def submission_file_view(submission_file_id):
     context = get_context(submission_file_id=submission_file_id)
-    return render_template('submission_file.html', **context)
+    return render_template('student/submission_file.html', **context)
 
 
 @blueprint.route('/download_file/<int:file>')
