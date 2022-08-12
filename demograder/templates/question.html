@@ -44,7 +44,7 @@
     </form>
     {% endif %}
 
-    {% if viewer.submissions(question.id).first() %}
+    {% if submission %}
     {% if submission.results %}
     <div class="scoreboard">
         {% for result in submission.results %}

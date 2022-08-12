@@ -69,7 +69,7 @@ class User(db.Model, UserMixin):
             return False
         current_time = UTC.normalize(datetime.now(last_submission.timestamp.tzinfo)) # FIXME
         submit_time = UTC.normalize(last_submission.timestamp) # FIXME
-        return (current_time - submit_time).seconds > question.cooldown_seconds 
+        return (current_time - submit_time).seconds > question.cooldown_seconds
 
     def get_id(self):
         # this method is required by flask-login
@@ -100,6 +100,9 @@ class User(db.Model, UserMixin):
         ).join(
             Instructor.query.filter_by(user_id=user.id).subquery()
         )
+
+    def latest_submission(self, question_id):
+        return self.submissions(question_id=question_id, limit=1).first()
 
     def submissions(self, question_id=None, limit=None):
         if question_id is None:
@@ -310,7 +313,7 @@ class Submission(db.Model):
 
     @property
     def files_str(self):
-        return ', '.join(file.filename for file in self.files) 
+        return ', '.join(file.filename for file in self.files)
 
     @property
     def submitter(self):

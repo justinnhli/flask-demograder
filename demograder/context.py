@@ -54,7 +54,7 @@ def _set_course_context(context, url_args, **kwargs):
     if 'question_id' in kwargs:
         context['question'] = Question.query.get(kwargs['question_id'])
         if not context['submission']:
-            context['submission'] = context['viewer'].submissions(context['question'].id, 1).first()
+            context['submission'] = context['viewer'].latest_submission(context['question'].id)
     elif context['submission']:
         context['question'] = context['submission'].question
     else:
