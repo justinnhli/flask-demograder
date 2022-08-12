@@ -25,7 +25,7 @@ def root():
 @blueprint.route('/home')
 def home():
     context = get_context()
-    return render_template('student/home.html', **context)
+    return render_template('home.html', **context)
 
 
 @blueprint.route('/admin')

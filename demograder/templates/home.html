@@ -5,7 +5,11 @@
 {% block content %}
     {% for course in viewer.courses() %}
 
-    <h2>{{ course.course_number }} {{ course.title }} ({{ course.semester }})</h2>
+    <h2>
+        {{ course.course_number }}
+        <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.title }}</a>
+        ({{ course.semester }})
+    </h2>
     {% for assignment in course.visible_assignments %}
     <h3>{{ assignment.name }}</h3>
     <ul>
