@@ -33,11 +33,11 @@ class User(db.Model, UserMixin):
     def full_name(self):
         return f'{self.preferred_name} {self.family_name}'
 
-    def is_teaching(self, course):
-        return bool(Instructor.query.filter_by(user_id=self.id, course_id=course.id).first())
+    def is_teaching(self, course_id):
+        return bool(Instructor.query.filter_by(user_id=self.id, course_id=course_id).first())
 
-    def is_taking(self, course):
-        return bool(Student.query.filter_by(user_id=self.id, course_id=course.id).first())
+    def is_taking(self, course_id):
+        return bool(Student.query.filter_by(user_id=self.id, course_id=course_id).first())
 
     def may_submit(self, question_id):
         """Determines if a user is allowed to submit to a project.
@@ -59,7 +59,7 @@ class User(db.Model, UserMixin):
         * the cooldown has not passed since their last submission to a question
         """
         question = Question.query.get(question_id)
-        if self.admin or self.is_teaching(question.course):
+        if self.admin or self.is_teaching(question.course.id):
             return True
         if question.locked:
             return False
