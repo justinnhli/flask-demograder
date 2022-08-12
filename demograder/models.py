@@ -4,6 +4,7 @@ from textwrap import dedent
 from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from sqlalchemy import case as case_
 from sqlalchemy.orm import validates
 
 db = SQLAlchemy()
@@ -75,12 +76,25 @@ class User(db.Model, UserMixin):
         # this method is required by flask-login
         return self.email
 
-    def enrolled_in(self):
+    def courses(self):
+        return Course.query.join(
+            Student.query.filter_by(user_id=self.id).union(
+                Instructor.query.filter_by(user_id=self.id)
+            ).subquery()
+        ).order_by(
+            Course.year.desc(),
+            SEASONS_ORDER_BY.desc(),
+            Course.department_code.asc(),
+            Course.number.asc(),
+            Course.section.asc(),
+        )
+
+    def courses_taking(self):
         return Course.query.join(
             Student.query.filter_by(user_id=self.id).subquery()
         )
 
-    def instructing(self):
+    def courses_teaching(self):
         return Course.query.join(
             Instructor.query.filter_by(user_id=self.id).subquery()
         )
@@ -136,6 +150,7 @@ class Student(db.Model):
 
 
 SEASONS = ['Fall', 'Winter', 'Spring', 'Summer']
+SEASONS_ORDER_MAP = {season: index for index, season in enumerate(SEASONS)}
 
 
 class Course(db.Model):
@@ -192,6 +207,9 @@ class Course(db.Model):
     @property
     def visible_assignments(self):
         return tuple(assignment for assignment in self.assignments if assignment.visible)
+
+
+SEASONS_ORDER_BY = case_(value=Course.season, whens=SEASONS_ORDER_MAP)
 
 
 class Assignment(db.Model):

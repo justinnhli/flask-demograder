@@ -3,7 +3,7 @@
 {% block title %}Demograder{% endblock %}
 
 {% block content %}
-    {% for course in viewer.enrolled_in() %}
+    {% for course in viewer.courses() %}
 
     <h2>{{ course.course_number }} {{ course.title }} ({{ course.semester }})</h2>
     {% for assignment in course.visible_assignments %}
