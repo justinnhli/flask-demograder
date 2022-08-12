@@ -7,6 +7,8 @@ body {background-color:#EEEEEC; font-family:Open Sans,Helvetica,Arial,sans-serif
 
 #content {width:100%;}
 
+h1, h2, h3, h4, h5, h6 {clear:both; margin:0 auto; padding:0.5em 0;}
+ul {margin:0.5em auto;}
 a, a:visited {color:#DE6F3E;}
 abbr {cursor:help;}
 pre {background-color:#F5F5F5; border:1px solid #CCCCCC; border-radius:4px; padding:1em;}
