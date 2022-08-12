@@ -150,6 +150,9 @@ def user_form(user_id):
     elif form.validate():
         if form.id.data:
             # if there is an ID, this is editing an existing User
+            # make sure the URL user_id matches the form id field
+            if int(form.id.data) != int(course_id):
+                abort(403)
             # make sure that the submitted ID is the same as the user ID
             if not (context['user'].admin or int(form.id.data) == user_id):
                 abort(403)
@@ -196,8 +199,8 @@ def course_form(course_id):
     elif form.validate():
         if form.id.data:
             # if there is an ID, this is editing an existing Course
-            # make sure that the submitted ID is the same as the course ID
-            if not (context['user'].admin or int(form.id.data) == user_id):
+            # make sure the URL course_id matches the form id field
+            if int(form.id.data) != int(course_id):
                 abort(403)
             course = Course.query.get(form.id.data)
             course.season = form.season.data.strip() # FIXME
@@ -245,6 +248,9 @@ def assignment_form(course_id, assignment_id):
         return render_template('forms/assignment.html', form=form, **context)
     elif form.validate():
         if form.id.data:
+            # make sure the URL assignment_id matches the form id field
+            if int(form.id.data) != int(assignment_id):
+                abort(403)
             assignment = Assignment.query.get(form.id.data)
             assignment.name = form.name.data.strip()
         else:
@@ -278,6 +284,9 @@ def question_form(assignment_id, question_id):
         else:
             due_date = None
         if form.id.data:
+            # make sure the URL question_id matches the form id field
+            if int(form.id.data) != int(question_id):
+                abort(403)
             question = Question.query.get(form.id.data)
         else:
             question = Question(assignment_id=assignment_id)
