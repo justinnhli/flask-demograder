@@ -32,5 +32,6 @@ table.submissions-history-table tr:first-child th, table.submissions-history-tab
 table.submissions-history-table tr:last-child th, table.submissions-history-table tr:last-child td {border-bottom:none;}
 table.submissions-history-table tr th:first-child, table.submissions-history-table tr td:first-child {border-left:none;}
 table.submissions-history-table tr th:last-child, table.submissions-history-table tr td:last-child {border-right:none;}
+table.submissions-history-table tr.disabled-submission {text-decoration:line-through; text-decoration-thickness:2px;}
 
 #footer {padding:1em; text-align:center;}

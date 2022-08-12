@@ -87,6 +87,16 @@ def submission_view(submission_id):
     return f'{submission_id=}' # TODO
 
 
+@blueprint.route('/disable_submission/<int:submission_id>')
+def disable_submission(submission_id):
+    # FIXME what should happen to results that have already been computed?
+    context = get_context(submission_id=submission_id)
+    context['submission'].disabled = not context['submission'].disabled
+    db.session.add(context['submission'])
+    db.session.commit()
+    return redirect(url_for('demograder.submission_view', submission_id=submission_id))
+
+
 @blueprint.route('/download_submission/<int:submission_id>')
 def download_submission(submission_id):
     return f'{submission_id=}' # TODO

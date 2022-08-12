@@ -66,9 +66,10 @@
             <th>Time</th>
             <th>Files</th>
             <th>Tests Passed</th>
+            <th>Disable</th>
         </tr>
         {% for submission in viewer.submissions(question.id) %}
-        <tr>
+        <tr {% if submission.disabled %}class="disabled-submission"{% endif %}>
             <td>{{ submission.iso_format }}</td>
             <td>
                 {% for submission_file in submission.files %}
@@ -77,6 +78,13 @@
                 {% endfor %}
             </td>
             <td>{{ submission.num_passed }} / {{ submission.num_results }}</td>
+            <td><a href="{{ url_for('demograder.disable_submission', submission_id=submission.id) }}">
+                {% if submission.disabled %}
+                enable
+                {% else %}
+                disable
+                {% endif %}
+            </a></td>
         </tr>
         {% endfor %}
     </table>
