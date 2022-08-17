@@ -273,7 +273,7 @@ class Question(db.Model):
     assignment_id = db.Column(db.Integer, db.ForeignKey('assignments.id'), nullable=False)
     name = db.Column(db.String, nullable=False, default='')
     due_date = db.Column(db.DateTime, nullable=True)
-    cooldown_seconds = db.Column(db.Integer, default=10)
+    cooldown_seconds = db.Column(db.Integer, default=300)
     timeout_seconds = db.Column(db.Integer, default=10)
     visible = db.Column(db.Boolean, default=False)
     locked = db.Column(db.Boolean, default=False)
