@@ -73,6 +73,7 @@
                 {% endfor %}
             </td>
             <td>{{ submission.num_passed }} / {{ submission.num_results }}</td>
+            {% if not submission.question.locked %}
             <td><a href="{{ url_for('demograder.disable_submission', submission_id=submission.id) }}">
                 {% if submission.disabled %}
                 enable
@@ -80,6 +81,7 @@
                 disable
                 {% endif %}
             </a></td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>
