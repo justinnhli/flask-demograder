@@ -165,8 +165,8 @@ def get_context(**kwargs):
     viewer = context['viewer']
     # check if the viewer is in a course taught by the user
     if context['alternate_view']:
-        viewer_is_student = bool(user.courses_with_student(viewer))
-        viewer_is_instructor = bool(user.courses_with_coinstructor(viewer))
+        viewer_is_student = bool(user.courses_with_student(viewer.id))
+        viewer_is_instructor = bool(user.courses_with_coinstructor(viewer.id))
         if not (viewer_is_student or viewer_is_instructor):
             forbidden(context)
     _set_course_context(context, url_args, **kwargs)

@@ -99,20 +99,20 @@ class User(db.Model, UserMixin):
             Instructor.query.filter_by(user_id=self.id).subquery()
         )
 
-    def courses_with_student(self, user):
+    def courses_with_student(self, user_id):
         # return courses that the user teaches and the student is enrolled
         return Course.query.join(
             Instructor.query.filter_by(user_id=self.id).subquery()
         ).join(
-            Student.query.filter_by(user_id=user.id).subquery()
+            Student.query.filter_by(user_id=user_id).subquery()
         )
 
-    def courses_with_coinstructor(self, user):
+    def courses_with_coinstructor(self, user_id):
         # return courses that the user teaches and the other user is also an instructor
         return Course.query.join(
             Instructor.query.filter_by(user_id=self.id).subquery()
         ).join(
-            Instructor.query.filter_by(user_id=user.id).subquery()
+            Instructor.query.filter_by(user_id=user_id).subquery()
         )
 
     def latest_submission(self, question_id):
