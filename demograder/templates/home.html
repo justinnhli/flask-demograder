@@ -3,26 +3,68 @@
 {% block title %}Demograder{% endblock %}
 
 {% block content %}
-    {% for course in viewer.courses() %}
-
     <h2>
-        {{ course.course_number }}
-        <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.title }}</a>
-        ({{ course.semester }})
+        Courses
+        {% if role >= Role.INSTRUCTOR %}
+        <span class="edit-link">(
+            <a href="{{ url_for('demograder.course_form') }}">new course</a>
+        )</span>
+        {% endif %}
     </h2>
-    {% for assignment in course.visible_assignments %}
-    <h3>{{ assignment.name }}</h3>
+    {% for course in viewer.courses() %}
     <ul>
-        {% for question in assignment.visible_questions %}
-        <li>
-            <a href="{{ url_for('demograder.question_view', question_id=question.id) }}">{{ question.name }}</a>
-            {% if question.due_date %}
-            ({{ question.iso_format }})
-            {% endif %}
-        </li>
-        {% endfor %}
+        <li><a href="#{{ course.anchorable_id }}">
+            {{ course.course_number }} {{ course.title }} ({{ course.semester }})
+        </a></li>
     </ul>
     {% endfor %}
+
+    {% for course in viewer.courses() %}
+
+    <hr>
+
+    <h2 id="{{ course.anchorable_id }}">
+        <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">
+            {{ course.course_number }}: {{ course.title }}
+        </a>
+        ({{ course.semester }})
+    </h2>
+    {% if viewer.is_teaching(course.id) and course.submissions().first() %}
+    <h3>Recent Submissions</h3>
+    <table class="submissions-history-table">
+        <tr>
+            <th>Time</th>
+            <th>Submitter</th>
+            <th>Question</th>
+            <th>Tests Passed</th>
+        </tr>
+        {% for submission in course.submissions(limit=10) %}
+        <tr>
+            <td><a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.iso_format }}</a></td>
+            <td><a href="{{ url_for('demograder.user_view', page_user_email=submission.submitter.email) }}">{{ submission.submitter.full_name }}</a></td>
+            <td><a href="{{ url_for('demograder.question_view', question_id=submission.question.id) }}">{{ submission.assignment.name }}: {{ submission.question.name }}</a></td>
+            <td>{{ submission.num_passed }} / {{ submission.num_results }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    {% if viewer.course_submissions(course_id=course.id).first() %}
+    <h3>Your Submissions</h3>
+    <table class="submissions-history-table">
+        <tr>
+            <th>Time</th>
+            <th>Question</th>
+            <th>Tests Passed</th>
+        </tr>
+        {% for submission in viewer.course_submissions(course.id, limit=10) %}
+        <tr>
+            <td><a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.iso_format }}</a></td>
+            <td><a href="{{ url_for('demograder.question_view', question_id=submission.question.id) }}">{{ submission.assignment.name }}: {{ submission.question.name }}</a></td>
+            <td>{{ submission.num_passed }} / {{ submission.num_results }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
 
     {% endfor %}
 {% endblock %}

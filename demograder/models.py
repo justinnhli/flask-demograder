@@ -200,6 +200,10 @@ class Course(db.Model):
         ])
 
     @property
+    def anchorable_id(self):
+        return str(self).replace(' ', '_')
+
+    @property
     def semester(self):
         return f'{self.season} {self.year}'
 
@@ -213,6 +217,19 @@ class Course(db.Model):
     @property
     def visible_assignments(self):
         return tuple(assignment for assignment in self.assignments if assignment.visible)
+
+    def submissions(self, include_hidden=False, limit=None):
+        if include_hidden:
+            question_subquery = Question
+        else:
+            question_subquery = Question.query.filter_by(visible=True)
+        query = Submission.query.filter_by(disabled=False).join(question_subquery).join(Assignment).join(
+            Course.query.filter_by(id=self.id)
+        ).order_by(Submission.timestamp.desc())
+        if limit is None:
+            return query
+        else:
+            return query.limit(limit)
 
 
 SEASONS_ORDER_BY = case_(value=Course.season, whens=SEASONS_ORDER_MAP)
