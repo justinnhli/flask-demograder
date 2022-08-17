@@ -61,7 +61,7 @@
             <th>Tests Passed</th>
             <th>Disable</th>
         </tr>
-        {% for submission in viewer.submissions(question.id) %}
+        {% for submission in viewer.question_submissions(question.id) %}
         <tr {% if submission.disabled %}class="disabled-submission"{% endif %}>
             <td>
                 <a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.iso_format }}</a>

@@ -63,7 +63,7 @@ class User(db.Model, UserMixin):
             return True
         if question.locked:
             return False
-        last_submission = self.submissions(question_id, limit=1).first()
+        last_submission = self.question_submissions(question_id, limit=1).first()
         if not last_submission:
             return True
         if last_submission.num_tbd > 0:
@@ -116,13 +116,19 @@ class User(db.Model, UserMixin):
         )
 
     def latest_submission(self, question_id):
-        return self.submissions(question_id=question_id, limit=1).first()
+        return self.question_submissions(question_id, limit=1).first()
 
-    def submissions(self, question_id=None, limit=None):
-        if question_id is None:
-            query = Submission.query.filter_by(user_id=self.id).order_by(Submission.timestamp.desc())
+    def question_submissions(self, question_id=None, limit=None):
+        query = Submission.query.filter_by(user_id=self.id, question_id=question_id).order_by(Submission.timestamp.desc())
+        if limit is None:
+            return query
         else:
-            query = Submission.query.filter_by(user_id=self.id, question_id=question_id).order_by(Submission.timestamp.desc())
+            return query.limit(limit)
+
+    def course_submissions(self, course_id, limit=None):
+        query = Submission.query.filter_by(user_id=self.id).join(Question).join(Assignment).join(
+            Course.query.filter_by(id=course_id)
+        ).order_by(Submission.timestamp.desc())
         if limit is None:
             return query
         else:
