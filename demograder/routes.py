@@ -40,9 +40,23 @@ def admin():
     return render_template('admin/home.html', **context)
 
 
-@blueprint.route('/user/<int:user_id>')
-def user_view(user_id):
-    return f'{user_id=}' # TODO
+@blueprint.route('/user/<page_user_email>')
+def user_view(page_user_email):
+    context = get_context()
+    page_user = User.query.filter_by(email=page_user_email).first()
+    # FIXME should there be other privacy things?
+    # this leaks whether the user exists at all
+    if not page_user:
+        abort(403)
+    context['page_user'] = page_user
+    courses = [
+        *context['viewer'].courses_with_student(page_user.id),
+        *context['viewer'].courses_with_coinstructor(page_user.id),
+    ] # FIXME sort
+    if not courses:
+        abort(403)
+    context['courses'] = courses
+    return render_template('user.html', **context)
 
 
 @blueprint.route('/course/<int:course_id>')
