@@ -1,3 +1,3 @@
 #!/bin/sh
 
-. demograder/secrets && gunicorn -b localhost:5000 'demograder:create_app()'
+. demograder/secrets && gunicorn --bind 0.0.0.0:5000 --access-logfile logs/access.log --error-logfile logs/error.log 'demograder:create_app()'
