@@ -10,7 +10,7 @@ oauth = OAuth()
 
 @blueprint.route('/login')
 def login():
-    redirect_uri = url_for('auth.login_redirect', _external=True)
+    redirect_uri = url_for('auth.login_redirect', _external=True, _scheme='https')
     return oauth.google.authorize_redirect(redirect_uri)
 
 
