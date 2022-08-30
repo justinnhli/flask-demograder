@@ -16,7 +16,7 @@
         )</span>
         {% endif %}
     </h1>
-    {% for assignment in course.visible_assignments %}
+    {% for assignment in course.visible_assignments(role >= Role.INSTRUCTOR) %}
     <h3>
         {{ assignment.name }}
         {% if role >= Role.INSTRUCTOR %}
@@ -27,7 +27,7 @@
         {% endif %}
     </h3>
     <ul>
-        {% for question in assignment.visible_questions %}
+        {% for question in assignment.visible_questions(role >= Role.INSTRUCTOR) %}
         <li>
             <a href="{{ url_for('demograder.question_view', question_id=question.id) }}">{{ question.name }}</a>
             {% if question.due_date %}

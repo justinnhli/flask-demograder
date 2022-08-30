@@ -214,9 +214,11 @@ class Course(db.Model):
         else:
             return f'{self.department_code} {self.number} {self.section}'
 
-    @property
-    def visible_assignments(self):
-        return tuple(assignment for assignment in self.assignments if assignment.visible)
+    def visible_assignments(self, instructor=False):
+        if instructor:
+            return self.assignments
+        else:
+            return tuple(assignment for assignment in self.assignments if assignment.visible)
 
     def submissions(self, include_hidden=False, limit=None):
         if include_hidden:
@@ -249,9 +251,11 @@ class Assignment(db.Model):
     def visible(self):
         return any(question.visible for question in self.questions)
 
-    @property
-    def visible_questions(self):
-        return tuple(question for question in self.questions if question.visible)
+    def visible_questions(self, instructor=False):
+        if instructor:
+            return self.questions
+        else:
+            return tuple(question for question in self.questions if question.visible)
 
 
 class QuestionDependency(db.Model):
