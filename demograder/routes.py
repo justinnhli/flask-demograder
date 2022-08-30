@@ -207,7 +207,7 @@ def course_form(course_id):
             if int(form.id.data) != course_id:
                 abort(403)
             course = Course.query.get(form.id.data)
-            course.season = form.season.data.strip() # FIXME
+            course.season = form.season.data.strip()
             course.year = int(form.year.data)
             course.department_code = form.department_code.data.strip()
             course.number = int(form.number.data)
