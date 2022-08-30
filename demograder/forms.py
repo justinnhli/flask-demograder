@@ -1,3 +1,5 @@
+from datetime import datetime as DateTime
+
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
 from wtforms import Form
@@ -76,7 +78,7 @@ class UserForm(FlaskForm):
 class CourseForm(FlaskForm):
     id = HiddenField('id')
     season = SelectField('Season', choices=SEASONS)
-    year = DecimalField('Year', places=0)
+    year = DecimalField('Year', places=0, default=DateTime.now().year)
     department_code = StringField( 'Department Code', default='COMP', validators=[InputRequired()])
     number = DecimalField('Course Number', places=0, validators=[InputRequired()])
     section = DecimalField('Section', places=0, default=0) # FIXME uniqueness check
@@ -161,7 +163,7 @@ class QuestionForm(FlaskForm):
     due_hour = SelectField(choices=[f'{hour:02d}' for hour in range(24)])
     due_minute = SelectField(choices=[f'{minute:02d}' for minute in range(60)])
     cooldown = DecimalField(
-        'Cooldown (sec)', places=0, default=10,
+        'Cooldown (sec)', places=0, default=300,
         description='How long students have to wait before they can resubmit to a question.',
     )
     timeout = DecimalField(
