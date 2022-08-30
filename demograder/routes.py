@@ -319,6 +319,9 @@ def question_form(assignment_id, question_id):
         question.visible = form.visible.data
         question.locked = form.locked.data
         question.hide_output = form.hide_output.data
+        question.script = form.script.data
+        db.session.add(question)
+        db.session.commit()
         filenames = {
             question_file.filename: question_file
             for question_file in question.filenames
@@ -329,12 +332,9 @@ def question_form(assignment_id, question_id):
                 if filename in filenames:
                     del filenames[filename]
                 else:
-                    db.session.add(QuestionFile(question_id=question_id, filename=filename))
+                    db.session.add(QuestionFile(question_id=question.id, filename=filename))
         for _, question_file in filenames.items():
             db.session.delete(question_file)
-        question.script = form.script.data
-        db.session.add(question)
-        db.session.commit()
         return redirect(url_for('demograder.course_view', course_id=context['course'].id)) # FIXME
     else:
         return render_template('forms/question.html', form=form, **context)
