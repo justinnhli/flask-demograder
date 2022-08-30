@@ -171,7 +171,7 @@ class QuestionForm(FlaskForm):
         description='How long student code is allowed to run before it is killed.',
     )
     visible = BooleanField(
-        'Visible'
+        'Visible',
         description='If visible, students will not be able to see or access this question.',
     )
     locked = BooleanField(
