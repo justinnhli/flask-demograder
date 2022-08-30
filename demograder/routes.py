@@ -179,7 +179,7 @@ def user_form(user_id):
             )
         db.session.add(user)
         db.session.commit()
-        return redirect(url_for('demograder.home')) # FIXME
+        return redirect(url_for('demograder.home'))
     else:
         return render_template('forms/user.html', form=form, **context)
 
@@ -236,7 +236,7 @@ def course_form(course_id):
             course.students.append(user)
         db.session.add(course)
         db.session.commit()
-        return redirect(url_for('demograder.course_view', course_id=context['course'].id)) # FIXME
+        return redirect(url_for('demograder.course_view', course_id=course.id))
     else:
         return render_template('forms/course.html', form=form, **context)
 
@@ -264,7 +264,7 @@ def assignment_form(course_id, assignment_id):
             )
         db.session.add(assignment)
         db.session.commit()
-        return redirect(url_for('demograder.course_view', course_id=context['course'].id)) # FIXME
+        return redirect(url_for('demograder.course_view', course_id=context['course'].id))
     else:
         return render_template('forms/assignment.html', form=form, **context)
 
@@ -335,7 +335,7 @@ def question_form(assignment_id, question_id):
                     db.session.add(QuestionFile(question_id=question.id, filename=filename))
         for _, question_file in filenames.items():
             db.session.delete(question_file)
-        return redirect(url_for('demograder.course_view', course_id=context['course'].id)) # FIXME
+        return redirect(url_for('demograder.question_view', question_id=question.id))
     else:
         return render_template('forms/question.html', form=form, **context)
 
