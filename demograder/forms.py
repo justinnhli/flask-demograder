@@ -83,7 +83,10 @@ class CourseForm(FlaskForm):
     title = StringField('Title', validators=[InputRequired()])
     instructors = MultiCheckboxField('Instructors')
     enrolled_students = MultiCheckboxField('Enrolled Students')
-    new_students = TextAreaField('New Students')
+    new_students = TextAreaField(
+        'New Students',
+        description='Students to enroll in the course. Everything accept their emails will be ignored.',
+    )
     submit = SubmitField('Submit')
 
     def update_for(self, course_id, context):
@@ -157,18 +160,40 @@ class QuestionForm(FlaskForm):
     due_date = DateField( 'Due Date', validators=[Optional()])
     due_hour = SelectField(choices=[f'{hour:02d}' for hour in range(24)])
     due_minute = SelectField(choices=[f'{minute:02d}' for minute in range(60)])
-    cooldown = DecimalField('Cooldown (sec)', places=0, default=10)
-    timeout = DecimalField('Timeout (sec)', places=0, default=10)
-    visible = BooleanField('Visible')
-    locked = BooleanField('Locked')
-    hide_output = BooleanField('Hide Output')
-    dependencies = FieldList(FormField(QuestionDependencyForm))
+    cooldown = DecimalField(
+        'Cooldown (sec)', places=0, default=10,
+        description='How long students have to wait before they can resubmit to a question.',
+    )
+    timeout = DecimalField(
+        'Timeout (sec)', places=0, default=10,
+        description='How long student code is allowed to run before it is killed.',
+    )
+    visible = BooleanField(
+        'Visible'
+        description='If visible, students will not be able to see or access this question.',
+    )
+    locked = BooleanField(
+        'Locked',
+        description='If locked, students will not be able to submit to this question.',
+    )
+    hide_output = BooleanField(
+        'Hide Output',
+        description='If the output is hidden, students will only see whether a testcase passed/failed, but not any printed output or errors.',
+    )
+    dependencies = FieldList(
+        FormField(QuestionDependencyForm),
+        description='Other questions whose submissions are needed for the evaluation of this question.',
+    )
     # cannot be "filenames" due to namespace collision in WTForm
     file_names = StringField(
         'Filenames',
         description='The filenames to be submitted, separated by commas.',
     )
-    script = TextAreaField('Script')
+    script = TextAreaField(
+        'Script',
+        default='#!/bin/sh\n\nexit 1 # FIXME',
+        description='The script to run to evaluate submissions to this question.',
+    )
     submit = SubmitField('Submit')
 
     def update_for(self, question_id, context):
