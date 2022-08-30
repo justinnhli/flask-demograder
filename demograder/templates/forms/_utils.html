@@ -1,7 +1,7 @@
 {% macro render_field(field) %}
     <tr{% if field.errors %} class="form-field-error"{% endif %}>
         <th><label for="{{ field.id }}">
-            {{ field.label }}{% if field.description %}<abbr title="{{ field.description }}">(?)</abbr>{% endif %}:
+            {{ field.label }}{% if field.description %} <abbr title="{{ field.description }}">(?)</abbr>{% endif %}:
         </label></th>
         <td>
             {{ field }}
