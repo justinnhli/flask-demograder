@@ -176,7 +176,7 @@ class QuestionForm(FlaskForm):
         self.id.data = question_id
         self.name.data = question.name
         if question.due_date:
-            self.due_date.data = question.due_date.date
+            self.due_date.data = question.due_date
             self.due_hour.data = f'{question.due_date.hour:02d}'
             self.due_minute.data = f'{question.due_date.minute:02d}'
         self.cooldown.data = question.cooldown_seconds
