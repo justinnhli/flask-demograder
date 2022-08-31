@@ -335,6 +335,7 @@ def question_form(assignment_id, question_id):
                     db.session.add(QuestionFile(question_id=question.id, filename=filename))
         for _, question_file in filenames.items():
             db.session.delete(question_file)
+        db.session.commit()
         return redirect(url_for('demograder.question_view', question_id=question.id))
     else:
         return render_template('forms/question.html', form=form, **context)
