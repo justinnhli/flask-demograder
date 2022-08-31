@@ -22,6 +22,11 @@ def root():
     return render_template('login.html')
 
 
+@blueprint.route('/about')
+def about():
+    return render_template('about.html')
+
+
 @blueprint.route('/home')
 def home():
     context = get_context()

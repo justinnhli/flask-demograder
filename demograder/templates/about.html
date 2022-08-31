@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block content %}
+<strong>Background</strong>
+
+The Demograder was written to provide a functionality that does not exist in most (all) autograders: the ability to run student code against other student code. Such a functionality may be useful in several ways, such as evaluating student code against each other's testcases as a way to develop good test-writing abilities, or to allow students to use each other's libraries to reinforce the importance of good API design and documentation. Supporting this core functionality of the Demograder drives the majority of its design decisions.
+
+<strong>Basic Usage</strong>
+
+Internally, the Demograder represents Course, Assignment, and Question objects. Courses represent a class that one or more instructors teach, which multiple students can enroll in. Assignments serve only a way to organize and group Questions, which represent the actual prompts that student code is responding to. Beyond due dates, timeout duration, grading script, and other common attributes shared with other autograders, Questions in the Demograder also have <em>dependencies</em>, which are other Questions whose submissions are used to evaluate this question. This dependency structure is used for both running student code against each other, as well as the more mundane task of running against instructor testcases.
+
+As an example, consider how we might set up the Demograder for a basic <code>hello()</code> function, that takes a string <code>name</code> and returns <code>"Hello, "</code> followed by that name. Two Questions are needed for this: one for <code>hello.py</code> that students would submit, and one for <code>testcase.py</code> that would import the student code and check that its output is correct for a specific input. Crucially, this second Question would be a dependency for the first one. Graphically, we might depict this relationship as:
+
+<pre><code>
+testcase.py
+    ^
+    |
+    |
+    |
+ hello.py
+</code></pre>
+
+What this means functionally is that, when a student submits to <code>hello.py</code>, the Demograder will also include the submissions from <code>testcase.py</code> in the same directory, which the instructor can then call. Concretely, a <code>hello.py</code> submission from the student might look like:
+
+<pre><code>
+# hello.py
+
+def hello(name):
+    return 'Hello, ' + name
+</code></pre>
+
+A <code>testcase.py</code> submission from the instructor might look like:
+
+<pre><code>
+# testcase.py
+
+from hello import hello
+
+assert hello('Eve') == 'Hello, Eve'
+</code></pre>
+
+And finally, the grading script for the <code>hello.py</code> Question might look like:
+
+<pre><code>
+#!/bin/sh
+
+python3 testcase.py
+</code></pre>
+
+As mentioned above, when this script is run to evaluate the student submission, both <code>hello.py</code> and <code>testcase.py</code> will be in the same directory, thus allowing Python to find and import them as needed. The Demograder only cares that the evaluation script returns an exit code of <code>0</code> (to indicate that the test passed), or any other exit code (to indicate the test failed); much more complicated scripts can be used as long as this basic API is respected.
+
+What if we want to add another testcase? To do so, the instructor would simply submit again to the <code>testcase.py</code> question. (The Demograder will rename the submitted files during evaluation, so the instructor can keep them named <code>testcase1.py</code>, <code>testcase2.py</code>, etc. locally.) By default, the Demograder will use <em>all</em> submissions from the dependencies and treat them as separate testcases. If a student submits <code>hello.py</code> now, it will be run against both <code>testcase1.py</code> and <code>testcase2.py</code>, resulting in a score out of 2.
+
+<strong>Advanced Usage: Supporting Library Files</strong>
+
+The basic idea behind how the Demograder works - that submissions to dependencies will be present during evaluation - easily supports other use cases. As an example, what if a third file `library.py` is also needed for evaluation? In that case, the instructor will create a third Question, and also set `hello.py` to depend on it (as well as `testcase.py`). Graphically, the dependencies could be depicted as:
+
+<pre><code>
+testcase.py      library.py
+          ^      ^
+           \    /
+            \  /
+             \/
+           hello.py
+</code></pre>
+
+By default, when a student submits `hello.py`, the combination of all submissions to both `testcase.py` and `library.py` will be used. As an example, if there were two submissions to `testcase.py` and three submissions to `library.py`, the student's `hello.py` submission would have a total of 2&times;3=6 results.
+
+Note that dependencies are <em>not</em> commutative. That is, if `library.py` itself has additional dependencies, the submission to those dependencies are <em>not</em> included in the directory when `hello.py` is evaluated. This allows for "circular" dependencies between student testcases and code, which can be used to evaluate each other.
+{% endblock %}
