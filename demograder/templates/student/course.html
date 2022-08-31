@@ -29,6 +29,9 @@
     <ul>
         {% for question in assignment.visible_questions(role >= Role.INSTRUCTOR) %}
         <li>
+            {% if role >= Role.INSTRUCTOR and not question.visible %}
+            (hidden)
+            {% endif %}
             <a href="{{ url_for('demograder.question_view', question_id=question.id) }}">{{ question.name }}</a>
             {% if question.due_date %}
             (due {{ question.iso_format }})
