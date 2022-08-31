@@ -109,7 +109,7 @@ def disable_submission(submission_id):
     context['submission'].disabled = not context['submission'].disabled
     db.session.add(context['submission'])
     db.session.commit()
-    return redirect(url_for('demograder.submission_view', submission_id=submission_id))
+    return redirect(url_for('demograder.question_view', question_id=context['question'].id))
 
 
 @blueprint.route('/download_submission/<int:submission_id>')
