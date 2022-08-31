@@ -1,11 +1,14 @@
 import os
 import pathlib
+from pytz import timezone as TimeZone
 
 APP_PATH = pathlib.Path(__file__).expanduser().resolve().parent
 
 SQLALCHEMY_DATABASE_PATH = str(APP_PATH / 'database.sqlite')
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + SQLALCHEMY_DATABASE_PATH
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+TIMEZONE = TimeZone('US/Pacific')
 
 SUBMISSION_PATH = APP_PATH.parent / 'submissions'
 SUBMISSION_PATH.mkdir(exist_ok=True)

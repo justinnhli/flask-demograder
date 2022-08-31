@@ -12,6 +12,7 @@ Flask-Login==0.5.0
 # backend libraries
 Authlib==0.15.5
 requests==2.27.1
+pytz==2019.1
 
 # dependencies
 certifi==2021.10.8

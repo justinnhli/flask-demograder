@@ -4,6 +4,7 @@ from textwrap import dedent
 from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from pytz import UTC
 from sqlalchemy import case as case_
 from sqlalchemy.orm import validates
 
@@ -68,8 +69,8 @@ class User(db.Model, UserMixin):
             return True
         if last_submission.num_tbd > 0:
             return False
-        current_time = UTC.normalize(datetime.now(last_submission.timestamp.tzinfo)) # FIXME
-        submit_time = UTC.normalize(last_submission.timestamp) # FIXME
+        current_time = DateTime.now(UTC)
+        submit_time = last_submission.timestamp
         return (current_time - submit_time).seconds > question.cooldown_seconds
 
     def get_id(self):
@@ -315,7 +316,8 @@ class Question(db.Model):
 
     @property
     def iso_format(self):
-        return self.due_date.strftime('%Y-%m-%d %H:%M:%S')
+        aware_datetime = self.due_date.replace(tzinfo=UTC)
+        return current_app.config['TIMEZONE'].normalize(aware_datetime).strftime('%Y-%m-%d %H:%M:%S')
 
     @property
     def course(self):
@@ -334,7 +336,7 @@ class Submission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, nullable=False, default=DateTime.utcnow)
+    timestamp = db.Column(db.DateTime, nullable=False, default=(lambda: DateTime.now(UTC)))
     disabled = db.Column(db.Boolean, nullable=False, default=False)
     files = db.relationship('SubmissionFile', backref='submission')
     results = db.relationship('Result', backref='submission')
@@ -366,7 +368,8 @@ class Submission(db.Model):
 
     @property
     def iso_format(self):
-        return self.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        aware_datetime = self.timestamp.replace(tzinfo=UTC)
+        return current_app.config['TIMEZONE'].normalize(aware_datetime).strftime('%Y-%m-%d %H:%M:%S')
 
     @property
     def assignment(self):
