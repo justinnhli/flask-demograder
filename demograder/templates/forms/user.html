@@ -3,8 +3,6 @@
 
 {% block title %}Demograder{% endblock %}
 
-{% block breadcrumb %}&nbsp;{% endblock %}
-
 {% block content %}
     <h1>New/Edit User</h1>
     <form method="POST" action="{{ url_for('demograder.user_form', user_id=form.id.data) }}">

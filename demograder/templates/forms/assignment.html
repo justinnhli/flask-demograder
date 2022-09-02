@@ -3,8 +3,6 @@
 
 {% block title %}Demograder{% endblock %}
 
-{% block breadcrumb %}&nbsp;{% endblock %}
-
 {% block content %}
     <h1>New/Edit Assignment</h1>
     <form method="POST" action="{{ url_for('demograder.assignment_form', course_id=form.course_id.data, assignment_id=form.id.data) }}">
