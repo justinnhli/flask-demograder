@@ -161,7 +161,7 @@ def user_form(user_id):
         if form.id.data:
             # if there is an ID, this is editing an existing User
             # make sure the URL user_id matches the form id field
-            if int(form.id.data) != course_id:
+            if int(form.id.data) != user_id:
                 abort(403)
             # make sure that the submitted ID is the same as the user ID
             if not (context['user'].admin or int(form.id.data) == user_id):
