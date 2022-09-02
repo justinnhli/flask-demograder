@@ -203,7 +203,9 @@ def course_form(course_id):
     context = get_context(course_id=course_id, min_role=Role.FACULTY)
     form = CourseForm.build(context)
     if not form.is_submitted():
-        if course_id is not None:
+        if course_id is None:
+            form.instructors.data = str(context['viewer'])
+        else:
             form.update_for(course_id, context)
         return render_template('forms/course.html', form=form, **context)
     elif form.validate():
@@ -229,17 +231,26 @@ def course_form(course_id):
                 section=int(form.section.data),
                 title=form.title.data.strip(),
             )
-        for instructor_str in form.instructors.data:
-            course.instructors.append(User.query.filter_by(email=find_emails(instructor_str)[0]).first())
-        for student_str in form.enrolled_students.choices:
-            if student_str not in form.enrolled_students.data:
-                course.students.remove(User.query.filter_by(email=find_emails(student_str)[0]).first())
-        for email in find_emails(form.new_students.data.strip()):
+        form_instructors = set(find_emails(form.instructors.data.strip()))
+        curr_instructors = set(user.email for user in course.instructors)
+        for email in form_instructors - curr_instructors:
+            user = User.query.filter_by(email=email).first()
+            if not user:
+                user = User(email=email)
+                db.session.add(user)
+            course.instructors.append(user)
+        for email in curr_instructors - form_instructors:
+            course.instructors.remove(User.query.filter_by(email=email).first())
+        form_students = set(find_emails(form.students.data.strip()))
+        curr_students = set(user.email for user in course.students)
+        for email in form_students - curr_students:
             user = User.query.filter_by(email=email).first()
             if not user:
                 user = User(email=email)
                 db.session.add(user)
             course.students.append(user)
+        for email in curr_students - form_students:
+            course.students.remove(User.query.filter_by(email=email).first())
         db.session.add(course)
         db.session.commit()
         return redirect(url_for('demograder.course_view', course_id=course.id))

@@ -16,10 +16,7 @@
             {{ render_field(form.section) }}
             {{ render_field(form.title) }}
             {{ render_field(form.instructors) }}
-            {% if form.enrolled_students.choices %}
-                {{ render_field(form.enrolled_students) }}
-            {% endif %}
-            {{ render_field(form.new_students) }}
+            {{ render_field(form.students) }}
         </table>
         {{ form.hidden_tag() }}
         <p>{{ form.submit }}</p>

@@ -83,11 +83,13 @@ class CourseForm(FlaskForm):
     number = DecimalField('Course Number', places=0, validators=[InputRequired()])
     section = DecimalField('Section', places=0, default=0) # FIXME uniqueness check
     title = StringField('Title', validators=[InputRequired()])
-    instructors = MultiCheckboxField('Instructors')
-    enrolled_students = MultiCheckboxField('Enrolled Students')
-    new_students = TextAreaField(
-        'New Students',
-        description='Students to enroll in the course. Everything accept their emails will be ignored.',
+    instructors = TextAreaField(
+        'Instructors',
+        description='Instructors and teaching assistants for the course. Everything accept their emails will be ignored.',
+    )
+    students = TextAreaField(
+        'Students',
+        description='Students enrolled in the course. Everything accept their emails will be ignored.',
     )
     submit = SubmitField('Submit')
 
@@ -100,23 +102,12 @@ class CourseForm(FlaskForm):
         self.number.data = int(course.number)
         self.section.data = int(course.section)
         self.title.data = course.title
-        self.instructors.data = [str(user) for user in course.instructors]
-        students = [str(user) for user in sorted(course.students)]
-        self.enrolled_students.choices = students
-        self.enrolled_students.data = students
+        self.instructors.data = '\n'.join(str(user) for user in sorted(course.instructors))
+        self.students.data = '\n'.join(str(user) for user in sorted(course.students))
 
     @staticmethod
     def build(context):
-        form = CourseForm()
-        form.instructors.choices = [
-            str(user) for user in
-            User.query.filter_by(faculty=True).all()
-        ]
-        # FIXME set form.season.data by estimating semester
-        # FIXME set form.year.data by estimating semester
-        form.instructors.data = [str(context['viewer']),]
-        form.enrolled_students.choices = []
-        return form
+        return CourseForm()
 
 
 class AssignmentForm(FlaskForm):
