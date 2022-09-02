@@ -224,7 +224,7 @@ def course_form(course_id):
         else:
             # otherwise, this is creating a new Course
             course = Course(
-                season=form.season.data, # FIXME
+                season=form.season.data,
                 year=int(form.year.data),
                 department_code = form.department_code.data.strip(),
                 number=int(form.number.data),
@@ -337,6 +337,9 @@ def question_form(assignment_id, question_id):
         question.locked = form.locked.data
         question.hide_output = form.hide_output.data
         question.script = form.script.data
+        # FIXME should be able to do the following, a la instructors/students in course_form
+        # question.files.add(QuestionFile(...))
+        # question.files.remove(QuestionFile(...))
         db.session.add(question)
         db.session.commit()
         filenames = {
