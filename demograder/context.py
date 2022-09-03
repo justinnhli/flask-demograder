@@ -21,16 +21,18 @@ def forbidden(context):
         abort(403)
 
 
-def _set_user_context(context, url_args, **kwargs):
-    context['user'] = User.query.filter_by(email=session.get('user_email')).first()
-
-
 def _set_viewer_context(context, url_args, **kwargs):
     if 'viewer' in url_args:
         context['viewer'] = User.query.filter_by(email=url_args['viewer']).first()
     if not context.get('viewer', None):
         context['viewer'] = context['user']
     context['alternate_view'] = (context['user'] != context['viewer'])
+    # check that the viewer is in a course taught by the user
+    if context['alternate_view']:
+        viewer_is_student = bool(user.courses_with_student(context['viewer'].id))
+        viewer_is_instructor = bool(user.courses_with_coinstructor(context['viewer'].id))
+        if not (viewer_is_student or viewer_is_instructor):
+            forbidden(context)
 
 
 def _set_course_context(context, url_args, **kwargs):
@@ -90,9 +92,11 @@ def _set_student_context(context, url_args, **kwargs):
 
 
 def _set_role_context(context, url_args, **kwargs):
-    context['Role'] = Role # this allows templates to branch on role
     if 'role' in url_args and url_args['role'].upper() not in Role.__members__:
         del url_args['role']
+    if not context['user']:
+        context['role'] = Role.STUDENT
+        return
     if context['viewer'].admin:
         context['role'] = min(
             Role[url_args.get('role', 'admin').upper()],
@@ -140,49 +144,45 @@ def get_context(**kwargs):
 
     Context Parameters:
         course_id (int): The course ID of the page being viewed.
+        FIXME assignment, question, submission, result
 
     Permission Parameters:
         login_required (bool): If the user must be logged in.
-        user (int): The only user (or an admin) who is permitted.
+        user_id (int): The only user (or an admin) who is permitted.
             Note that this is _user_, not _viewer_ - this parameter is for
             things like account management.
         min_role (Role): The minimum role the viewer must have.
     '''
     # get URL parameters
     url_args = request.args.to_dict()
-    context = {}
-    _set_user_context(context, url_args, **kwargs)
-    # check if login is required
-    if not kwargs.get('login_required', True):
-        return context
-    if not context['user']:
+    context = {
+        'Role': Role, # including the Enum allows templates to branch on role
+        'role': Role.STUDENT,
+        'user': User.query.filter_by(email=session.get('user_email')).first(),
+    }
+    # check that there is a user if login is required
+    if kwargs.get('login_required', True) and not context['user']:
         abort(401)
-    user = context['user']
-    # check if the user is the specific user required
-    if 'user' in kwargs and kwargs['user'] != user.id:
+    # check that the user is the specific user required
+    if context['user'] and kwargs.get('user_id', None) != context['user'].id:
         forbidden(context)
     _set_viewer_context(context, url_args, **kwargs)
-    viewer = context['viewer']
-    # check if the viewer is in a course taught by the user
-    if context['alternate_view']:
-        viewer_is_student = bool(user.courses_with_student(viewer.id))
-        viewer_is_instructor = bool(user.courses_with_coinstructor(viewer.id))
-        if not (viewer_is_student or viewer_is_instructor):
-            forbidden(context)
     _set_course_context(context, url_args, **kwargs)
-    course = context['course']
-    # check if both the user and the viewer are related to the course
-    if course:
-        _set_instructor_context(context, url_args, **kwargs)
-        _set_student_context(context, url_args, **kwargs)
-        # check if the user is related to the course
+    # check that both the user and the viewer are related to the course
+    if context['course']:
+        user = context['user']
+        course = context['course']
+        # check that the user is related to the course
         if not (user.is_teaching(course.id) or user.is_taking(course.id)):
             forbidden(context)
-        # check if the viewer is related to the course
+        # set the viewer context with respect to the course
+        _set_instructor_context(context, url_args, **kwargs)
+        _set_student_context(context, url_args, **kwargs)
+        # check that the viewer is related to the course
         if context['alternate_view'] and not (context['instructor'] or context['student']):
             forbidden(context)
     _set_role_context(context, url_args, **kwargs)
-    # check if the viewer meets the minimum role requirements
+    # check that the viewer meets the minimum role requirements
     if kwargs.get('min_role', Role.STUDENT) > context['role']:
         forbidden(context)
     return context

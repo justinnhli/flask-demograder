@@ -151,7 +151,7 @@ def download_file(file_id):
 @blueprint.route('/forms/user/', defaults={'user_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/user/<int:user_id>', methods=('GET', 'POST'))
 def user_form(user_id):
-    context = get_context(user=user_id)
+    context = get_context(user_id=user_id)
     form = UserForm.build(context)
     if not form.is_submitted():
         if user_id is not None:
