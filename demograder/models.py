@@ -139,7 +139,7 @@ class User(db.Model, UserMixin):
 class Instructor(db.Model):
     __tablename__ = 'instructors'
     __table_args__ = (
-        db.UniqueConstraint('user_id', 'course_id'),
+        db.Index('instructor_user_course_idx', 'user_id', 'course_id'),
     )
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
@@ -149,7 +149,7 @@ class Instructor(db.Model):
 class Student(db.Model):
     __tablename__ = 'students'
     __table_args__ = (
-        db.UniqueConstraint('user_id', 'course_id'),
+        db.Index('student_user_course_idx', 'user_id', 'course_id'),
     )
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
@@ -241,7 +241,7 @@ SEASONS_ORDER_BY = case_(value=Course.season, whens=SEASONS_ORDER_MAP)
 class Assignment(db.Model):
     __tablename__ = 'assignments'
     id = db.Column(db.Integer, primary_key=True)
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False, index=True)
     name = db.Column(db.String, nullable=False, default='')
     questions = db.relationship('Question', backref='assignment')
 
@@ -265,17 +265,17 @@ class QuestionDependency(db.Model):
         db.UniqueConstraint('producer_id', 'consumer_id'),
     )
     id = db.Column(db.Integer, primary_key=True)
-    producer_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
-    consumer_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    producer_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False, index=True)
+    consumer_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False, index=True)
     input_type = db.Column(db.Enum('latest', 'all'), nullable=False, default='latest')
-    submitters = db.Column(db.Enum('everyone', 'instructors'), nullable=False, default='everyone')
+    submitters = db.Column(db.Enum('instructors', 'students', 'everyone'), nullable=False, default='instructor')
     viewable = db.Column(db.Boolean, default=True)
 
 
 class Question(db.Model):
     __tablename__ = 'questions'
     id = db.Column(db.Integer, primary_key=True)
-    assignment_id = db.Column(db.Integer, db.ForeignKey('assignments.id'), nullable=False)
+    assignment_id = db.Column(db.Integer, db.ForeignKey('assignments.id'), nullable=False, index=True)
     name = db.Column(db.String, nullable=False, default='')
     due_date = db.Column(db.DateTime, nullable=True)
     cooldown_seconds = db.Column(db.Integer, default=300)
@@ -327,15 +327,19 @@ class Question(db.Model):
 class QuestionFile(db.Model):
     __tablename__ = 'question_files'
     id = db.Column(db.Integer, primary_key=True)
-    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False, index=True)
     filename = db.Column(db.String, nullable=True)
 
 
 class Submission(db.Model):
     __tablename__ = 'submissions'
+    __table_args__ = (
+        db.Index('submission_user_question_idx', 'user_id', 'question_id'),
+        db.Index('submission_question_idx', 'question_id', 'disabled'),
+    )
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False, index=True)
     timestamp = db.Column(db.DateTime, nullable=False, default=(lambda: DateTime.now(UTC)))
     disabled = db.Column(db.Boolean, nullable=False, default=False)
     files = db.relationship('SubmissionFile', backref='submission')
@@ -383,7 +387,7 @@ class Submission(db.Model):
 class SubmissionFile(db.Model):
     __tablename__ = 'submission_files'
     id = db.Column(db.Integer, primary_key=True)
-    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False, index=True)
     question_file_id = db.Column(db.Integer, db.ForeignKey('question_files.id'), nullable=False)
     question_file = db.relationship('QuestionFile')
     filename = db.Column(db.String, nullable=False)
@@ -417,8 +421,11 @@ class SubmissionFile(db.Model):
 
 class Result(db.Model):
     __tablename__ = 'results'
+    __table_args__ = (
+        db.Index('result_submission_returncode_idx', 'submission_id', 'return_code'),
+    )
     id = db.Column(db.Integer, primary_key=True)
-    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False, index=True)
     stdout = db.Column(db.String, nullable=True)
     stderr = db.Column(db.String, nullable=True)
     return_code = db.Column(db.Integer, nullable=True)
@@ -473,5 +480,5 @@ class ResultDependency(db.Model):
         db.UniqueConstraint('result_id', 'submission_id'),
     )
     id = db.Column(db.Integer, primary_key=True)
-    result_id = db.Column(db.Integer, db.ForeignKey('results.id'), nullable=False)
+    result_id = db.Column(db.Integer, db.ForeignKey('results.id'), nullable=False, index=True)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
