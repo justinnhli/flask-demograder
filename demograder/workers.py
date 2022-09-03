@@ -17,7 +17,7 @@ def evaluate_submission(submission_id):
     for dependent_ids in expand_submission(submission_id):
         result_ids.append(create_empty_result(submission_id, dependent_ids))
     for result_id in result_ids:
-        update_result(*evaluate_result(result_id))
+        evaluate_result(result_id)
 
 
 def expand_submission(submission_id):
@@ -80,7 +80,7 @@ def recursive_chmod(path):
 
 def evaluate_result(result_id):
     from demograder import create_app
-    from demograder.models import Result
+    from demograder.models import db, Result
     with create_app(with_queue=False).app_context():
         result = Result.query.get(result_id)
         # create a temporary directory for evaluation
@@ -97,7 +97,13 @@ def evaluate_result(result_id):
                     copyfile(submission_file.filepath, temp_dir.joinpath(submission_file.question_file.filename))
             recursive_chmod(temp_dir)
             completed_process = run_process(
-                ['sudo', '-u', 'nobody', 'timeout', '-s', 'KILL', str(result.question.timeout_seconds), str(temp_dir.joinpath('.script'))],
+                [
+                    'sudo',
+                    '-u', 'nobody',
+                    'timeout',
+                    '-s', 'KILL',
+                    str(result.question.timeout_seconds), str(temp_dir.joinpath('.script')),
+                ],
                 cwd=temp_dir,
                 stderr=PIPE,
                 stdout=PIPE,
@@ -118,21 +124,9 @@ def evaluate_result(result_id):
                 cwd=temp_dir,
                 check=False,
             )
-        return (
-            result_id,
-            stdout.strip(),
-            stderr.strip(),
-            return_code
-        )
-
-
-def update_result(result_id, stdout, stderr, return_code):
-    from demograder import create_app
-    from demograder.models import db, Result
-    with create_app(with_queue=False).app_context():
         result = Result.query.get(result_id)
-        result.stdout = stdout
-        result.stderr = stderr
+        result.stdout = stdout.strip()
+        result.stderr = stderr.strip()
         result.return_code = return_code
         db.session.add(result)
         db.session.commit()
