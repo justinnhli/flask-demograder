@@ -41,10 +41,13 @@ def expand_submission(submission_id):
             permute_args.append(
                 Submission.query.filter_by(question_id=dependency.producer_id, disabled=False).join(subquery).all()
             )
-        return [
-            [submission.id for submission in family]
-            for family in product(*permute_args)
-        ]
+        if permute_args:
+            return [
+                [submission.id for submission in family]
+                for family in product(*permute_args)
+            ]
+        else:
+            return []
 
 
 def create_empty_result(submission_id, dependent_ids):
