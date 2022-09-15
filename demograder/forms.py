@@ -139,8 +139,8 @@ class QuestionDependencyForm(Form):
     question_id = HiddenField('question_id')
     question = StringField('question')
     is_dependency = BooleanField(default=False)
-    submissions_used = SelectField('Submissions Used', choices=['latest', 'all'])
-    submitters_used = SelectField('Submitters Used', choices=['everyone', 'instructors'])
+    submissions_used = SelectField('Submissions Used', choices=['all', 'latest'])
+    submitters_used = SelectField('Submitters Used', choices=['instructors', 'students', 'everyone'])
     viewable = BooleanField('source file viewable')
 
 
@@ -227,8 +227,8 @@ class QuestionForm(FlaskForm):
                 self.dependencies.append_entry({
                     'question_id': other_question.id,
                     'question': other_question.name,
-                    'submissions_used': 'latest',
-                    'submitters_used': 'everyone',
+                    'submissions_used': 'all',
+                    'submitters_used': 'instructor',
                     'viewable': True,
                 })
         self.file_names.data = ','.join(question_file.filename for question_file in question.filenames)
