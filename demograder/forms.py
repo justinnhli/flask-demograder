@@ -113,7 +113,7 @@ class CourseForm(FlaskForm):
 class AssignmentForm(FlaskForm):
     id = HiddenField('id')
     course_id = HiddenField('course_id')
-    course = StringField('Course', render_kw={})
+    course = StringField('Course', render_kw={'disabled':''})
     name = StringField( 'Name',  validators=[InputRequired()])
     submit = SubmitField('Submit')
 
@@ -131,7 +131,6 @@ class AssignmentForm(FlaskForm):
         form = AssignmentForm()
         form.course_id.data = context['course'].id
         form.course.data = str(context['course'])
-        form.course.render_kw['disabled'] = ''
         return form
 
 
@@ -147,8 +146,8 @@ class QuestionDependencyForm(Form):
 class QuestionForm(FlaskForm):
     id = HiddenField('id')
     assignment_id = HiddenField('assignment_id')
-    course = StringField('Course', render_kw={})
-    assignment = StringField('Assignment', render_kw={})
+    course = StringField('Course', render_kw={'disabled':''})
+    assignment = StringField('Assignment', render_kw={'disabled':''})
     name = StringField( 'Name',  validators=[InputRequired()])
     due_date = DateField( 'Due Date', validators=[Optional()])
     due_hour = SelectField(choices=[f'{hour:02d}' for hour in range(24)])
@@ -239,9 +238,7 @@ class QuestionForm(FlaskForm):
         form = QuestionForm()
         form.assignment_id.data = context['assignment'].id
         form.course.data = str(context['course'])
-        form.course.render_kw['disabled'] = ''
         form.assignment.data = str(context['assignment'])
-        form.assignment.render_kw['disabled'] = ''
         return form
 
     def validate_file_names(self, field):
