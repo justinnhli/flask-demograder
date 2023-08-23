@@ -1,5 +1,6 @@
 from datetime import datetime as DateTime
 
+from sqlalchemy import select
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
 from wtforms import Form
@@ -8,7 +9,7 @@ from wtforms import SelectField, SelectMultipleField, DateField, FieldList, Form
 from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms.validators import ValidationError, InputRequired, Regexp, Optional
 
-from .models import SEASONS, User, Course, Assignment, Question, QuestionDependency
+from .models import db, SEASONS, User, Course, Assignment, Question, QuestionDependency
 
 
 class MultiCheckboxField(SelectMultipleField):
@@ -29,7 +30,7 @@ def unique(cls, fields):
             field: getattr(form, field).data
             for field in fields
         }
-        instance = cls.query.filter_by(**filters).first()
+        instance = cls.query.filter_by(**filters).first() # FIXME convert to SQLAlchemy 2 syntax
         if instance and instance.id != int(form.id.data):
             getattr(form, form_field.id).errors.append(message)
             return False
@@ -59,7 +60,7 @@ class UserForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, user_id, context):
-        user = User.query.get(user_id)
+        user = db.session.scalar(select(User).where(User.id == user_id))
         self.id.data = user.id
         self.preferred_name.data = user.preferred_name
         self.family_name.data = user.family_name
@@ -94,7 +95,7 @@ class CourseForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, course_id, context):
-        course = Course.query.get(course_id)
+        course = db.session.scalar(select(Course).where(Course.id == course_id))
         self.id.data = course.id
         self.season.data = course.season
         self.year.data = int(course.year)
@@ -118,7 +119,7 @@ class AssignmentForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, assignment_id, context):
-        assignment = Assignment.query.get(assignment_id)
+        assignment = db.session.scalar(select(Assignment).where(Assignment.id == assignment_id))
         self.id.data = assignment_id
         self.name.data = assignment.name
 
@@ -185,7 +186,7 @@ class QuestionForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, question_id, context):
-        question = Question.query.get(question_id)
+        question = db.session.scalar(select(Question).where(Question.id == question_id))
         self.id.data = question_id
         self.name.data = question.name
         if question.due_date:
@@ -205,10 +206,13 @@ class QuestionForm(FlaskForm):
             if other_question.id != question.id
         ]
         for other_question in other_questions:
-            question_dependency = QuestionDependency.query.filter_by(
-                producer_id=other_question.id,
-                consumer_id=question.id,
-            ).first()
+            question_dependency = db.session.scalar(
+                select(QuestionDependency)
+                .where(
+                    QuestionDependency.producer_id == other_question.id,
+                    QuestionDependency.consumer_id == question.id,
+                )
+            )
             if question_dependency:
                 self.dependencies.append_entry({
                     'question_id': other_question.id,
@@ -255,7 +259,7 @@ class SubmissionForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, question_id, context):
-        question = Question.query.get(question_id)
+        question = db.session.scalar(select(Question).where(Question.id == question_id))
         self.question_id.data = question_id
         for question_file in question.filenames:
             self.submission_files.append_entry({
