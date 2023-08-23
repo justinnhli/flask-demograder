@@ -90,16 +90,6 @@ class User(db.Model, UserMixin):
             Course.section.asc(),
         )
 
-    def courses_taking(self):
-        return Course.query.join(
-            Student.query.filter_by(user_id=self.id).subquery()
-        )
-
-    def courses_teaching(self):
-        return Course.query.join(
-            Instructor.query.filter_by(user_id=self.id).subquery()
-        )
-
     def courses_with_student(self, user_id):
         # return courses that the user teaches and the student is enrolled
         return Course.query.join(
