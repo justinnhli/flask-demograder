@@ -163,8 +163,10 @@ def get_context(**kwargs):
     # check that there is a user if login is required
     if kwargs.get('login_required', True) and not context['user']:
         abort(401)
+    if not kwargs.get('login_required', True):
+        return context
     # check that the user is the specific user required
-    if context['user'] and kwargs.get('user_id', None) != context['user'].id:
+    if 'user_id' in kwargs and kwargs['user_id'] != context['user'].id:
         forbidden(context)
     _set_viewer_context(context, url_args, **kwargs)
     _set_course_context(context, url_args, **kwargs)
