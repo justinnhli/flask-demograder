@@ -17,7 +17,7 @@ def login():
 @blueprint.route('/login-redirect')
 def login_redirect():
     token = oauth.google.authorize_access_token()
-    user_info = oauth.google.parse_id_token(token)
+    user_info = token['userinfo']
     # get the user's email address
     user_email = user_info.get('email', 'user@example.com')
     # find or create the user
