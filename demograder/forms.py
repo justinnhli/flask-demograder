@@ -121,10 +121,6 @@ class AssignmentForm(FlaskForm):
         assignment = Assignment.query.get(assignment_id)
         self.id.data = assignment_id
         self.name.data = assignment.name
-        if assignment.due_date:
-            self.due_date.data = assignment.due_date.date
-            self.due_hour.data = f'{assignment.due_date.hour:02d}'
-            self.due_minute.data = f'{assignment.due_date.minute:02d}'
 
     @staticmethod
     def build(context):
