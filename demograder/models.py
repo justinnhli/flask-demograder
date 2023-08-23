@@ -5,7 +5,7 @@ from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from pytz import UTC
-from sqlalchemy import case as case_
+from sqlalchemy import case
 from sqlalchemy.orm import validates
 
 db = SQLAlchemy()
@@ -225,7 +225,7 @@ class Course(db.Model):
             return query.limit(limit)
 
 
-SEASONS_ORDER_BY = case_(value=Course.season, whens=SEASONS_ORDER_MAP)
+SEASONS_ORDER_BY = case(SEASONS_ORDER_MAP, value=Course.season)
 
 
 class Assignment(db.Model):
