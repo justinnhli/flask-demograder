@@ -69,7 +69,7 @@ class User(db.Model, UserMixin):
             return True
         if last_submission.num_tbd > 0:
             return False
-        current_time = DateTime.now(UTC)
+        current_time = DateTime.now(UTC).replace(tzinfo=None)
         submit_time = last_submission.timestamp
         return (current_time - submit_time).seconds > question.cooldown_seconds
 
