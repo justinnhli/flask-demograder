@@ -69,7 +69,7 @@ class UserForm(FlaskForm):
         self.faculty.data = user.faculty
         # disable the email field for non-admins
         if context['role'] < context['Role'].ADMIN:
-            self.email.render_kw['disabled'] = ''
+            self.email.render_kw['readonly'] = ''
 
     @staticmethod
     def build(context):
@@ -114,7 +114,7 @@ class CourseForm(FlaskForm):
 class AssignmentForm(FlaskForm):
     id = HiddenField('id')
     course_id = HiddenField('course_id')
-    course = StringField('Course', render_kw={'disabled':''})
+    course = StringField('Course', render_kw={'readonly':''})
     name = StringField( 'Name',  validators=[InputRequired()])
     submit = SubmitField('Submit')
 
@@ -143,8 +143,8 @@ class QuestionDependencyForm(Form):
 class QuestionForm(FlaskForm):
     id = HiddenField('id')
     assignment_id = HiddenField('assignment_id')
-    course = StringField('Course', render_kw={'disabled':''})
-    assignment = StringField('Assignment', render_kw={'disabled':''})
+    course = StringField('Course', render_kw={'readonly':''})
+    assignment = StringField('Assignment', render_kw={'readonly':''})
     name = StringField( 'Name',  validators=[InputRequired()])
     due_date = DateField( 'Due Date', validators=[Optional()])
     due_hour = SelectField(choices=[f'{hour:02d}' for hour in range(24)])
