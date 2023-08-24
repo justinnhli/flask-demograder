@@ -80,7 +80,7 @@ class CourseForm(FlaskForm):
     id = HiddenField('id')
     season = SelectField('Season', choices=SEASONS)
     year = DecimalField('Year', places=0, default=DateTime.now().year)
-    department_code = StringField( 'Department Code', default='COMP', validators=[InputRequired()])
+    department_code = StringField('Department Code', default='COMP', validators=[InputRequired()])
     number = DecimalField('Course Number', places=0, validators=[InputRequired()])
     section = DecimalField('Section', places=0, default=0) # FIXME uniqueness check
     title = StringField('Title', validators=[InputRequired()])
@@ -115,7 +115,7 @@ class AssignmentForm(FlaskForm):
     id = HiddenField('id')
     course_id = HiddenField('course_id')
     course = StringField('Course', render_kw={'readonly':''})
-    name = StringField( 'Name',  validators=[InputRequired()])
+    name = StringField('Name',  validators=[InputRequired()])
     submit = SubmitField('Submit')
 
     def update_for(self, assignment_id, context):
@@ -145,8 +145,8 @@ class QuestionForm(FlaskForm):
     assignment_id = HiddenField('assignment_id')
     course = StringField('Course', render_kw={'readonly':''})
     assignment = StringField('Assignment', render_kw={'readonly':''})
-    name = StringField( 'Name',  validators=[InputRequired()])
-    due_date = DateField( 'Due Date', validators=[Optional()])
+    name = StringField('Name',  validators=[InputRequired()])
+    due_date = DateField('Due Date', validators=[Optional()])
     due_hour = SelectField(choices=[f'{hour:02d}' for hour in range(24)])
     due_minute = SelectField(choices=[f'{minute:02d}' for minute in range(60)])
     cooldown = DecimalField(
