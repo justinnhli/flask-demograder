@@ -331,8 +331,8 @@ def question_form(assignment_id, question_id):
                     db.session.delete(question_dependency)
         question.name = form.name.data.strip()
         question.due_date = due_date
-        question.cooldown = form.cooldown.data
-        question.timeout = form.timeout.data
+        question.cooldown_seconds = int(form.cooldown.data)
+        question.timeout_seconds = int(form.timeout.data)
         question.visible = form.visible.data
         question.locked = form.locked.data
         question.hide_output = form.hide_output.data
