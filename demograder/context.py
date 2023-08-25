@@ -7,10 +7,10 @@ from .models import db, User, Course, Assignment, Question, Submission, Submissi
 
 
 class Role(IntEnum):
-    '''A class representing the role of the viewer.
+    """A class representing the role of the viewer.
 
     This exists to allow dynamically checking what the page looks like for different people.
-    '''
+    """
     STUDENT = 0
     INSTRUCTOR = 1
     FACULTY = 2
@@ -134,7 +134,7 @@ def _set_role_context(context, url_args, **kwargs):
 
 
 def get_context(**kwargs):
-    '''Get the context for a request.
+    """Get the context for a request.
 
     This function also aborts if permissions are violated. Course and
     submission permissions (ie. the viewer must be an instructor or a student)
@@ -165,7 +165,7 @@ def get_context(**kwargs):
             Note that this is _user_, not _viewer_ - this parameter is for
             things like account management.
         min_role (Role): The minimum role the viewer must have.
-    '''
+    """
     # get URL parameters
     url_args = request.args.to_dict()
     context = {
