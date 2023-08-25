@@ -77,13 +77,6 @@ class User(db.Model, UserMixin):
         # this method is required by flask-login
         return self.email
 
-    def temp(self):
-        return db.session.execute(
-            select(func.count(Course.id))
-            .join(Instructor)
-            .where(Instructor.user_id == self.id)
-        )
-
     def courses(self):
         # FIXME change to SQLAlchemy 2 syntax
         return Course.query.join(
