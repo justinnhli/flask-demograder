@@ -401,6 +401,7 @@ class Submission(db.Model):
     files = db.relationship('SubmissionFile', backref='submission')
     results = db.relationship('Result', backref='submission')
     user = db.relationship('User')
+    question = db.relationship('Question')
 
     @property
     def num_results(self):
