@@ -17,7 +17,7 @@
         {% endif %}
         {% if role >= Role.INSTRUCTOR %}
         <span class="edit-link">(
-            <a href="{{ url_for('demograder.question_form', question_id=question.id) }}">edit</a>
+            <a href="{{ url_for('demograder.question_form', assignment_id=assignment.id, question_id=question.id) }}">edit</a>,
         )</span>
         {% endif %}
     </h1>
