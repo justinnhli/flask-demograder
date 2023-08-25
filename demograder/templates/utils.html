@@ -1,0 +1,61 @@
+{% macro submission_history_table(submissions, course=True, question=True, submitter=True, files=True) %}
+    <table class="submissions-history-table">
+        <tr>
+            <th>Time</th>
+            {% if course %}<th>Course</th>{% endif %}
+            {% if question %}<th>Question</th>{% endif %}
+            {% if submitter %}<th>Submitter</th>{% endif %}
+            {% if files %}<th>Files</th>{% endif %}
+            <th>Tests Passed</th>
+            <!--
+            {% if not question.locked %}
+            <th>Disable</th>
+            {% endif %}
+            -->
+        </tr>
+        {% for submission in submissions %}
+        <tr {% if submission.disabled %}class="disabled-submission"{% endif %}>
+            <td>{{ submission.iso_format }}</td>
+            {% if course %}
+            <td><a href="{{ url_for('demograder.course_view', course_id=submission.question.assignment.course.id) }}">
+                {{ submission.question.assignment.course }}
+            </a></td>
+            {% endif %}
+            {% if question %}
+            <td><a href="{{ url_for('demograder.question_view', question_id=submission.question.id) }}">
+                {{ submission.question.assignment.name }}: {{ submission.question.name }}
+            </a></td>
+            {% endif %}
+            {% if submitter %}
+            <td><a href="{{ url_for('demograder.user_view', page_user_email=submission.user.email) }}">
+                {{ submission.user.full_name }}
+            </a></td>
+            {% endif %}
+            {% if files %}
+            <td>
+                {% for submission_file in submission.files %}
+                <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>{{ submission_file.question_file.filename }}</code></a>
+                {{ ", " if not loop.last else "" }}
+                {% endfor %}
+            </td>
+            {% endif %}
+            <td>
+                <a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">
+                    {{ submission.num_passed }} / {{ submission.num_results }}
+                </a>
+            </td>
+            <!--
+            {% if not submission.question.locked %}
+            <td><a href="{{ url_for('demograder.disable_submission', submission_id=submission.id) }}">
+                {% if submission.disabled %}
+                enable
+                {% else %}
+                disable
+                {% endif %}
+            </a></td>
+            {% endif %}
+            -->
+        </tr>
+        {% endfor %}
+    </table>
+{% endmacro %}

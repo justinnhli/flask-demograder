@@ -1,3 +1,4 @@
+{% from 'utils.html' import submission_history_table %}
 {% extends "base.html" %}
 
 {% block title %}Demograder{% endblock %}
@@ -59,44 +60,6 @@
     You have not yet submitted to this question.
     {% else %}
     <h2>Submission History</h2>
-    <table class="submissions-history-table">
-        <tr>
-            <th>Time</th>
-            <th>Files</th>
-            <th>Tests Passed</th>
-            <!--
-            {% if not question.locked %}
-            <th>Disable</th>
-            {% endif %}
-            -->
-        </tr>
-        {% for prev_submission in submission.user.question_submissions(question.id) %}
-        <tr {% if prev_submission.disabled %}class="disabled-submission"{% endif %}>
-            <td>{{ prev_submission.iso_format }}</td>
-            <td>
-                {% for submission_file in prev_submission.files %}
-                <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>{{ submission_file.question_file.filename }}</code></a>
-                {{ ", " if not loop.last else "" }}
-                {% endfor %}
-            </td>
-            <td>
-                <a href="{{ url_for('demograder.submission_view', submission_id=prev_submission.id) }}">
-                    {{ prev_submission.num_passed }} / {{ prev_submission.num_results }}
-                </a>
-            </td>
-            <!--
-            {% if not prev_submission.question.locked %}
-            <td><a href="{{ url_for('demograder.disable_submission', submission_id=prev_submission.id) }}">
-                {% if prev_submission.disabled %}
-                enable
-                {% else %}
-                disable
-                {% endif %}
-            </a></td>
-            {% endif %}
-            -->
-        </tr>
-        {% endfor %}
-    </table>
+    {{ submission_history_table(submission.user.question_submissions(question.id), course=False, question=False, submitter=False) }}
     {% endif %}
 {% endblock %}
