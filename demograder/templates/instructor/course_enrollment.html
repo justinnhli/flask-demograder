@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block breadcrumb %}
+    &gt; <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.course_number }}</a>
+    &gt; Submissions
+{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ course.course_number }} {{ course.title }} ({{ course.semester }}) Enrollments
+        {% if role >= Role.INSTRUCTOR %}
+        <span class="edit-link">(
+            <a href="{{ url_for('demograder.course_form', course_id=course.id) }}">edit</a>,
+            <a href="{{ url_for('demograder.assignment_form', course_id=course.id) }}">new assignment</a>
+        )</span>
+        {% endif %}
+    </h1>
+    {% if not course.students %}
+    <p>There are no students for this course yet.</p>
+    {% else %}
+    <table>
+        <tr>
+            <th>Student</th>
+            <th>Email</th>
+        </tr>
+        {% for user in course.students %}
+        <tr>
+            <td><a href="{{ url_for('demograder.user_view', page_user_email=user.email) }}">{{ user.full_name }}</a></td>
+            <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+        </tr>
+        {% endfor %}
+    {% endif %}
+    </table>
+{% endblock %}

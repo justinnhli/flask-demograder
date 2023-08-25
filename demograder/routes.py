@@ -164,6 +164,12 @@ def download_file(file_id):
 # INSTRUCTOR
 
 
+@blueprint.route('/course_enrollment/<int:course_id>')
+def course_enrollment_view(course_id):
+    context = get_context(course_id=course_id, min_role=Role.ADMIN)
+    return render_template('instructor/course_enrollment.html', **context)
+
+
 @blueprint.route('/course_submissions/<int:course_id>')
 def course_submissions_view(course_id):
     context = get_context(course_id=course_id, min_role=Role.ADMIN)
