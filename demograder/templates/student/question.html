@@ -23,7 +23,15 @@
 
     <h2>Submit New Version</h2>
     {% if not viewer.may_submit(question.id) %}
-    <p>You may not submit to this question at this time.</p>
+        <p>
+        {% if question.locked %}
+            You are not allowed to submit because this question is locked; talk to your instructor if you believe that is an error.
+        {% elif viewer.question_submissions(question.id, limit=1).first().num_tbd > 0 %}
+            Your previous submission is still running - please wait until that is done before submitting again.
+        {% else %}
+            There is a cooldown period before you are allowed to submit again - why don't you look at your code again to make sure there are no bugs?
+        {% endif %}
+        </p>
     {% else %}
     <form method="POST" enctype="multipart/form-data" action="{{ url_for('demograder.question_view', question_id=form.question_id.data) }}">
         <ul>

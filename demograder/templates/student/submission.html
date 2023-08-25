@@ -19,6 +19,11 @@
         {{ submission.iso_format }} submission
         {% endif %}
         {% endif %}
+        {% if role >= Role.INSTRUCTOR %}
+        <span class="edit-link">(
+            <a href="{{ url_for('demograder.reevaluate_submission', submission_id=submission.id) }}">re-run submission</a>
+        )</span>
+        {% endif %}
     </h1>
 
     Submitted {{ submission.iso_format }}
@@ -38,7 +43,13 @@
 
     <h2>Results</h2>
     {% if not submission.results %}
-    <p>There are no results associated with this submission.</p>
+    <p>
+        {% if submission.question.upstream_dependencies %}
+        The results are still coming in; refresh the page in a few seconds to see them.
+        {% else %}
+        There are no results associated with this submission.
+        {% endif %}
+    </p>
     {% else %}
     <div class="scoreboard">
         {% for result in submission.results %}
@@ -61,21 +72,21 @@
             <th>Tests Passed</th>
             <th>Disable</th>
         </tr>
-        {% for submission in viewer.question_submissions(question.id) %}
-        <tr {% if submission.disabled %}class="disabled-submission"{% endif %}>
+        {% for prev_submission in submission.user.question_submissions(question.id) %}
+        <tr {% if prev_submission.disabled %}class="disabled-submission"{% endif %}>
             <td>
-                <a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.iso_format }}</a>
+                <a href="{{ url_for('demograder.submission_view', submission_id=prev_submission.id) }}">{{ prev_submission.iso_format }}</a>
             </td>
             <td>
-                {% for submission_file in submission.files %}
+                {% for submission_file in prev_submission.files %}
                 <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>{{ submission_file.question_file.filename }}</code></a>
                 {{ ", " if not loop.last else "" }}
                 {% endfor %}
             </td>
-            <td>{{ submission.num_passed }} / {{ submission.num_results }}</td>
-            {% if not submission.question.locked %}
-            <td><a href="{{ url_for('demograder.disable_submission', submission_id=submission.id) }}">
-                {% if submission.disabled %}
+            <td>{{ prev_submission.num_passed }} / {{ prev_submission.num_results }}</td>
+            {% if not prev_submission.question.locked %}
+            <td><a href="{{ url_for('demograder.disable_submission', submission_id=prev_submission.id) }}">
+                {% if prev_submission.disabled %}
                 enable
                 {% else %}
                 disable

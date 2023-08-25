@@ -13,6 +13,11 @@
 {% block content %}
     <h1>
         {{ question.name }} {{ submission.iso_format }} submission
+        {% if role >= Role.INSTRUCTOR %}
+        <span class="edit-link">(
+            <a href="{{ url_for('demograder.reevaluate_result', result_id=result.id) }}">re-run result</a>
+        )</span>
+        {% endif %}
     </h1>
 
     <h2>Submitted File(s)</h2>

@@ -1,5 +1,6 @@
 from datetime import datetime as DateTime
 
+from sqlalchemy import select
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
 from wtforms import Form
@@ -8,7 +9,7 @@ from wtforms import SelectField, SelectMultipleField, DateField, FieldList, Form
 from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms.validators import ValidationError, InputRequired, Regexp, Optional
 
-from .models import SEASONS, User, Course, Assignment, Question, QuestionDependency
+from .models import db, SEASONS, User, Course, Assignment, Question, QuestionDependency
 
 
 class MultiCheckboxField(SelectMultipleField):
@@ -29,7 +30,7 @@ def unique(cls, fields):
             field: getattr(form, field).data
             for field in fields
         }
-        instance = cls.query.filter_by(**filters).first()
+        instance = db.session.scalar(select(cls).filter_by(**filters)).first()
         if instance and instance.id != int(form.id.data):
             getattr(form, form_field.id).errors.append(message)
             return False
@@ -59,7 +60,7 @@ class UserForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, user_id, context):
-        user = User.query.get(user_id)
+        user = db.session.scalar(select(User).where(User.id == user_id))
         self.id.data = user.id
         self.preferred_name.data = user.preferred_name
         self.family_name.data = user.family_name
@@ -68,7 +69,7 @@ class UserForm(FlaskForm):
         self.faculty.data = user.faculty
         # disable the email field for non-admins
         if context['role'] < context['Role'].ADMIN:
-            self.email.render_kw['disabled'] = ''
+            self.email.render_kw['readonly'] = ''
 
     @staticmethod
     def build(context):
@@ -79,7 +80,7 @@ class CourseForm(FlaskForm):
     id = HiddenField('id')
     season = SelectField('Season', choices=SEASONS)
     year = DecimalField('Year', places=0, default=DateTime.now().year)
-    department_code = StringField( 'Department Code', default='COMP', validators=[InputRequired()])
+    department_code = StringField('Department Code', default='COMP', validators=[InputRequired()])
     number = DecimalField('Course Number', places=0, validators=[InputRequired()])
     section = DecimalField('Section', places=0, default=0) # FIXME uniqueness check
     title = StringField('Title', validators=[InputRequired()])
@@ -94,7 +95,7 @@ class CourseForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, course_id, context):
-        course = Course.query.get(course_id)
+        course = db.session.scalar(select(Course).where(Course.id == course_id))
         self.id.data = course.id
         self.season.data = course.season
         self.year.data = int(course.year)
@@ -113,18 +114,14 @@ class CourseForm(FlaskForm):
 class AssignmentForm(FlaskForm):
     id = HiddenField('id')
     course_id = HiddenField('course_id')
-    course = StringField('Course', render_kw={'disabled':''})
-    name = StringField( 'Name',  validators=[InputRequired()])
+    course = StringField('Course', render_kw={'readonly':''})
+    name = StringField('Name',  validators=[InputRequired()])
     submit = SubmitField('Submit')
 
     def update_for(self, assignment_id, context):
-        assignment = Assignment.query.get(assignment_id)
+        assignment = db.session.scalar(select(Assignment).where(Assignment.id == assignment_id))
         self.id.data = assignment_id
         self.name.data = assignment.name
-        if assignment.due_date:
-            self.due_date.data = assignment.due_date.date
-            self.due_hour.data = f'{assignment.due_date.hour:02d}'
-            self.due_minute.data = f'{assignment.due_date.minute:02d}'
 
     @staticmethod
     def build(context):
@@ -146,10 +143,10 @@ class QuestionDependencyForm(Form):
 class QuestionForm(FlaskForm):
     id = HiddenField('id')
     assignment_id = HiddenField('assignment_id')
-    course = StringField('Course', render_kw={'disabled':''})
-    assignment = StringField('Assignment', render_kw={'disabled':''})
-    name = StringField( 'Name',  validators=[InputRequired()])
-    due_date = DateField( 'Due Date', validators=[Optional()])
+    course = StringField('Course', render_kw={'readonly':''})
+    assignment = StringField('Assignment', render_kw={'readonly':''})
+    name = StringField('Name',  validators=[InputRequired()])
+    due_date = DateField('Due Date', validators=[Optional()])
     due_hour = SelectField(choices=[f'{hour:02d}' for hour in range(24)])
     due_minute = SelectField(choices=[f'{minute:02d}' for minute in range(60)])
     cooldown = DecimalField(
@@ -189,7 +186,7 @@ class QuestionForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, question_id, context):
-        question = Question.query.get(question_id)
+        question = db.session.scalar(select(Question).where(Question.id == question_id))
         self.id.data = question_id
         self.name.data = question.name
         if question.due_date:
@@ -209,10 +206,13 @@ class QuestionForm(FlaskForm):
             if other_question.id != question.id
         ]
         for other_question in other_questions:
-            question_dependency = QuestionDependency.query.filter_by(
-                producer_id=other_question.id,
-                consumer_id=question.id,
-            ).first()
+            question_dependency = db.session.scalar(
+                select(QuestionDependency)
+                .where(
+                    QuestionDependency.producer_id == other_question.id,
+                    QuestionDependency.consumer_id == question.id,
+                )
+            )
             if question_dependency:
                 self.dependencies.append_entry({
                     'question_id': other_question.id,
@@ -259,7 +259,7 @@ class SubmissionForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, question_id, context):
-        question = Question.query.get(question_id)
+        question = db.session.scalar(select(Question).where(Question.id == question_id))
         self.question_id.data = question_id
         for question_file in question.filenames:
             self.submission_files.append_entry({

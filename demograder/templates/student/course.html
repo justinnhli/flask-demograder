@@ -27,7 +27,7 @@
         {% endif %}
     </h3>
     <ul>
-        {% for question in assignment.visible_questions(role >= Role.INSTRUCTOR) %}
+        {% for question in assignment.visible_questions(role >= Role.INSTRUCTOR)|sort(attribute='name') %}
         <li>
             {% if role >= Role.INSTRUCTOR and not question.visible %}
             (hidden)

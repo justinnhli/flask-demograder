@@ -22,6 +22,7 @@ table.form-table th, table.form-table td {vertical-align:top;}
 table.form-table th {text-align:right;}
 table.form-table ul.form-field-error-list {margin:0; padding-left:1em;}
 table.form-table ul {margin:0; padding-left:0; list-style-type:none;}
+table.form-table input[readonly] {background-color:#CCCCCC;}
 
 div.scoreboard a.score {align-items:center; color:#FFFFFF; display:flex; float:left; height:5em; justify-content:center; margin:0.1em; overflow:hidden; text-align:center; width:5em;}
 div.scoreboard a.score:hover {font-weight:bold;}

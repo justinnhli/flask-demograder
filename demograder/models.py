@@ -5,7 +5,7 @@ from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from pytz import UTC
-from sqlalchemy import case as case_
+from sqlalchemy import select, case, func
 from sqlalchemy.orm import validates
 
 db = SQLAlchemy()
@@ -35,10 +35,10 @@ class User(db.Model, UserMixin):
         return f'{self.preferred_name} {self.family_name}'
 
     def is_teaching(self, course_id):
-        return bool(Instructor.query.filter_by(user_id=self.id, course_id=course_id).first())
+        return any(course.id == course_id for course in self.courses_teaching)
 
     def is_taking(self, course_id):
-        return bool(Student.query.filter_by(user_id=self.id, course_id=course_id).first())
+        return any(course.id == course_id for course in self.courses_taking)
 
     def may_submit(self, question_id):
         """Determines if a user is allowed to submit to a project.
@@ -59,7 +59,7 @@ class User(db.Model, UserMixin):
         * all their previous submissions for this project have finished running
         * the cooldown has not passed since their last submission to a question
         """
-        question = Question.query.get(question_id)
+        question = db.session.scalar(select(Question).where(Question.id == question_id))
         if self.admin or self.is_teaching(question.course.id):
             return True
         if question.locked:
@@ -69,7 +69,7 @@ class User(db.Model, UserMixin):
             return True
         if last_submission.num_tbd > 0:
             return False
-        current_time = DateTime.now(UTC)
+        current_time = DateTime.now(UTC).replace(tzinfo=None)
         submit_time = last_submission.timestamp
         return (current_time - submit_time).seconds > question.cooldown_seconds
 
@@ -78,6 +78,7 @@ class User(db.Model, UserMixin):
         return self.email
 
     def courses(self):
+        # FIXME change to SQLAlchemy 2 syntax
         return Course.query.join(
             Student.query.filter_by(user_id=self.id).union(
                 Instructor.query.filter_by(user_id=self.id)
@@ -90,26 +91,20 @@ class User(db.Model, UserMixin):
             Course.section.asc(),
         )
 
-    def courses_taking(self):
-        return Course.query.join(
-            Student.query.filter_by(user_id=self.id).subquery()
-        )
-
-    def courses_teaching(self):
-        return Course.query.join(
-            Instructor.query.filter_by(user_id=self.id).subquery()
-        )
-
-    def courses_with_student(self, user_id):
+    def courses_with_student(self, student_id):
         # return courses that the user teaches and the student is enrolled
-        return Course.query.join(
-            Instructor.query.filter_by(user_id=self.id).subquery()
-        ).join(
-            Student.query.filter_by(user_id=user_id).subquery()
+        return db.session.scalars(
+            select(Course)
+            .join(Instructor)
+            .where(Instructor.user_id == self.id)
+            .join(Student)
+            .where(Student.user_id == student_id)
         )
 
     def courses_with_coinstructor(self, user_id):
         # return courses that the user teaches and the other user is also an instructor
+        # FIXME change to SQLAlchemy 2 syntax
+        # problem is this uses Instructor twice; will likely need an alias here
         return Course.query.join(
             Instructor.query.filter_by(user_id=self.id).subquery()
         ).join(
@@ -119,21 +114,31 @@ class User(db.Model, UserMixin):
     def latest_submission(self, question_id):
         return self.question_submissions(question_id, limit=1).first()
 
-    def question_submissions(self, question_id=None, limit=None):
-        query = Submission.query.filter_by(user_id=self.id, question_id=question_id).order_by(Submission.timestamp.desc())
+    def question_submissions(self, question_id, limit=None):
+        statement = (
+            select(Submission)
+            .where(Submission.user_id == self.id, Submission.question_id == question_id)
+            .order_by(Submission.timestamp.desc())
+        )
         if limit is None:
-            return query
+            return db.session.scalars(statement)
         else:
-            return query.limit(limit)
+            return db.session.scalars(statement.limit(limit))
 
     def course_submissions(self, course_id, limit=None):
-        query = Submission.query.filter_by(user_id=self.id).join(Question).join(Assignment).join(
-            Course.query.filter_by(id=course_id)
-        ).order_by(Submission.timestamp.desc())
+        statement = (
+            select(Submission)
+            .where(Submission.user_id == self.id)
+            .join(Question)
+            .join(Assignment)
+            .join(Course)
+            .where(Course.id == course_id)
+            .order_by(Submission.timestamp.desc())
+        )
         if limit is None:
-            return query
+            return db.session.scalars(statement)
         else:
-            return query.limit(limit)
+            return db.session.scalars(statement.limit(limit))
 
 
 class Instructor(db.Model):
@@ -222,20 +227,23 @@ class Course(db.Model):
             return tuple(assignment for assignment in self.assignments if assignment.visible)
 
     def submissions(self, include_hidden=False, limit=None):
-        if include_hidden:
-            question_subquery = Question
-        else:
-            question_subquery = Question.query.filter_by(visible=True)
-        query = Submission.query.filter_by(disabled=False).join(question_subquery).join(Assignment).join(
-            Course.query.filter_by(id=self.id)
-        ).order_by(Submission.timestamp.desc())
+        statement = (
+            select(Submission)
+            .where(Submission.disabled == False)
+            .join(Question)
+            .where(Question.visible == (not include_hidden))
+            .join(Assignment)
+            .join(Course)
+            .where(Course.id == self.id)
+            .order_by(Submission.timestamp.desc())
+        )
         if limit is None:
-            return query
+            return db.session.scalars(statement)
         else:
-            return query.limit(limit)
+            return db.session.scalars(statement.limit(limit))
 
 
-SEASONS_ORDER_BY = case_(value=Course.season, whens=SEASONS_ORDER_MAP)
+SEASONS_ORDER_BY = case(SEASONS_ORDER_MAP, value=Course.season)
 
 
 class Assignment(db.Model):
@@ -348,19 +356,31 @@ class Submission(db.Model):
 
     @property
     def num_results(self):
-        return Result.query.filter_by(submission_id=self.id).count()
+        return db.session.scalar(
+            select(func.count(Result.id))
+            .where(Result.submission_id == self.id)
+        )
 
     @property
     def num_passed(self):
-        return Result.query.filter_by(submission_id=self.id, return_code=0).count()
+        return db.session.scalar(
+            select(func.count(Result.id))
+            .where(Result.submission_id == self.id, Result.return_code == 0)
+        )
 
     @property
     def num_failed(self):
-        return Result.query.filter_by(submission_id=self.id, return_code=1).count()
+        return db.session.scalar(
+            select(func.count(Result.id))
+            .where(Result.submission_id == self.id, Result.return_code != 1)
+        )
 
     @property
     def num_tbd(self):
-        return Result.query.filter_by(submission_id=self.id, return_code=None).count()
+        return db.session.scalar(
+            select(func.count(Result.id))
+            .where(Result.submission_id == self.id, Result.return_code.is_(None))
+        )
 
     @property
     def files_str(self):
@@ -447,7 +467,13 @@ class Result(db.Model):
         return result
 
     def question_dependency(self, question_id):
-        return QuestionDependency.query.filter_by(producer_id=question_id, consumer_id=self.question.id).first()
+        return db.session.scalar(
+            select(QuestionDependency)
+            .where(
+                QuestionDependency.producer_id == question_id,
+                QuestionDependency.consumer_id == self.question.id,
+            )
+        )
 
     @property
     def question(self):
