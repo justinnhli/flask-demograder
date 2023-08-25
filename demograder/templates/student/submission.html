@@ -19,6 +19,11 @@
         {{ submission.iso_format }} submission
         {% endif %}
         {% endif %}
+        {% if role >= Role.INSTRUCTOR %}
+        <span class="edit-link">(
+            <a href="{{ url_for('demograder.reevaluate_submission', submission_id=submission.id) }}">re-run submission</a>
+        )</span>
+        {% endif %}
     </h1>
 
     Submitted {{ submission.iso_format }}

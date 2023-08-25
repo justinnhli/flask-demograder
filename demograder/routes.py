@@ -10,7 +10,7 @@ from .forms import UserForm, CourseForm, AssignmentForm, QuestionForm, Submissio
 from .models import db, User, Course, Assignment, Question
 from .models import QuestionDependency, QuestionFile
 from .models import Submission, SubmissionFile
-from .dispatch import enqueue_evaluate_submission
+from .dispatch import enqueue_evaluate_submission, enqueue_reevaluate_submission, enqueue_reevaluate_result
 
 blueprint = Blueprint(name='demograder', import_name='demograder')
 
@@ -119,6 +119,12 @@ def disable_submission(submission_id):
     return redirect(url_for('demograder.question_view', question_id=context['question'].id))
 
 
+@blueprint.route('/reevaluate_submission/<int:submission_id>')
+def reevaluate_submission(submission_id):
+    enqueue_reevaluate_submission(submission_id)
+    return redirect(url_for('demograder.submission_view', submission_id=submission_id))
+
+
 @blueprint.route('/download_submission/<int:submission_id>')
 def download_submission(submission_id):
     return f'{submission_id=}' # TODO
@@ -128,6 +134,12 @@ def download_submission(submission_id):
 def result_view(result_id):
     context = get_context(result_id=result_id)
     return render_template('student/result.html', **context)
+
+
+@blueprint.route('/reevaluate_result/<int:result_id>')
+def reevaluate_result(result_id):
+    enqueue_reevaluate_result(result_id)
+    return redirect(url_for('demograder.result_view', result_id=result_id))
 
 
 @blueprint.route('/download_result/<int:result_id>')

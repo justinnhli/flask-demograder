@@ -22,6 +22,25 @@ def evaluate_submission(submission_id):
         evaluate_result(result_id)
 
 
+def reevaluate_submission(submission_id):
+    delete_submission_results(submission_id)
+    evaluate_submission(submission_id)
+
+
+def reevaluate_result(result_id):
+    delete_result(result_id)
+    evaluate_result(result_id)
+
+
+def delete_submission_results(submission_id):
+    from demograder import create_app
+    from demograder.models import db, Result
+    with create_app(with_queue=False).app_context():
+        for result in db.session.scalars(select(Result).where(Result.submission_id == submission_id)):
+            db.session.remove(result)
+        db.session.commit()
+
+
 def expand_submission(submission_id):
     from demograder import create_app
     from demograder.models import db, User, Student, Instructor, Submission
@@ -152,4 +171,12 @@ def evaluate_result(result_id):
         result.stderr = stderr.strip()
         result.return_code = return_code
         db.session.add(result)
+        db.session.commit()
+
+
+def delete_result(result_id):
+    from demograder import create_app
+    from demograder.models import db, Result
+    with create_app(with_queue=False).app_context():
+        db.session.remove(db.session.scalar(select(Result).where(Result.id == result_id)))
         db.session.commit()
