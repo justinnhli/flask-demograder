@@ -43,7 +43,13 @@
 
     <h2>Results</h2>
     {% if not submission.results %}
-    <p>There are no results associated with this submission.</p>
+    <p>
+        {% if submission.question.upstream_dependencies %}
+        The results are still coming in; refresh the page in a few seconds to see them.
+        {% else %}
+        There are no results associated with this submission.
+        {% endif %}
+    </p>
     {% else %}
     <div class="scoreboard">
         {% for result in submission.results %}
