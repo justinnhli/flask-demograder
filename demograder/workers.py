@@ -7,6 +7,8 @@ from shutil import copyfile
 from subprocess import run as run_process, PIPE
 from tempfile import TemporaryDirectory
 
+from sqlalchemy import select
+
 # pylint: disable = import-outside-toplevel
 
 sys.path.append(str(Path(__file__).parent))
@@ -22,24 +24,42 @@ def evaluate_submission(submission_id):
 
 def expand_submission(submission_id):
     from demograder import create_app
-    from demograder.models import User, Student, Instructor, Submission
+    from demograder.models import db, User, Student, Instructor, Submission
     with create_app(with_queue=False).app_context():
-        submission = Submission.query.get(submission_id)
+        submission = db.session.scalar(select(Submission).where(Submission.id == submission_id))
         permute_args = []
         course_id = submission.course.id
         for dependency in submission.question.upstream_dependencies:
             if dependency.submitters == 'everyone':
-                subquery = User.query.join(Instructor).filter(Instructor.course_id == course_id).union(
-                    User.query.join(Student).filter(Student.course_id == course_id)
-                )
+                submitters = [
+                    *(
+                        student.id for student in
+                        submission.question.assignment.course.students
+                    ),
+                    *(
+                        instructor.id for instructor in 
+                        submission.question.assignment.course.instructors
+                    ),
+                ]
             elif dependency.submitters == 'students':
-                subquery = User.query.join(Student).filter(Student.course_id == course_id)
+                submitters = [
+                    student.id for student in
+                    submission.question.assignment.course.students
+                ]
             elif dependency.submitters == 'instructors':
-                subquery = User.query.join(Instructor).filter(Instructor.course_id == course_id)
+                submitters = [
+                    instructor.id for instructor in 
+                    submission.question.assignment.course.instructors
+                ]
             else:
                 assert False
             permute_args.append(
-                Submission.query.filter_by(question_id=dependency.producer_id, disabled=False).join(subquery).all()
+                db.session.scalars(
+                    select(Submission)
+                    .where(Submission.question_id == dependency.producer_id)
+                    .where(Submission.disabled == False)
+                    .where(Submission.user_id.in_(submitters))
+                )
             )
         if permute_args:
             return [
@@ -85,7 +105,7 @@ def evaluate_result(result_id):
     from demograder import create_app
     from demograder.models import db, Result
     with create_app(with_queue=False).app_context():
-        result = Result.query.get(result_id)
+        result = db.session.scalar(select(Result).where(Result.id == result_id))
         # create a temporary directory for evaluation
         with TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
@@ -127,7 +147,7 @@ def evaluate_result(result_id):
                 cwd=temp_dir,
                 check=False,
             )
-        result = Result.query.get(result_id)
+        result = db.session.scalar(select(Result).where(Result.id == result_id))
         result.stdout = stdout.strip()
         result.stderr = stderr.strip()
         result.return_code = return_code

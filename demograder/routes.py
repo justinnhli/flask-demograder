@@ -2,6 +2,7 @@ import re
 from datetime import datetime as DateTime
 
 from flask import Blueprint, render_template, url_for, redirect, abort
+from sqlalchemy import select
 from werkzeug.utils import secure_filename
 
 from .context import get_context, Role
@@ -37,12 +38,12 @@ def home():
 @blueprint.route('/admin')
 def admin():
     context = get_context(min_role=Role.ADMIN)
-    context['users'] = User.query.all()
-    context['courses'] = Course.query.all()
-    context['assignments'] = Assignment.query.all()
-    context['questions'] = Question.query.all()
-    context['question_files'] = QuestionFile.query.all()
-    context['submissions'] = Submission.query.all()
+    context['users'] = db.session.scalars(select(User))
+    context['courses'] = db.session.scalars(select(Course))
+    context['assignments'] = db.session.scalars(select(Assignment))
+    context['questions'] = db.session.scalars(select(Question))
+    context['question_files'] = db.session.scalars(select(QuestionFile))
+    context['submissions'] = db.session.scalars(select(Submission))
     return render_template('admin/home.html', **context)
 
 

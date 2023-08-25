@@ -1,8 +1,9 @@
 from enum import IntEnum
 
 from flask import session, request, abort
+from sqlalchemy import select
 
-from .models import User, Course, Assignment, Question, Submission, SubmissionFile, Result
+from .models import db, User, Course, Assignment, Question, Submission, SubmissionFile, Result
 
 
 class Role(IntEnum):
@@ -23,7 +24,7 @@ def forbidden(context):
 
 def _set_viewer_context(context, url_args, **kwargs):
     if 'viewer' in url_args:
-        context['viewer'] = User.query.filter_by(email=url_args['viewer']).first()
+        context['viewer'] = db.session.scalar(select(User).where(User.email == url_args['viewer']))
     if not context.get('viewer', None):
         context['viewer'] = context['user']
     context['alternate_view'] = (context['user'] != context['viewer'])
@@ -37,16 +38,22 @@ def _set_viewer_context(context, url_args, **kwargs):
 
 def _set_course_context(context, url_args, **kwargs):
     if kwargs.get('submission_file_id', None):
-        context['submission_file'] = SubmissionFile.query.get(kwargs['submission_file_id'])
+        context['submission_file'] = db.session.scalar(
+            select(SubmissionFile).where(SubmissionFile.id == kwargs['submission_file_id'])
+        )
     else:
         context['submission_file'] = None
     if kwargs.get('result_id', None):
-        context['result'] = Result.query.get(kwargs['result_id'])
+        context['result'] = db.session.scalar(
+            select(Result).where(Result.id == kwargs['result_id'])
+        )
     else:
         context['result'] = None
     # FIXME this might get confused when we're looking at support files
     if kwargs.get('submission_id', None):
-        context['submission'] = Submission.query.get(kwargs['submission_id'])
+        context['submission'] = db.session.scalar(
+            select(Submission).where(Submission.id == kwargs['submission_id'])
+        )
     elif context['result']:
         context['submission'] = context['result'].submission
     elif context['submission_file']:
@@ -54,7 +61,9 @@ def _set_course_context(context, url_args, **kwargs):
     else:
         context['submission'] = None
     if kwargs.get('question_id', None):
-        context['question'] = Question.query.get(kwargs['question_id'])
+        context['question'] = db.session.scalar(
+            select(Question).where(Question.id == kwargs['question_id'])
+        )
         if not context['submission']:
             context['submission'] = context['viewer'].latest_submission(context['question'].id)
     elif context['submission']:
@@ -62,13 +71,17 @@ def _set_course_context(context, url_args, **kwargs):
     else:
         context['question'] = None
     if kwargs.get('assignment_id', None):
-        context['assignment'] = Assignment.query.get(kwargs['assignment_id'])
+        context['assignment'] = db.session.scalar(
+            select(Assignment).where(Assignment.id == kwargs['assignment_id'])
+        )
     elif context['question']:
         context['assignment'] = context['question'].assignment
     else:
         context['assignment'] = None
     if kwargs.get('course_id', None):
-        context['course'] = Course.query.get(kwargs['course_id'])
+        context['course'] = db.session.scalar(
+            select(Course).where(Course.id == kwargs['course_id'])
+        )
     elif context['assignment']:
         context['course'] = context['assignment'].course
     else:
@@ -158,7 +171,7 @@ def get_context(**kwargs):
     context = {
         'Role': Role, # including the Enum allows templates to branch on role
         'role': Role.STUDENT,
-        'user': User.query.filter_by(email=session.get('user_email')).first(),
+        'user': db.session.scalar(select(User).where(User.email == session.get('user_email'))),
     }
     # check that there is a user if login is required
     if kwargs.get('login_required', True) and not context['user']:
