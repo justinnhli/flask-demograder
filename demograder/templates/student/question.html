@@ -64,31 +64,37 @@
             <th>Time</th>
             <th>Files</th>
             <th>Tests Passed</th>
-            {% if not submission.question.locked %}
+            <!--
+            {% if not question.locked %}
             <th>Disable</th>
             {% endif %}
+            -->
         </tr>
-        {% for submission in viewer.question_submissions(question.id) %}
-        <tr {% if submission.disabled %}class="disabled-submission"{% endif %}>
+        {% for prev_submission in submission.user.question_submissions(question.id) %}
+        <tr {% if prev_submission.disabled %}class="disabled-submission"{% endif %}>
+            <td>{{ prev_submission.iso_format }}</td>
             <td>
-                <a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.iso_format }}</a>
-            </td>
-            <td>
-                {% for submission_file in submission.files %}
+                {% for submission_file in prev_submission.files %}
                 <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>{{ submission_file.question_file.filename }}</code></a>
                 {{ ", " if not loop.last else "" }}
                 {% endfor %}
             </td>
-            <td>{{ submission.num_passed }} / {{ submission.num_results }}</td>
-            {% if not submission.question.locked %}
-            <td><a href="{{ url_for('demograder.disable_submission', submission_id=submission.id) }}">
-                {% if submission.disabled %}
+            <td>
+                <a href="{{ url_for('demograder.submission_view', submission_id=prev_submission.id) }}">
+                    {{ prev_submission.num_passed }} / {{ prev_submission.num_results }}
+                </a>
+            </td>
+            <!--
+            {% if not prev_submission.question.locked %}
+            <td><a href="{{ url_for('demograder.disable_submission', submission_id=prev_submission.id) }}">
+                {% if prev_submission.disabled %}
                 enable
                 {% else %}
                 disable
                 {% endif %}
             </a></td>
             {% endif %}
+            -->
         </tr>
         {% endfor %}
     </table>
