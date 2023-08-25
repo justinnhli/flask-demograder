@@ -3,7 +3,7 @@ from itertools import product, chain
 from os import chmod, walk
 from os.path import join as join_path
 from pathlib import Path
-from shutil import copyfile
+from shutil import copyfile, chown
 from subprocess import run as run_process, PIPE
 from tempfile import TemporaryDirectory
 
@@ -113,17 +113,23 @@ def recursive_chmod(path):
             root.joinpath(f).chmod(0o777)
     '''
     chmod(path, 0o777)
-    for root, dirs, files in walk(path):
-        for d in dirs:
-            chmod(join_path(root, d), 0o777)
-        for f in files:
-            chmod(join_path(root, f), 0o777)
+    for root, directories, files in walk(path):
+        for directory in directories:
+            file_path = join_path(root, directory)
+            #chown(file_path, user='nobody')
+            chmod(file_path, 0o777)
+        for file in files:
+            file_path = join_path(root, file)
+            #chown(file_path, user='nobody')
+            chmod(file_path, 0o777)
 
 
 def evaluate_result(result_id):
     from demograder import create_app
     from demograder.models import db, Result
     with create_app(with_queue=False).app_context():
+        with open('temp', 'a') as fd:
+            fd.write('here\n')
         result = db.session.scalar(select(Result).where(Result.id == result_id))
         # create a temporary directory for evaluation
         with TemporaryDirectory() as temp_dir:
@@ -137,7 +143,11 @@ def evaluate_result(result_id):
             for submission in chain(result.upstream_submissions, [result.submission]):
                 for submission_file in submission.files:
                     copyfile(submission_file.filepath, temp_dir.joinpath(submission_file.question_file.filename))
+            with open('temp', 'a') as fd:
+                fd.write('pre-chmoded\n')
             recursive_chmod(temp_dir)
+            with open('temp', 'a') as fd:
+                fd.write('chmoded\n')
             completed_process = run_process(
                 [
                     'sudo',
@@ -170,6 +180,9 @@ def evaluate_result(result_id):
         result.stdout = stdout.strip()
         result.stderr = stderr.strip()
         result.return_code = return_code
+        with open('temp', 'a') as fd:
+            fd.write(str(result))
+            fd.write('\n')
         db.session.add(result)
         db.session.commit()
 
