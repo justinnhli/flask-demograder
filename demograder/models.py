@@ -259,10 +259,10 @@ class Course(db.Model):
         else:
             return tuple(assignment for assignment in self.assignments if assignment.visible)
 
-    def submissions(self, include_hidden=False, limit=None):
+    def submissions(self, include_hidden=False, include_disabled=False, limit=None):
         statement = (
             select(Submission)
-            .where(Submission.disabled == False)
+            .where(Submission.disabled == include_disabled)
             .join(Question)
             .where(Question.visible == (not include_hidden))
             .join(Assignment)
@@ -330,7 +330,6 @@ class Question(db.Model):
         exit 1 # FIXME
     ''').strip())
     filenames = db.relationship('QuestionFile', backref='question')
-    submission = db.relationship('Submission', backref='question')
     upstream_dependencies = db.relationship(
         'QuestionDependency',
         foreign_keys=QuestionDependency.consumer_id,
@@ -363,6 +362,22 @@ class Question(db.Model):
     @property
     def course(self):
         return self.assignment.course
+
+    def submissions(self, include_hidden=False, include_disabled=False, limit=None):
+        statement = (
+            select(Submission)
+            .where(Submission.disabled == include_disabled)
+            .join(Question)
+            .where(
+                Question.id == self.id,
+                Question.visible == (not include_hidden),
+            )
+            .order_by(Submission.timestamp.desc())
+        )
+        if limit is None:
+            return db.session.scalars(statement)
+        else:
+            return db.session.scalars(statement.limit(limit))
 
 
 class QuestionFile(db.Model):

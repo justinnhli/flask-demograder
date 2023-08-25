@@ -66,6 +66,9 @@ def user_view(page_user_email):
     return render_template('user.html', **context)
 
 
+# STUDENT
+
+
 @blueprint.route('/course/<int:course_id>')
 def course_view(course_id):
     context = get_context(course_id=course_id)
@@ -156,6 +159,21 @@ def submission_file_view(submission_file_id):
 @blueprint.route('/download_file/<int:file>')
 def download_file(file_id):
     return f'{file_id=}' # TODO
+
+
+# INSTRUCTOR
+
+
+@blueprint.route('/course_submissions/<int:course_id>')
+def course_submissions_view(course_id):
+    context = get_context(course_id=course_id, min_role=Role.ADMIN)
+    return render_template('instructor/course_submissions.html', **context)
+
+
+@blueprint.route('/question_submissions/<int:question_id>')
+def question_submissions_view(question_id):
+    context = get_context(question_id=question_id, cmin_role=Role.ADMIN)
+    return render_template('instructor/question_submissions.html', **context)
 
 
 # FORMS
