@@ -41,7 +41,11 @@
     </ul>
     {% endif %}
 
-    <h2>Results</h2>
+    <h2>
+        Results{% if submission.results %}:
+        {{ submission.num_passed }} / {{ submission.num_results }}
+        {% endif %}
+    </h2>
     {% if not submission.results %}
     <p>
         {% if submission.question.upstream_dependencies %}
