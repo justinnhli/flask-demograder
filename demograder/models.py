@@ -114,6 +114,39 @@ class User(db.Model, UserMixin):
     def latest_submission(self, question_id):
         return self.question_submissions(question_id, limit=1).first()
 
+    def submissions(self, include_hidden=False, include_disabled=False, limit=None):
+        statement = (
+            select(Submission)
+            .where(
+                Submission.user_id == self.id,
+                Submission.disabled == include_disabled,
+            )
+            .join(Question)
+            .where(Question.visible == (not include_hidden))
+            .order_by(Submission.timestamp.desc())
+        )
+        if limit is None:
+            return db.session.scalars(statement)
+        else:
+            return db.session.scalars(statement.limit(limit))
+
+    def submissions_from_students(self, include_hidden=False, include_disabled=False, limit=None):
+        statement = (
+            select(Submission)
+            .where(Submission.disabled == include_disabled)
+            .join(Question)
+            .where(Question.visible == (not include_hidden))
+            .join(Assignment)
+            .join(Course)
+            .join(Instructor)
+            .where(Instructor.user_id == self.id)
+            .order_by(Submission.timestamp.desc())
+        )
+        if limit is None:
+            return db.session.scalars(statement)
+        else:
+            return db.session.scalars(statement.limit(limit))
+
     def question_submissions(self, question_id, limit=None):
         statement = (
             select(Submission)
