@@ -30,8 +30,8 @@ def _set_viewer_context(context, url_args, **kwargs):
     context['alternate_view'] = (context['user'] != context['viewer'])
     # check that the viewer is in a course taught by the user
     if context['alternate_view']:
-        viewer_is_student = bool(user.courses_with_student(context['viewer'].id))
-        viewer_is_instructor = bool(user.courses_with_coinstructor(context['viewer'].id))
+        viewer_is_student = bool(context['user'].courses_with_student(context['viewer'].id))
+        viewer_is_instructor = bool(context['user'].courses_with_coinstructor(context['viewer'].id))
         if not (viewer_is_student or viewer_is_instructor):
             forbidden(context)
 
