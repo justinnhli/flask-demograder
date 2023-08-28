@@ -72,19 +72,15 @@ def expand_submission(submission_id):
                 ]
             else:
                 assert False
-            permute_args.append(
-                db.session.scalars(
-                    select(Submission)
-                    .where(Submission.question_id == dependency.producer_id)
-                    .where(Submission.disabled == False)
-                    .where(Submission.user_id.in_(submitters))
-                )
+            submissions = db.session.scalars(
+                select(Submission)
+                .where(Submission.question_id == dependency.producer_id)
+                .where(Submission.disabled == False)
+                .where(Submission.user_id.in_(submitters))
             )
+            permute_args.append(list(submission.id for submission in submissions))
         if permute_args:
-            return [
-                [submission.id for submission in family]
-                for family in product(*permute_args)
-            ]
+            return list(product(*permute_args))
         else:
             return []
 
