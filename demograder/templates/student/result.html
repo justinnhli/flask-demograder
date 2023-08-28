@@ -61,14 +61,18 @@
     TBD
     {% endif %}
 
+    {% if not question.hide_output %}
     <h2>Output</h2>
     <pre><code>
         {{ result.stdout }}
     </code></pre>
 
-    <h2>Error</h2>
+    {% if result.stderr %}
+    <h2>Errors</h2>
     <pre><code>
         {{ result.stderr }}
     </code></pre>
+    {% endif %}
+    {% endif %}
 
 {% endblock %}
