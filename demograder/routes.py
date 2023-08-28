@@ -372,6 +372,7 @@ def question_form(assignment_id, question_id):
         question.timeout_seconds = int(form.timeout.data)
         question.visible = form.visible.data
         question.locked = form.locked.data
+        question.allow_disable = form.allow_disable.data
         question.hide_output = form.hide_output.data
         question.script = form.script.data
         # FIXME should be able to do the following, a la instructors/students in course_form

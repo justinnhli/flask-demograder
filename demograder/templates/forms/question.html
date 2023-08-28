@@ -36,6 +36,7 @@
             {{ render_field(form.timeout) }}
             {{ render_field(form.visible) }}
             {{ render_field(form.locked) }}
+            {{ render_field(form.allow_disable) }}
             {{ render_field(form.hide_output) }}
             {% if form.dependencies %}
             <tr{% if form.dependencies.errors %} class="form-field-error"{% endif %}>

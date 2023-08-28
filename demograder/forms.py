@@ -165,6 +165,10 @@ class QuestionForm(FlaskForm):
         'Locked',
         description='If locked, students will not be able to submit to this question.',
     )
+    allow_disable = BooleanField(
+        'Allow Disable',
+        description='Allow users to disable a submission. This is used to control what counts as a test case.',
+    )
     hide_output = BooleanField(
         'Hide Output',
         description='If the output is hidden, students will only see whether a testcase passed/failed, but not any printed output or errors.',
@@ -197,6 +201,7 @@ class QuestionForm(FlaskForm):
         self.timeout.data = question.timeout_seconds
         self.visible.data = question.visible
         self.locked.data = question.locked
+        self.allow_disable.data = question.allow_disable
         self.hide_output.data = question.hide_output
         other_questions = []
         for assignment in question.assignment.course.assignments:
