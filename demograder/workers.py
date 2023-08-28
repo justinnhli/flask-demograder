@@ -11,7 +11,7 @@ from sqlalchemy import select
 
 # pylint: disable = import-outside-toplevel
 
-sys.path.append(str(Path(__file__).parent))
+sys.path.append(str(Path(__file__).parent.parent))
 
 
 def evaluate_submission(submission_id):
