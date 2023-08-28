@@ -63,15 +63,11 @@
 
     {% if not question.hide_output %}
     <h2>Output</h2>
-    <pre><code>
-        {{ result.stdout }}
-    </code></pre>
+    <pre><code>{{ result.stdout }}</code></pre>
 
     {% if result.stderr %}
     <h2>Errors</h2>
-    <pre><code>
-        {{ result.stderr }}
-    </code></pre>
+    <pre><code>{{ result.stderr }}</code></pre>
     {% endif %}
     {% endif %}
 
