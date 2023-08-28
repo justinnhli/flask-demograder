@@ -4,9 +4,8 @@
 {% block title %}Demograder{% endblock %}
 
 {% block content %}
-    <h1>
-        {{ page_user.full_name }} (<a href="mailto:{{ page_user.email }}">{{ page_user.email }}</a>)
-    </h1>
+    <h1>{{ page_user.full_name }}</h1>
+    <a href="mailto:{{ page_user.email }}">{{ page_user.email }}</a>
 
     {% for course in courses %}
     <h2>
