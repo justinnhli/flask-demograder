@@ -37,7 +37,7 @@ def delete_submission_results(submission_id):
     from demograder.models import db, Result
     with create_app(with_queue=False).app_context():
         for result in db.session.scalars(select(Result).where(Result.submission_id == submission_id)):
-            db.session.remove(result)
+            db.session.delete(result)
         db.session.commit()
 
 
@@ -178,5 +178,5 @@ def delete_result(result_id):
     from demograder import create_app
     from demograder.models import db, Result
     with create_app(with_queue=False).app_context():
-        db.session.remove(db.session.scalar(select(Result).where(Result.id == result_id)))
+        db.session.delete(db.session.scalar(select(Result).where(Result.id == result_id)))
         db.session.commit()
