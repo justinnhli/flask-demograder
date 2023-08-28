@@ -1,4 +1,4 @@
-{% macro submission_history_table(submissions, course=True, question=True, submitter=True, files=True) %}
+{% macro submission_history_table(submissions, course=True, question=True, submitter=True, files=True, disable=False) %}
     <table class="submissions-history-table">
         <tr>
             <th>Time</th>
@@ -44,8 +44,7 @@
                     {{ submission.num_passed }} / {{ submission.num_results }}
                 </a>
             </td>
-            <!--
-            {% if not submission.question.locked %}
+            {% if disable %}
             <td><a href="{{ url_for('demograder.disable_submission', submission_id=submission.id) }}">
                 {% if submission.disabled %}
                 enable
@@ -54,7 +53,6 @@
                 {% endif %}
             </a></td>
             {% endif %}
-            -->
         </tr>
         {% endfor %}
     </table>

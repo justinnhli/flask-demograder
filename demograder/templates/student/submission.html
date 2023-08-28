@@ -70,5 +70,5 @@
     {% endif %}
 
     <h2>Submission History</h2>
-    {{ submission_history_table(submission.user.question_submissions(question.id), course=False, question=False, submitter=False) }}
+    {{ submission_history_table(submission.user.question_submissions(question.id), course=False, question=False, submitter=False, disable=(question.allow_disable and (role >= Role.INSTRUCTOR or not question.locked))) }}
 {% endblock %}
