@@ -323,6 +323,7 @@ class Question(db.Model):
     timeout_seconds = db.Column(db.Integer, default=10)
     visible = db.Column(db.Boolean, default=False)
     locked = db.Column(db.Boolean, default=False)
+    allow_disable = db.Column(db.Boolean, default=False)
     hide_output = db.Column(db.Boolean, default=False)
     script = db.Column(db.String, nullable=False, default=dedent('''
         #!/bin/bash
