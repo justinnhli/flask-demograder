@@ -30,7 +30,7 @@ def unique(cls, fields):
             field: getattr(form, field).data
             for field in fields
         }
-        instance = db.session.scalar(select(cls).filter_by(**filters)).first()
+        instance = db.session.scalar(select(cls).filter_by(**filters))
         if instance and instance.id != int(form.id.data):
             getattr(form, form_field.id).errors.append(message)
             return False
