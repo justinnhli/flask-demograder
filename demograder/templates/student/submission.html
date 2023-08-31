@@ -7,7 +7,9 @@
     &gt; <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.course_number }}</a>
     &gt; {{ assignment.name }}
     &gt; <a href="{{ url_for('demograder.submission_view', question_id=question.id) }}">{{ question.name }}</a>
+    {% if submission %}
     &gt; <a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.iso_format }} submission</a>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -24,27 +26,14 @@
         <span class="edit-link">
             <a href="{{ url_for('demograder.question_form', assignment_id=assignment.id, question_id=question.id) }}">edit</a>
             <a href="{{ url_for('demograder.question_submissions_view', question_id=question.id) }}">submissions</a>
+            {% if submission %}
             <a href="{{ url_for('demograder.reevaluate_submission', submission_id=submission.id) }}">re-run submission</a>
+            {% endif %}
         </span>
         {% endif %}
     </h1>
     {% if question.due_date %}
     (due {{ question.iso_format }})
-    {% endif %}
-
-    Submitted {{ submission.iso_format }}
-
-    {% if submission.files %}
-    <ul>
-    {% for submission_file in submission.files %}
-        <li>
-            <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>{{ submission_file.question_file.filename }}</code></a>
-            {% if submission_file.filename != submission_file.question_file.filename %}
-            (originally <code>{{ submission_file.filename }}</code>)
-            {% endif %}
-        </li>
-    {% endfor %}
-    </ul>
     {% endif %}
 
     <h2>Submit New Version</h2>
@@ -89,6 +78,19 @@
         {{ submission.num_passed }} / {{ submission.num_results }}
         {% endif %}
     </h2>
+    Submitted {{ submission.iso_format }}
+    {% if submission.files %}
+    <ul>
+    {% for submission_file in submission.files %}
+        <li>
+            <a href="{{ url_for('demograder.submission_file_view', submission_file_id=submission_file.id) }}"><code>{{ submission_file.question_file.filename }}</code></a>
+            {% if submission_file.filename != submission_file.question_file.filename %}
+            (originally <code>{{ submission_file.filename }}</code>)
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
     {% if not submission.results %}
     <p>
         {% if submission.question.upstream_dependencies %}
