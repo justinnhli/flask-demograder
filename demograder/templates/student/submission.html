@@ -79,7 +79,6 @@
         {% endif %}
     </h2>
     Submitted {{ submission.iso_format }}
-    {% if submission.files %}
     <ul>
     {% for submission_file in submission.files %}
         <li>
@@ -90,7 +89,6 @@
         </li>
     {% endfor %}
     </ul>
-    {% endif %}
     {% if not submission.results %}
     <p>
         {% if submission.question.upstream_dependencies %}
