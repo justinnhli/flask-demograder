@@ -6,7 +6,7 @@
 {% block breadcrumb %}
     &gt; <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.course_number }}</a>
     &gt; {{ assignment.name }}
-    &gt; <a href="{{ url_for('demograder.question_view', question_id=question.id) }}">{{ question.name }}</a>
+    &gt; <a href="{{ url_for('demograder.submission_view', question_id=question.id) }}">{{ question.name }}</a>
 {% endblock %}
 
 {% block content %}
@@ -35,7 +35,7 @@
         {% endif %}
         </p>
     {% else %}
-    <form method="POST" enctype="multipart/form-data" action="{{ url_for('demograder.question_view', question_id=form.question_id.data) }}">
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('demograder.submission_view', question_id=form.question_id.data) }}">
         <ul>
         {% for file_submission_form in form.submission_files %}
             <li>

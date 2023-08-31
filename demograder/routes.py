@@ -75,13 +75,18 @@ def course_view(course_id):
     return render_template('student/course.html', **context)
 
 
-@blueprint.route('/question/<int:question_id>', methods=('GET', 'POST'))
-def question_view(question_id):
-    context = get_context(question_id=question_id)
+@blueprint.route('/question/<int:question_id>', defaults={'submission_id': None}, methods=('GET', 'POST'))
+@blueprint.route('/submission/<int:submission_id>', defaults={'question_id': None}, methods=('GET', 'POST'))
+def submission_view(question_id, submission_id):
+    if submission_id:
+        context = get_context(submission_id=submission_id)
+        question_id = context['question'].id
+    else:
+        context = get_context(question_id=question_id)
     form = SubmissionForm()
     if not context['viewer'].may_submit(context['question'].id) or not form.is_submitted():
         form.update_for(context['question'].id, context)
-        return render_template('student/question.html', **context, form=form)
+        return render_template('student/submission.html', **context, form=form)
     elif form.validate_on_submit():
         submission = Submission(
             user_id=context['viewer'].id,
@@ -103,13 +108,7 @@ def question_view(question_id):
         enqueue_evaluate_submission(submission.id)
         return redirect(url_for('demograder.submission_view', submission_id=submission.id))
     else:
-        return render_template('student/question.html', **context, form=form)
-
-
-@blueprint.route('/submission/<int:submission_id>')
-def submission_view(submission_id):
-    context = get_context(submission_id=submission_id)
-    return render_template('student/submission.html', **context)
+        return render_template('student/submission.html', **context, form=form)
 
 
 @blueprint.route('/disable_submission/<int:submission_id>')
@@ -119,7 +118,7 @@ def disable_submission(submission_id):
     context['submission'].disabled = not context['submission'].disabled
     db.session.add(context['submission'])
     db.session.commit()
-    return redirect(url_for('demograder.question_view', question_id=context['question'].id))
+    return redirect(url_for('demograder.submission_view', question_id=context['question'].id))
 
 
 @blueprint.route('/reevaluate_submission/<int:submission_id>')
@@ -394,7 +393,7 @@ def question_form(assignment_id, question_id):
         for _, question_file in filenames.items():
             db.session.delete(question_file)
         db.session.commit()
-        return redirect(url_for('demograder.question_view', assignment_id=assignment_id, question_id=question.id))
+        return redirect(url_for('demograder.submission_view', uestion_id=question.id))
     else:
         return render_template('forms/question.html', form=form, **context)
 
