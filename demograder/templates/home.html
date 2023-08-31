@@ -7,9 +7,9 @@
     <h2>
         Courses
         {% if role >= Role.INSTRUCTOR %}
-        <span class="edit-link">(
+        <span class="edit-link">
             <a href="{{ url_for('demograder.course_form') }}">new course</a>
-        )</span>
+        </span>
         {% endif %}
     </h2>
     {% for course in viewer.courses() %}

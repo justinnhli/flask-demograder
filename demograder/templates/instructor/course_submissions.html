@@ -12,10 +12,10 @@
     <h1>
         {{ course.course_number }} {{ course.title }} ({{ course.semester }}) Submissions
         {% if role >= Role.INSTRUCTOR %}
-        <span class="edit-link">(
-            <a href="{{ url_for('demograder.course_form', course_id=course.id) }}">edit</a>,
+        <span class="edit-link">
+            <a href="{{ url_for('demograder.course_form', course_id=course.id) }}">edit</a>
             <a href="{{ url_for('demograder.assignment_form', course_id=course.id) }}">new assignment</a>
-        )</span>
+        </span>
         {% endif %}
     </h1>
     {% if not course.submissions %}
