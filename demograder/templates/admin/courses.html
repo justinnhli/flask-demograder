@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Courses Admin - Demograder{% endblock %}
+
+{% block content %}
+<h1>Courses</h1>
+<a href="{{ url_for('demograder.course_form') }}">new course</a>
+
+<ul>
+    {% for course in courses %}
+    <li>
+        {{ course.id }}:
+        <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course }}</a>
+        (<a href="{{ url_for('demograder.course_form', course_id=course.id) }}">edit</a>)
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

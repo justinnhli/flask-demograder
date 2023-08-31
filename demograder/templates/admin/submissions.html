@@ -1,0 +1,10 @@
+{% from 'utils.html' import submission_history_table %}
+{% extends "base.html" %}
+
+{% block title %}Submissions Admin - Demograder{% endblock %}
+
+{% block content %}
+<h1>Submissions</h1>
+
+{{ submission_history_table(submissions) }}
+{% endblock %}

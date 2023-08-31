@@ -35,18 +35,6 @@ def home():
     return render_template('home.html', **context)
 
 
-@blueprint.route('/admin')
-def admin():
-    context = get_context(min_role=Role.ADMIN)
-    context['users'] = db.session.scalars(select(User))
-    context['courses'] = db.session.scalars(select(Course))
-    context['assignments'] = db.session.scalars(select(Assignment))
-    context['questions'] = db.session.scalars(select(Question))
-    context['question_files'] = db.session.scalars(select(QuestionFile))
-    context['submissions'] = db.session.scalars(select(Submission))
-    return render_template('admin/home.html', **context)
-
-
 @blueprint.route('/user/<page_user_email>')
 def user_view(page_user_email):
     context = get_context()
@@ -396,6 +384,46 @@ def question_form(assignment_id, question_id):
         return redirect(url_for('demograder.submission_view', uestion_id=question.id))
     else:
         return render_template('forms/question.html', form=form, **context)
+
+
+# ADMIN
+
+
+@blueprint.route('/admin')
+def admin():
+    context = get_context(min_role=Role.ADMIN)
+    return render_template('admin/home.html', **context)
+
+
+@blueprint.route('/admin/users')
+def admin_users_view():
+    context = get_context(min_role=Role.ADMIN)
+    context['users'] = db.session.scalars(
+        select(User)
+        .order_by(User.id.desc())
+    )
+    return render_template('admin/users.html', **context)
+
+
+@blueprint.route('/admin/courses')
+def admin_courses_view():
+    context = get_context(min_role=Role.ADMIN)
+    context['courses'] = db.session.scalars(
+        select(Course)
+        .order_by(Course.id.desc())
+    )
+    return render_template('admin/courses.html', **context)
+
+
+@blueprint.route('/admin/submissions')
+def admin_submissions_view():
+    context = get_context(min_role=Role.ADMIN)
+    context['submissions'] = db.session.scalars(
+        select(Submission)
+        .order_by(Submission.timestamp.desc())
+        .limit(200)
+    )
+    return render_template('admin/submissions.html', **context)
 
 
 # REDIRECTS

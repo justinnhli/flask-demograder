@@ -3,65 +3,9 @@
 {% block title %}Demograder{% endblock %}
 
 {% block content %}
-    <h1>DB Dump</h1>
-    <h2>Users</h2>
-    <ul>
-        {% for user in users %}
-            <li>
-                {{ user.id }}: {{ user }} 
-                (<a href="{{ url_for('demograder.user_form', user_id=user.id) }}">edit</a>)
-            </li>
-        {% endfor %}
-    </ul>
-    <h2>Courses</h2>
-    <ul>
-        {% for course in courses %}
-        <li>
-            {{ course.id }}:
-            <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course }}</a>
-            (<a href="{{ url_for('demograder.course_form', course_id=course.id) }}">edit</a>)
-        </li>
-        <ul>
-            {% for student in course.students %}
-                <li>{{ student }}</li>
-            {% endfor %}
-        </ul>
-        {% endfor %}
-    </ul>
-    <h2>Assignment</h2>
-    <ul>
-        {% for assignment in assignments %}
-        <li>
-            {{ assignment.id }}: {{ assignment }}
-            (<a href="{{ url_for('demograder.assignment_form', course_id=assignment.course.id, assignment_id=assignment.id) }}">edit</a>)
-        </li>
-        {% endfor %}
-    </ul>
-    <h2>Questions</h2>
-    <ul>
-        {% for question in questions %}
-        <li>
-            {{ question.id }}:
-            <a href="{{ url_for('demograder.question_view', question_id=question.id) }}">{{ question.name }}</a>
-            (<a href="{{ url_for('demograder.question_form', assignment_id=question.assignment.id, question_id=question.id) }}">edit</a>)
-        </li>
-        {% endfor %}
-    </ul>
-    <h2>Question Files</h2>
-    <ul>
-        {% for question_file in question_files %}
-        <li>{{ question_file.id }}: {{ question_file.filename }}</li>
-        {% endfor %}
-    </ul>
-    <h2>Submissions</h2>
-    <ul>
-        {% for submission in submissions %}
-        <li>
-            {{ submission.id }}:
-            {{ submission.submitter }} for
-            <a href="{{ url_for('demograder.submission_view', question_id=submission.question.id) }}">{{ submission.question.name }}</a>
-            (<a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.iso_format }}</a>)
-        </li>
-        {% endfor %}
-    </ul>
+<ul>
+    <li><a href="{{ url_for('demograder.admin_users_view') }}">Users</a></li>
+    <li><a href="{{ url_for('demograder.admin_courses_view') }}">Courses</a></li>
+    <li><a href="{{ url_for('demograder.admin_submissions_view') }}">Submissions</a></li>
+</ul>
 {% endblock %}
