@@ -203,13 +203,13 @@ class QuestionForm(FlaskForm):
         self.locked.data = question.locked
         self.allow_disable.data = question.allow_disable
         self.hide_output.data = question.hide_output
-        other_questions = []
-        for assignment in question.assignment.course.assignments:
-            other_questions.extend(assignment.questions)
-        other_questions = [
-            other_question for other_question in other_questions
-            if other_question.id != question.id
-        ]
+        other_questions = db.session.scalars(
+            select(Question)
+            .where(
+                Question.assignment_id == question.assignment_id,
+                Question.id != question.id,
+            )
+        )
         for other_question in other_questions:
             question_dependency = db.session.scalar(
                 select(QuestionDependency)
