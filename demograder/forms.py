@@ -2,7 +2,7 @@ from datetime import datetime as DateTime
 
 from sqlalchemy import select
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField
+from flask_wtf.file import FileField, FileRequired
 from wtforms import Form
 from wtforms import HiddenField, SubmitField, BooleanField,  DecimalField, StringField, TextAreaField
 from wtforms import SelectField, SelectMultipleField, DateField, FieldList, FormField
@@ -255,7 +255,7 @@ class QuestionForm(FlaskForm):
 class FileSubmissionForm(Form):
     question_file_id = HiddenField('question_file_id')
     filename = HiddenField('filename')
-    file = FileField('file')
+    file = FileField('file', validators=[FileRequired()])
 
 
 class SubmissionForm(FlaskForm):
