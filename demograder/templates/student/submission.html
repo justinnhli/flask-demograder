@@ -16,7 +16,7 @@
     <h1>
         {{ question.name }}
         {% if submission %}
-        {% if submission == question.submissions(user_id=viewer.id, limit=1).first() %}
+        {% if submission == question.submissions(user_id=viewer.id, include_hidden=instructor, limit=1).first() %}
         latest submission
         {% else %}
         {{ submission.iso_format }} submission
@@ -109,6 +109,6 @@
     {% endif %}
 
     <h2>Submission History</h2>
-    {{ submission_history_table(question.submissions(user_id=submission.user.id, include_hidden=(instructor)), course=False, question=False, submitter=False, disable=(question.allow_disable and (instructor or not question.locked))) }}
+    {{ submission_history_table(question.submissions(user_id=submission.user.id, include_hidden=instructor), course=False, question=False, submitter=False, disable=(question.allow_disable and (instructor or not question.locked))) }}
     {% endif %}
 {% endblock %}
