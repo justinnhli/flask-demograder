@@ -432,7 +432,7 @@ class Submission(db.Model):
     def num_failed(self):
         return db.session.scalar(
             select(func.count(Result.id))
-            .where(Result.submission_id == self.id, Result.return_code != 1)
+            .where(Result.submission_id == self.id, Result.return_code != 0)
         )
 
     @property
