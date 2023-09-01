@@ -44,13 +44,10 @@ def user_view(page_user_email):
     if not page_user:
         abort(403)
     context['page_user'] = page_user
-    courses = [
+    context['courses'] = [
         *context['viewer'].courses_with_student(page_user.id),
         *context['viewer'].courses_with_coinstructor(page_user.id),
     ] # FIXME sort
-    if not courses:
-        abort(403)
-    context['courses'] = courses
     return render_template('user.html', **context)
 
 
