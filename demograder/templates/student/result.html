@@ -61,7 +61,7 @@
     TBD
     {% endif %}
 
-    {% if not question.hide_output %}
+    {% if role >= Role.INSTRUCTOR or not question.hide_output %}
     <h2>Output</h2>
     <pre><code>{{ result.stdout }}</code></pre>
 
