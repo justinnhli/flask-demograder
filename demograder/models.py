@@ -129,16 +129,16 @@ class User(db.Model, UserMixin):
             return db.session.scalars(statement.limit(limit))
 
     def submissions(self, include_hidden=False, include_disabled=False, limit=None):
-        statement = (
-            select(Submission)
-            .where(
-                Submission.user_id == self.id,
-                Submission.disabled == include_disabled,
+        statement = select(Submission).where(Submission.user_id == self.id)
+        if not include_disabled:
+            statement = statement.where(Submission.disabled == False)
+        if not include_hidden:
+            statement = (
+                statement
+                .join(Question)
+                .where(Question.visible == True)
             )
-            .join(Question)
-            .where(Question.visible == (not include_hidden))
-            .order_by(Submission.timestamp.desc())
-        )
+        statement = statement.order_by(Submission.timestamp.desc())
         if limit is None:
             return db.session.scalars(statement)
         else:
@@ -236,18 +236,21 @@ class Course(db.Model):
             return tuple(assignment for assignment in assignments if assignment.visible)
 
     def submissions(self, user_id=None, include_hidden=False, include_disabled=False, limit=None):
+        statement = select(Submission)
+        if user_id:
+            statement = statement.where(Submission.user_id == user_id)
+        if not include_disabled:
+            statement = statement.where(Submission.disabled == False)
+        statement = statement.join(Question)
+        if not include_hidden:
+            statement = statement.where(Question.visible == True)
         statement = (
-            select(Submission)
-            .where(Submission.disabled == include_disabled)
-            .join(Question)
-            .where(Question.visible == (not include_hidden))
+            statement
             .join(Assignment)
             .join(Course)
             .where(Course.id == self.id)
             .order_by(Submission.timestamp.desc())
         )
-        if user_id:
-            statement = statement.where(Submission.user_id == user_id)
         if limit is None:
             return db.session.scalars(statement)
         else:
@@ -353,18 +356,18 @@ class Question(db.Model):
         )
 
     def submissions(self, user_id=None, include_hidden=False, include_disabled=False, limit=None):
-        statement = (
-            select(Submission)
-            .where(Submission.disabled == include_disabled)
-            .join(Question)
-            .where(
-                Question.id == self.id,
-                Question.visible == (not include_hidden),
-            )
-            .order_by(Submission.timestamp.desc())
-        )
+        statement = select(Submission).where(Submission.question_id == self.id)
         if user_id:
             statement = statement.where(Submission.user_id == user_id)
+        if not include_disabled:
+            statement = statement.where(Submission.disabled == False)
+        if not include_hidden:
+            statement = (
+                statement
+                .join(Question)
+                .where(Question.visible == True)
+            )
+        statement = statement.order_by(Submission.timestamp.desc())
         if limit is None:
             return db.session.scalars(statement)
         else:
