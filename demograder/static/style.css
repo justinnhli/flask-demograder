@@ -45,4 +45,6 @@ table.submissions-history-table tr th:first-child, table.submissions-history-tab
 table.submissions-history-table tr th:last-child, table.submissions-history-table tr td:last-child {border-right:none;}
 table.submissions-history-table tr.disabled-submission {text-decoration:line-through; text-decoration-thickness:2px;}
 
+table.grades-table {width:100%;}
+
 #footer {padding:1em; text-align:center;}

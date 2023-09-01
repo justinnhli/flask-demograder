@@ -163,6 +163,12 @@ def course_submissions_view(course_id):
     return render_template('instructor/course_submissions.html', **context)
 
 
+@blueprint.route('/question_grades/<int:question_id>')
+def question_grades_view(question_id):
+    context = get_context(question_id=question_id, min_role=Role.ADMIN)
+    return render_template('instructor/question_grades.html', **context)
+
+
 @blueprint.route('/question_submissions/<int:question_id>')
 def question_submissions_view(question_id):
     context = get_context(question_id=question_id, min_role=Role.ADMIN)

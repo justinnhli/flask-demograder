@@ -25,6 +25,7 @@
         {% if role >= Role.INSTRUCTOR %}
         <span class="admin-link">
             <a href="{{ url_for('demograder.question_form', assignment_id=assignment.id, question_id=question.id) }}">edit</a>
+            <a href="{{ url_for('demograder.question_grades_view', question_id=question.id) }}">grades</a>
             <a href="{{ url_for('demograder.question_submissions_view', question_id=question.id) }}">submissions</a>
             {% if submission %}
             <a href="{{ url_for('demograder.reevaluate_submission', submission_id=submission.id) }}">re-run submission</a>

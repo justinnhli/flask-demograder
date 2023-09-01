@@ -1,0 +1,37 @@
+{% from 'utils.html' import submission_history_table %}
+{% extends "base.html" %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block breadcrumb %}
+    &gt; <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.course_number }}</a>
+    &gt; {{ assignment.name }}
+    &gt; <a href="{{ url_for('demograder.submission_view', question_id=question.id) }}">{{ question.name }}</a>
+    &gt; Grades
+{% endblock %}
+
+{% block content %}
+    <h1>{{ question.name }} Grades</h1>
+    <table class="grades-table">
+        <tr>
+            <th>Student</th>
+            <th>Email</th>
+            <th>Score</th>
+            <th>Percent</th>
+        </tr>
+        {% for user in course.students %}
+        <tr>
+            <td><a href="{{ url_for('demograder.user_view', page_user_email=user.email) }}">{{ user.full_name }}</a></td>
+            <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+            {% set submission = question.most_recent_submission(user.id) %}
+            {% if submission %}
+            <td><a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.num_passed }} / {{ submission.num_results }}</a></td>
+            <td>{{ 100 * submission.num_passed / submission.num_results }}%</td>
+            {% else %}
+            <td>(no submission)</td>
+            <td>0%</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
