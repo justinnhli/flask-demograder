@@ -1,7 +1,7 @@
 import re
 from datetime import datetime as DateTime
 
-from flask import Blueprint, render_template, url_for, redirect, abort
+from flask import Blueprint, render_template, url_for, redirect, abort, request
 from sqlalchemy import select
 from werkzeug.utils import secure_filename
 
@@ -163,6 +163,12 @@ def course_submissions_view(course_id):
 @blueprint.route('/assignment_grades/<int:assignment_id>')
 def assignment_grades_view(assignment_id):
     context = get_context(assignment_id=assignment_id, min_role=Role.ADMIN)
+    url_args = request.args.to_dict()
+    try:
+        iso_date = f'{url_args["date"]} {url_args["hour"]}:{url_args["minute"]}'
+        context['before'] = DateTime.fromisoformat(iso_date)
+    except (KeyError, ValueError):
+        context['before'] = None
     return render_template('instructor/assignment_grades.html', **context)
 
 
@@ -175,6 +181,12 @@ def assignment_submissions_view(assignment_id):
 @blueprint.route('/question_grades/<int:question_id>')
 def question_grades_view(question_id):
     context = get_context(question_id=question_id, min_role=Role.ADMIN)
+    url_args = request.args.to_dict()
+    try:
+        iso_date = f'{url_args["date"]} {url_args["hour"]}:{url_args["minute"]}'
+        context['before'] = DateTime.fromisoformat(iso_date)
+    except (KeyError, ValueError):
+        context['before'] = None
     return render_template('instructor/question_grades.html', **context)
 
 

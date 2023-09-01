@@ -1,4 +1,5 @@
 {% from 'utils.html' import submission_admin_links %}
+{% from 'instructor/macros.html' import submission_date_limit_form %}
 {% extends "base.html" %}
 
 {% block title %}Demograder{% endblock %}
@@ -15,6 +16,7 @@
         {{ question.name }} Grades
         {{ submission_admin_links(question) }}
     </h1>
+    {{ submission_date_limit_form() }}
     <table class="data-table">
         <tr>
             <th>Student</th>
@@ -26,7 +28,7 @@
         <tr>
             <td><a href="{{ url_for('demograder.user_view', page_user_email=user.email) }}">{{ user.full_name }}</a></td>
             <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
-            {% set submission = question.submissions(user_id=user.id, limit=1).first() %}
+            {% set submission = question.submissions(user_id=user.id, before=before, limit=1).first() %}
             {% if submission %}
             <td><a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.num_passed }} / {{ submission.num_results }}</a></td>
             <td>{{ 100 * submission.num_passed / submission.num_results }}%</td>

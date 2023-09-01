@@ -128,8 +128,10 @@ class User(db.Model, UserMixin):
         else:
             return db.session.scalars(statement.limit(limit))
 
-    def submissions(self, include_hidden=False, include_disabled=False, limit=None):
+    def submissions(self, include_hidden=False, include_disabled=False, before=None, limit=None):
         statement = select(Submission).where(Submission.user_id == self.id)
+        if before:
+            statement = statement.where(Submission.timestamp <= before)
         if not include_disabled:
             statement = statement.where(Submission.disabled == False)
         if not include_hidden:
@@ -231,10 +233,12 @@ class Course(db.Model):
         else:
             return tuple(assignment for assignment in assignments if assignment.visible)
 
-    def submissions(self, user_id=None, include_hidden=False, include_disabled=False, limit=None):
+    def submissions(self, user_id=None, include_hidden=False, include_disabled=False, before=None, limit=None):
         statement = select(Submission)
         if user_id:
             statement = statement.where(Submission.user_id == user_id)
+        if before:
+            statement = statement.where(Submission.timestamp <= before)
         if not include_disabled:
             statement = statement.where(Submission.disabled == False)
         statement = statement.join(Question)
@@ -279,10 +283,12 @@ class Assignment(db.Model):
             statement = statement.where(Question.visible == True)
         return db.session.scalars(statement)
 
-    def submissions(self, user_id=None, include_hidden=False, include_disabled=False, limit=None):
+    def submissions(self, user_id=None, include_hidden=False, include_disabled=False, before=None, limit=None):
         statement = select(Submission)
         if user_id:
             statement = statement.where(Submission.user_id == user_id)
+        if before:
+            statement = statement.where(Submission.timestamp <= before)
         if not include_disabled:
             statement = statement.where(Submission.disabled == False)
         statement = statement.join(Question)
@@ -375,10 +381,12 @@ class Question(db.Model):
             .order_by(Submission.timestamp.desc())
         )
 
-    def submissions(self, user_id=None, include_hidden=False, include_disabled=False, limit=None):
+    def submissions(self, user_id=None, include_hidden=False, include_disabled=False, before=None, limit=None):
         statement = select(Submission).where(Submission.question_id == self.id)
         if user_id:
             statement = statement.where(Submission.user_id == user_id)
+        if before:
+            statement = statement.where(Submission.timestamp <= before)
         if not include_disabled:
             statement = statement.where(Submission.disabled == False)
         if not include_hidden:
