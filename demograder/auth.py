@@ -1,5 +1,6 @@
-from flask import Blueprint, url_for, redirect, session
 from authlib.integrations.flask_client import OAuth
+from flask import Blueprint, url_for, redirect, session
+from sqlalchemy import select
 
 from .models import db, User
 
@@ -21,7 +22,7 @@ def login_redirect():
     # get the user's email address
     user_email = user_info.get('email', 'user@example.com')
     # find or create the user
-    user = User.query.filter_by(email=user_email).first()
+    user = db.session.scalar(select(User).where(User.email == user_email))
     if not user or not user.logged_in:
         if 'nickname' in user_info:
             preferred_name = user_info['nickname']
