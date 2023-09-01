@@ -18,7 +18,7 @@
         <tr>
             <th>Student</th>
             <th>Email</th>
-            {% for question in assignment.visible_questions() %}
+            {% for question in assignment.questions() %}
             <th>{{ question.name }}</th>
             {% endfor %}
         </tr>
@@ -26,7 +26,7 @@
         <tr>
             <td><a href="{{ url_for('demograder.user_view', page_user_email=user.email) }}">{{ user.full_name }}</a></td>
             <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
-            {% for question in assignment.visible_questions() %}
+            {% for question in assignment.questions() %}
             {% set submission = assignment.submissions(user_id=user.id, limit=1).first() %}
             {% if submission %}
             <td><a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ 100 * submission.num_passed / submission.num_results }}%</a></td>

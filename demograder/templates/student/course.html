@@ -14,7 +14,7 @@
         {{ course_admin_links(course, new=True) }}
         {% endif %}
     </h1>
-    {% for assignment in course.visible_assignments(role >= Role.INSTRUCTOR) %}
+    {% for assignment in course.assignments(role >= Role.INSTRUCTOR) %}
     <h3>
         {{ assignment.name }}
         {% if role >= Role.INSTRUCTOR %}
@@ -22,7 +22,7 @@
         {% endif %}
     </h3>
     <table class="assignment-summary-table">
-        {% for question in assignment.visible_questions(role >= Role.INSTRUCTOR)|sort(attribute='name') %}
+        {% for question in assignment.questions(role >= Role.INSTRUCTOR)|sort(attribute='name') %}
         <tr>
             <td>
                 {% if role >= Role.INSTRUCTOR and not question.visible %}

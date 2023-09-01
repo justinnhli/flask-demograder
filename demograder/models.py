@@ -191,10 +191,6 @@ class Course(db.Model):
         secondary='students',
         backref='courses_taking',
     )
-    assignments = db.relationship(
-        'Assignment',
-        backref='course',
-    )
 
     @validates('department_code')
     def upper(self, key, value):
@@ -224,13 +220,13 @@ class Course(db.Model):
         else:
             return f'{self.department_code} {self.number} {self.section}'
 
-    def visible_assignments(self, instructor=False):
+    def assignments(self, include_hidden=False):
         assignments = db.session.scalars(
             select(Assignment)
             .where(Assignment.course_id == self.id)
             .order_by(Assignment.id.desc())
         )
-        if instructor:
+        if include_hidden:
             return assignments
         else:
             return tuple(assignment for assignment in assignments if assignment.visible)
@@ -265,20 +261,23 @@ class Assignment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False, index=True)
     name = db.Column(db.String, nullable=False, default='')
-    questions = db.relationship('Question', backref='assignment')
+    course = db.relationship('Course')
 
     def __str__(self):
         return self.name
 
     @property
     def visible(self):
-        return any(question.visible for question in self.questions)
+        return any(question.visible for question in self.questions(include_hidden=True))
 
-    def visible_questions(self, instructor=False):
-        if instructor:
-            return self.questions
-        else:
-            return tuple(question for question in self.questions if question.visible)
+    def questions(self, include_hidden=False):
+        statement = (
+            select(Question)
+            .where(Question.assignment_id == self.id)
+        )
+        if not include_hidden:
+            statement = statement.where(Question.visible == True)
+        return db.session.scalars(statement)
 
     def submissions(self, user_id=None, include_hidden=False, include_disabled=False, limit=None):
         statement = select(Submission)
@@ -331,6 +330,7 @@ class Question(db.Model):
 
         exit 1 # FIXME
     ''').strip())
+    assignment = db.relationship('Assignment')
     filenames = db.relationship('QuestionFile', backref='question')
     upstream_dependencies = db.relationship(
         'QuestionDependency',
