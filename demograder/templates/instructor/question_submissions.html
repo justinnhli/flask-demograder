@@ -13,9 +13,7 @@
 {% block content %}
     <h1>
         {{ question.name }} Submissions
-        {% if role >= Role.INSTRUCTOR %}
-        {{ submission_admin_links(question, submission=submission) }}
-        {% endif %}
+        {{ submission_admin_links(question) }}
     </h1>
     {% set submissions = question.submissions() %}
     {% if not submissions %}

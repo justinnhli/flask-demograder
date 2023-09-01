@@ -61,7 +61,7 @@
 {% macro course_admin_links(course, new=False) %}
     <span class="admin-link">
         <a href="{{ url_for('demograder.course_form', course_id=course.id) }}">edit</a>
-        <a href="{{ url_for('demograder.course_enrollment_view', course_id=course.id) }}">enrollment</a>
+        <a href="{{ url_for('demograder.course_enrollment_view', course_id=course.id) }}">enrollments</a>
         <a href="{{ url_for('demograder.course_submissions_view', course_id=course.id) }}">submissions</a>
         {% if new %}
         <a href="{{ url_for('demograder.assignment_form', course_id=course.id) }}">new assignment</a>

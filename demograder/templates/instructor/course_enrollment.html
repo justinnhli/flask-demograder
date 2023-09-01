@@ -5,20 +5,18 @@
 
 {% block breadcrumb %}
     &gt; <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.course_number }}</a>
-    &gt; Submissions
+    &gt; Enrollments
 {% endblock %}
 
 {% block content %}
     <h1>
         {{ course.course_number }} {{ course.title }} ({{ course.semester }}) Enrollments
-        {% if role >= Role.INSTRUCTOR %}
         {{ course_admin_links(course) }}
-        {% endif %}
     </h1>
     {% if not course.students %}
     <p>There are no students for this course yet.</p>
     {% else %}
-    <table>
+    <table style="width:100%">
         <tr>
             <th>Student</th>
             <th>Email</th>

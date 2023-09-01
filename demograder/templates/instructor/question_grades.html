@@ -1,4 +1,4 @@
-{% from 'utils.html' import submission_history_table %}
+{% from 'utils.html' import submission_admin_links %}
 {% extends "base.html" %}
 
 {% block title %}Demograder{% endblock %}
@@ -11,7 +11,10 @@
 {% endblock %}
 
 {% block content %}
-    <h1>{{ question.name }} Grades</h1>
+    <h1>
+        {{ question.name }} Grades
+        {{ submission_admin_links(question) }}
+    </h1>
     <table class="grades-table">
         <tr>
             <th>Student</th>

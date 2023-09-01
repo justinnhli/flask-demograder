@@ -11,7 +11,7 @@
     <h1>
         {{ course.course_number }} {{ course.title }} ({{ course.semester }})
         {% if role >= Role.INSTRUCTOR %}
-        {{ course_admin_links(course) }}
+        {{ course_admin_links(course, new=True) }}
         {% endif %}
     </h1>
     {% for assignment in course.visible_assignments(role >= Role.INSTRUCTOR) %}
@@ -33,7 +33,7 @@
                 (due {{ question.iso_format }})
                 {% endif %}
                 {% if role >= Role.INSTRUCTOR %}
-                {{ submission_admin_links(question, submission=None) }}
+                {{ submission_admin_links(question) }}
                 {% endif %}
             </td>
             <td class="summary-cell">
