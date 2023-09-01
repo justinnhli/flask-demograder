@@ -254,10 +254,15 @@ class Course(db.Model):
             return f'{self.department_code} {self.number} {self.section}'
 
     def visible_assignments(self, instructor=False):
+        assignments = db.session.scalars(
+            select(Assignment)
+            .where(Assignment.course_id == self.id)
+            .order_by(Assignment.id.desc())
+        )
         if instructor:
-            return self.assignments
+            return assignments
         else:
-            return tuple(assignment for assignment in self.assignments if assignment.visible)
+            return tuple(assignment for assignment in assignments if assignment.visible)
 
     def submissions(self, include_hidden=False, include_disabled=False, limit=None):
         statement = (
