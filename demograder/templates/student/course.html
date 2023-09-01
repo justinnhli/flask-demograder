@@ -50,7 +50,6 @@
                 {% set submission = question.most_recent_submission(viewer.id) %}
                 {% if submission and submission.num_results%}
                 <div class="summary-bar">
-                    <!-- {{ viewer.id }} {{ submission.id }} -->
                     <div class="summary pass" style="width:{{ 100 * submission.num_passed / submission.num_results }}%;"></div>
                     <div class="summary fail" style="width:{{ 100 * submission.num_failed / submission.num_results }}%;"></div>
                     <div class="summary score">{{ submission.num_passed }} / {{ submission.num_results }}</div>
