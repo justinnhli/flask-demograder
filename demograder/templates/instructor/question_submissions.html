@@ -1,4 +1,4 @@
-{% from 'utils.html' import submission_history_table %}
+{% from 'utils.html' import submission_history_table, submission_admin_links %}
 {% extends "base.html" %}
 
 {% block title %}Demograder{% endblock %}
@@ -14,14 +14,13 @@
     <h1>
         {{ question.name }} Submissions
         {% if role >= Role.INSTRUCTOR %}
-        <span class="admin-link">
-            <a href="{{ url_for('demograder.question_form', assignment_id=assignment.id, question_id=question.id) }}">edit</a>
-        </span>
+        {{ submission_admin_links(question, submission=submission) }}
         {% endif %}
     </h1>
-    {% if not question.submissions %}
+    {% set submissions = question.submissions() %}
+    {% if not submissions %}
     <p>There are no submissions for this question yet.</p>
     {% else %}
-    {{ submission_history_table(question.submissions(), course=False, question=False) }}
+    {{ submission_history_table(submissions, course=False, question=False) }}
     {% endif %}
 {% endblock %}

@@ -1,3 +1,4 @@
+{% from 'utils.html' import course_admin_links, course_admin_links, submission_admin_links %}
 {% extends "base.html" %}
 
 {% block title %}Demograder{% endblock %}
@@ -10,12 +11,7 @@
     <h1>
         {{ course.course_number }} {{ course.title }} ({{ course.semester }})
         {% if role >= Role.INSTRUCTOR %}
-        <span class="admin-link">
-            <a href="{{ url_for('demograder.course_form', course_id=course.id) }}">edit</a>
-            <a href="{{ url_for('demograder.course_enrollment_view', course_id=course.id) }}">enrollment</a>
-            <a href="{{ url_for('demograder.course_submissions_view', course_id=course.id) }}">submissions</a>
-            <a href="{{ url_for('demograder.assignment_form', course_id=course.id) }}">new assignment</a>
-        </span>
+        {{ course_admin_links(course) }}
         {% endif %}
     </h1>
     {% for assignment in course.visible_assignments(role >= Role.INSTRUCTOR) %}
@@ -40,10 +36,7 @@
                 (due {{ question.iso_format }})
                 {% endif %}
                 {% if role >= Role.INSTRUCTOR %}
-                <span class="admin-link">
-                    <a href="{{ url_for('demograder.question_form', assignment_id=assignment.id, question_id=question.id) }}">edit</a>
-                    <a href="{{ url_for('demograder.question_submissions_view', question_id=question.id) }}">submissions</a>
-                </span>
+                {{ submission_admin_links(question, submission=None) }}
                 {% endif %}
             </td>
             <td class="summary-cell">

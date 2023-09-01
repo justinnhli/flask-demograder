@@ -1,3 +1,4 @@
+{% from 'utils.html' import result_admin_links %}
 {% extends "base.html" %}
 
 {% block title %}Demograder{% endblock %}
@@ -14,9 +15,7 @@
     <h1>
         {{ question.name }} {{ submission.iso_format }} submission
         {% if role >= Role.INSTRUCTOR %}
-        <span class="admin-link">
-            <a href="{{ url_for('demograder.reevaluate_result', result_id=result.id) }}">re-run result</a>
-        </span>
+        {{ result_admin_links(result) }}
         {% endif %}
     </h1>
 

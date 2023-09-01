@@ -57,3 +57,31 @@
         {% endfor %}
     </table>
 {% endmacro %}
+
+{% macro course_admin_links(course, new=False) %}
+    <span class="admin-link">
+        <a href="{{ url_for('demograder.course_form', course_id=course.id) }}">edit</a>
+        <a href="{{ url_for('demograder.course_enrollment_view', course_id=course.id) }}">enrollment</a>
+        <a href="{{ url_for('demograder.course_submissions_view', course_id=course.id) }}">submissions</a>
+        {% if new %}
+        <a href="{{ url_for('demograder.assignment_form', course_id=course.id) }}">new assignment</a>
+        {% endif %}
+    </span>
+{% endmacro %}
+
+{% macro submission_admin_links(question, submission=None, regrade=False) %}
+    <span class="admin-link">
+        <a href="{{ url_for('demograder.question_form', assignment_id=question.assignment.id, question_id=question.id) }}">edit</a>
+        <a href="{{ url_for('demograder.question_grades_view', question_id=question.id) }}">grades</a>
+        <a href="{{ url_for('demograder.question_submissions_view', question_id=question.id) }}">submissions</a>
+        {% if regrade and submission %}
+        <a href="{{ url_for('demograder.reevaluate_submission', submission_id=submission.id) }}">re-run submission</a>
+        {% endif %}
+    </span>
+{% endmacro %}
+
+{% macro result_admin_links(result) %}
+    <span class="admin-link">
+        <a href="{{ url_for('demograder.reevaluate_result', result_id=result.id) }}">re-run result</a>
+    </span>
+{% endmacro %}

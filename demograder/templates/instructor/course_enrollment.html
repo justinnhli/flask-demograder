@@ -1,3 +1,4 @@
+{% from 'utils.html' import course_admin_links %}
 {% extends "base.html" %}
 
 {% block title %}Demograder{% endblock %}
@@ -11,10 +12,7 @@
     <h1>
         {{ course.course_number }} {{ course.title }} ({{ course.semester }}) Enrollments
         {% if role >= Role.INSTRUCTOR %}
-        <span class="admin-link">
-            <a href="{{ url_for('demograder.course_form', course_id=course.id) }}">edit</a>
-            <a href="{{ url_for('demograder.assignment_form', course_id=course.id) }}">new assignment</a>
-        </span>
+        {{ course_admin_links(course) }}
         {% endif %}
     </h1>
     {% if not course.students %}
