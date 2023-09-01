@@ -1,6 +1,6 @@
 body {background-color:#EEEEEC; font-family:Open Sans,Helvetica,Arial,sans-serif; margin:0 auto; max-width:50em;}
 
-#wordmark {float:left; color:#DE6F3E; font-size:1.5em;}
+#wordmark {float:left; color:#B3491F; font-size:1.5em;}
 #wordmark a {text-decoration:none;}
 #quicklinks {float:right;}
 #breadcrumb {clear:both;}
@@ -9,7 +9,7 @@ body {background-color:#EEEEEC; font-family:Open Sans,Helvetica,Arial,sans-serif
 
 h1, h2, h3, h4, h5, h6 {clear:both; margin:0 auto; padding:0.5em 0;}
 ul {margin:0.5em auto;}
-a, a:visited {color:#DE6F3E;}
+a, a:visited {color:#B3491F;}
 abbr {cursor:help;}
 pre {background-color:#F5F5F5; border:1px solid #CCCCCC; border-radius:4px; padding:1em;}
 table {border-collapse:collapse;}
