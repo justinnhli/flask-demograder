@@ -18,7 +18,7 @@
     <p>{{ page_user.full_name }} have not yet submitted to this course.</p>
     {% else %}
     <p>Recent Submissions</p>
-    {{ submission_history_table(course.submissions(user_id=page_user.id, limit=1), submitter=False, files=False) }}
+    {{ submission_history_table(course.submissions(user_id=page_user.id, limit=10), submitter=False, files=False) }}
     {% endif %}
     {% endfor %}
 {% endblock %}
