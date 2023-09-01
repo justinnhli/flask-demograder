@@ -79,6 +79,9 @@
         {% endif %}
     </h2>
     Submitted {{ submission.iso_format }}
+    {% if submission.user_id != viewer.id %}
+    by <a href="{{ url_for('demograder.user_view', page_user_email=submission.user.email) }}">{{ submission.user.full_name }}</a>
+    {% endif %}
     <ul>
     {% for submission_file in submission.files %}
         <li>
