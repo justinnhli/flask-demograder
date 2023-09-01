@@ -13,12 +13,6 @@
             {{ course.course_number }}: {{ course.title }}
         </a>
         ({{ course.semester }})
-        {% if viewer.admin or viewer.is_teaching(course.id) %}
-        <span class="admin-link">
-            <a href="{{ url_for('demograder.course_form', course_id=course.id) }}">edit</a>
-            <a href="{{ url_for('demograder.assignment_form', course_id=course.id) }}">new assignment</a>
-        </span>
-        {% endif %}
     </h2>
     {% if not page_user.course_submissions(course.id, limit=1).first() %}
     <p>{{ page_user.full_name }} have not yet submitted to this course.</p>
