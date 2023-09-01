@@ -64,8 +64,6 @@ def _set_course_context(context, url_args, **kwargs):
         context['question'] = db.session.scalar(
             select(Question).where(Question.id == kwargs['question_id'])
         )
-        if not context['submission']:
-            context['submission'] = context['question'].submissions(user_id=context['viewer'].id, limit=1).first()
     elif context['submission']:
         context['question'] = context['submission'].question
     else:
@@ -193,6 +191,13 @@ def get_context(**kwargs):
         # set the viewer context with respect to the course
         _set_instructor_context(context, url_args, **kwargs)
         _set_student_context(context, url_args, **kwargs)
+        # backfill the submission; we do this here because the instructor context wasn't set
+        if context['question'] and not context['submission']:
+            context['submission'] = context['question'].submissions(
+                user_id=context['viewer'].id,
+                include_hidden=context['instructor'],
+                limit=1,
+            ).first()
         # check that the viewer is related to the course
         if context['alternate_view'] and not (context['instructor'] or context['student']):
             forbidden(context)
