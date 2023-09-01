@@ -14,7 +14,7 @@
 {% block content %}
     <h1>
         {{ question.name }} {{ submission.iso_format }} submission
-        {% if role >= Role.INSTRUCTOR %}
+        {% if instructor %}
         {{ result_admin_links(result) }}
         {% endif %}
     </h1>
@@ -33,7 +33,7 @@
     </ul>
     {% endif %}
 
-    {% if result.dependent_files %}
+    {% if result.dependent_files and not question.hide_output %}
     <h2>Other File(s)</h2>
     <ul>
     {% for submission_file in result.dependent_files %}
@@ -60,7 +60,7 @@
     TBD
     {% endif %}
 
-    {% if role >= Role.INSTRUCTOR or not question.hide_output %}
+    {% if instructor or not question.hide_output %}
     <h2>Output</h2>
     <pre><code>{{ result.stdout }}</code></pre>
 

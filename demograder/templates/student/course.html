@@ -10,29 +10,29 @@
 {% block content %}
     <h1>
         {{ course.course_number }} {{ course.title }} ({{ course.semester }})
-        {% if role >= Role.INSTRUCTOR %}
+        {% if instructor %}
         {{ course_admin_links(course, new=True) }}
         {% endif %}
     </h1>
-    {% for assignment in course.assignments(role >= Role.INSTRUCTOR) %}
+    {% for assignment in course.assignments(instructor) %}
     <h3>
         {{ assignment.name }}
-        {% if role >= Role.INSTRUCTOR %}
+        {% if instructor %}
         {{ assignment_admin_links(assignment, new=True) }}
         {% endif %}
     </h3>
     <table class="assignment-summary-table">
-        {% for question in assignment.questions(role >= Role.INSTRUCTOR)|sort(attribute='name') %}
+        {% for question in assignment.questions(instructor)|sort(attribute='name') %}
         <tr>
             <td>
-                {% if role >= Role.INSTRUCTOR and not question.visible %}
+                {% if instructor and not question.visible %}
                 (hidden)
                 {% endif %}
                 <a href="{{ url_for('demograder.submission_view', question_id=question.id) }}">{{ question.name }}</a>
                 {% if question.due_date %}
                 (due {{ question.iso_format }})
                 {% endif %}
-                {% if role >= Role.INSTRUCTOR %}
+                {% if instructor %}
                 {{ submission_admin_links(question) }}
                 {% endif %}
             </td>

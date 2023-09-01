@@ -22,7 +22,7 @@
         {{ submission.iso_format }} submission
         {% endif %}
         {% endif %}
-        {% if role >= Role.INSTRUCTOR %}
+        {% if instructor %}
         {{ submission_admin_links(question, submission=submission, regrade=True) }}
         {% endif %}
     </h1>
@@ -109,6 +109,6 @@
     {% endif %}
 
     <h2>Submission History</h2>
-    {{ submission_history_table(question.submissions(user_id=submission.user.id), course=False, question=False, submitter=False, disable=(question.allow_disable and (role >= Role.INSTRUCTOR or not question.locked))) }}
+    {{ submission_history_table(question.submissions(user_id=submission.user.id, include_hidden=(instructor)), course=False, question=False, submitter=False, disable=(question.allow_disable and (instructor or not question.locked))) }}
     {% endif %}
 {% endblock %}
