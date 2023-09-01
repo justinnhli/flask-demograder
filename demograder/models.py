@@ -280,6 +280,26 @@ class Assignment(db.Model):
         else:
             return tuple(question for question in self.questions if question.visible)
 
+    def submissions(self, user_id=None, include_hidden=False, include_disabled=False, limit=None):
+        statement = select(Submission)
+        if user_id:
+            statement = statement.where(Submission.user_id == user_id)
+        if not include_disabled:
+            statement = statement.where(Submission.disabled == False)
+        statement = statement.join(Question)
+        if not include_hidden:
+            statement = statement.where(Question.visible == True)
+        statement = (
+            statement
+            .join(Assignment)
+            .where(Assignment.id == self.id)
+            .order_by(Submission.timestamp.desc())
+        )
+        if limit is None:
+            return db.session.scalars(statement)
+        else:
+            return db.session.scalars(statement.limit(limit))
+
 
 class QuestionDependency(db.Model):
     __tablename__ = 'question_dependencies'

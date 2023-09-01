@@ -69,6 +69,17 @@
     </span>
 {% endmacro %}
 
+{% macro assignment_admin_links(assignment, new=False) %}
+    <span class="admin-link">
+        <a href="{{ url_for('demograder.assignment_form', course_id=assignment.course.id, assignment_id=assignment.id) }}">edit</a>
+        <a href="{{ url_for('demograder.assignment_grades_view', assignment_id=assignment.id) }}">grades</a>
+        <a href="{{ url_for('demograder.assignment_submissions_view', assignment_id=assignment.id) }}">submissions</a>
+        {% if new %}
+        <a href="{{ url_for('demograder.question_form', assignment_id=assignment.id) }}">new question</a>
+        {% endif %}
+    </span>
+{% endmacro %}
+
 {% macro submission_admin_links(question, submission=None, regrade=False) %}
     <span class="admin-link">
         <a href="{{ url_for('demograder.question_form', assignment_id=question.assignment.id, question_id=question.id) }}">edit</a>

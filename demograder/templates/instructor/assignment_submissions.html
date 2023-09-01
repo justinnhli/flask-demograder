@@ -1,0 +1,23 @@
+{% from 'utils.html' import submission_history_table, assignment_admin_links %}
+{% extends "base.html" %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block breadcrumb %}
+    &gt; <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.course_number }}</a>
+    &gt; {{ assignment.name }}
+    &gt; Submissions
+{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ assignment.name }} Submissions
+        {{ assignment_admin_links(assignment) }}
+    </h1>
+    {% set submissions = assignment.submissions() %}
+    {% if not submissions %}
+    <p>There are no submissions for this assignment yet.</p>
+    {% else %}
+    {{ submission_history_table(submissions, course=False) }}
+    {% endif %}
+{% endblock %}
