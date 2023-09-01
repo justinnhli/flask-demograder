@@ -28,24 +28,37 @@
         </span>
         {% endif %}
     </h3>
-    <ul>
+    <table class="assignment-summary-table">
         {% for question in assignment.visible_questions(role >= Role.INSTRUCTOR)|sort(attribute='name') %}
-        <li>
-            {% if role >= Role.INSTRUCTOR and not question.visible %}
-            (hidden)
-            {% endif %}
-            <a href="{{ url_for('demograder.submission_view', question_id=question.id) }}">{{ question.name }}</a>
-            {% if question.due_date %}
-            (due {{ question.iso_format }})
-            {% endif %}
-            {% if role >= Role.INSTRUCTOR %}
-            <span class="admin-link">
-                <a href="{{ url_for('demograder.question_form', assignment_id=assignment.id, question_id=question.id) }}">edit</a>
-                <a href="{{ url_for('demograder.question_submissions_view', question_id=question.id) }}">submissions</a>
-            </span>
-            {% endif %}
-        </li>
+        <tr>
+            <td>
+                {% if role >= Role.INSTRUCTOR and not question.visible %}
+                (hidden)
+                {% endif %}
+                <a href="{{ url_for('demograder.submission_view', question_id=question.id) }}">{{ question.name }}</a>
+                {% if question.due_date %}
+                (due {{ question.iso_format }})
+                {% endif %}
+                {% if role >= Role.INSTRUCTOR %}
+                <span class="admin-link">
+                    <a href="{{ url_for('demograder.question_form', assignment_id=assignment.id, question_id=question.id) }}">edit</a>
+                    <a href="{{ url_for('demograder.question_submissions_view', question_id=question.id) }}">submissions</a>
+                </span>
+                {% endif %}
+            </td>
+            <td class="summary-cell">
+                {% set submission = question.most_recent_submission(viewer.id) %}
+                {% if submission and submission.num_results%}
+                <div class="summary-bar">
+                    <!-- {{ viewer.id }} {{ submission.id }} -->
+                    <div class="summary pass" style="width:{{ 100 * submission.num_passed / submission.num_results }}%;"></div>
+                    <div class="summary fail" style="width:{{ 100 * submission.num_failed / submission.num_results }}%;"></div>
+                    <div class="summary score">{{ submission.num_passed }} / {{ submission.num_results }}</div>
+                </div>
+                {% endif %}
+            </td>
+        </tr>
         {% endfor %}
-    </ul>
+    </table>
     {% endfor %}
 {% endblock %}

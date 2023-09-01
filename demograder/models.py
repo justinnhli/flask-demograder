@@ -364,6 +364,16 @@ class Question(db.Model):
     def course(self):
         return self.assignment.course
 
+    def most_recent_submission(self, user_id):
+        return db.session.scalar(
+            select(Submission)
+            .where(
+                Submission.question_id == self.id,
+                Submission.user_id == user_id,
+            )
+            .order_by(Submission.timestamp.desc())
+        )
+
     def submissions(self, include_hidden=False, include_disabled=False, limit=None):
         statement = (
             select(Submission)
