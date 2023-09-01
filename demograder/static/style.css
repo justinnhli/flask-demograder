@@ -26,8 +26,7 @@ table.form-table input[readonly] {background-color:#CCCCCC;}
 
 table.assignment-summary-table {width:100%}
 table.assignment-summary-table td.summary-cell {min-width:50%;}
-table.assignment-summary-table div.summary-bar {position:relative; background-color:#C0C0C0; height:1.5em; margin:0.1em auto; width:100%;}
-table.assignment-summary-table div.summary-bar div.summary {height:1.5em;}
+table.assignment-summary-table div.summary-bar {position:relative; background-color:#C0C0C0; margin:0.1em auto; width:100%;}
 table.assignment-summary-table div.summary-bar div.pass {background-color:#57BB8A; float:left;}
 table.assignment-summary-table div.summary-bar div.fail {background-color:#E67C73; position:absolute; right:0;}
 table.assignment-summary-table div.summary-bar div.score {position: absolute; width: 100%; text-align: center;}
