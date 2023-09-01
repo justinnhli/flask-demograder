@@ -64,13 +64,13 @@ class User(db.Model, UserMixin):
             return True
         if question.locked:
             return False
-        last_submission = self.question_submissions(question_id, limit=1).first()
-        if not last_submission:
+        latest_submission = self.question_submissions(question_id, limit=1).first()
+        if not latest_submission:
             return True
-        if last_submission.num_tbd > 0:
+        if latest_submission.num_tbd > 0:
             return False
         current_time = DateTime.now(UTC).replace(tzinfo=None)
-        submit_time = last_submission.timestamp
+        submit_time = latest_submission.timestamp
         return (current_time - submit_time).seconds > question.cooldown_seconds
 
     def get_id(self):
