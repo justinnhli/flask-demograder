@@ -23,7 +23,7 @@
         <tr>
             <td><a href="{{ url_for('demograder.user_view', page_user_email=user.email) }}">{{ user.full_name }}</a></td>
             <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
-            {% set submission = question.most_recent_submission(user.id) %}
+            {% set submission = question.submissions(user_id=user.id, limit=1).first() %}
             {% if submission %}
             <td><a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.num_passed }} / {{ submission.num_results }}</a></td>
             <td>{{ 100 * submission.num_passed / submission.num_results }}%</td>

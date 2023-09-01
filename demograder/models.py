@@ -64,7 +64,7 @@ class User(db.Model, UserMixin):
             return True
         if question.locked:
             return False
-        latest_submission = self.question_submissions(question_id, limit=1).first()
+        latest_submission = question.submissions(user_id=self.id, limit=1).first()
         if not latest_submission:
             return True
         if latest_submission.num_tbd > 0:
@@ -111,25 +111,6 @@ class User(db.Model, UserMixin):
             Instructor.query.filter_by(user_id=user_id).subquery()
         )
 
-    def latest_submission(self, question_id):
-        return self.question_submissions(question_id, limit=1).first()
-
-    def submissions(self, include_hidden=False, include_disabled=False, limit=None):
-        statement = (
-            select(Submission)
-            .where(
-                Submission.user_id == self.id,
-                Submission.disabled == include_disabled,
-            )
-            .join(Question)
-            .where(Question.visible == (not include_hidden))
-            .order_by(Submission.timestamp.desc())
-        )
-        if limit is None:
-            return db.session.scalars(statement)
-        else:
-            return db.session.scalars(statement.limit(limit))
-
     def submissions_from_students(self, include_hidden=False, include_disabled=False, limit=None):
         statement = (
             select(Submission)
@@ -147,25 +128,15 @@ class User(db.Model, UserMixin):
         else:
             return db.session.scalars(statement.limit(limit))
 
-    def question_submissions(self, question_id, limit=None):
+    def submissions(self, include_hidden=False, include_disabled=False, limit=None):
         statement = (
             select(Submission)
-            .where(Submission.user_id == self.id, Submission.question_id == question_id)
-            .order_by(Submission.timestamp.desc())
-        )
-        if limit is None:
-            return db.session.scalars(statement)
-        else:
-            return db.session.scalars(statement.limit(limit))
-
-    def course_submissions(self, course_id, limit=None):
-        statement = (
-            select(Submission)
-            .where(Submission.user_id == self.id)
+            .where(
+                Submission.user_id == self.id,
+                Submission.disabled == include_disabled,
+            )
             .join(Question)
-            .join(Assignment)
-            .join(Course)
-            .where(Course.id == course_id)
+            .where(Question.visible == (not include_hidden))
             .order_by(Submission.timestamp.desc())
         )
         if limit is None:
@@ -264,7 +235,7 @@ class Course(db.Model):
         else:
             return tuple(assignment for assignment in assignments if assignment.visible)
 
-    def submissions(self, include_hidden=False, include_disabled=False, limit=None):
+    def submissions(self, user_id=None, include_hidden=False, include_disabled=False, limit=None):
         statement = (
             select(Submission)
             .where(Submission.disabled == include_disabled)
@@ -275,6 +246,8 @@ class Course(db.Model):
             .where(Course.id == self.id)
             .order_by(Submission.timestamp.desc())
         )
+        if user_id:
+            statement = statement.where(Submission.user_id == user_id)
         if limit is None:
             return db.session.scalars(statement)
         else:
@@ -379,7 +352,7 @@ class Question(db.Model):
             .order_by(Submission.timestamp.desc())
         )
 
-    def submissions(self, include_hidden=False, include_disabled=False, limit=None):
+    def submissions(self, user_id=None, include_hidden=False, include_disabled=False, limit=None):
         statement = (
             select(Submission)
             .where(Submission.disabled == include_disabled)
@@ -390,6 +363,8 @@ class Question(db.Model):
             )
             .order_by(Submission.timestamp.desc())
         )
+        if user_id:
+            statement = statement.where(Submission.user_id == user_id)
         if limit is None:
             return db.session.scalars(statement)
         else:

@@ -16,7 +16,7 @@
     <h1>
         {{ question.name }}
         {% if submission %}
-        {% if submission == viewer.latest_submission(question.id) %}
+        {% if submission == question.submissions(user_id=viewer.id, limit=1).first() %}
         latest submission
         {% else %}
         {{ submission.iso_format }} submission
@@ -42,7 +42,7 @@
     <p>
     {% if question.locked %}
         You are not allowed to submit because this question is locked; talk to your instructor if you believe that is an error.
-    {% elif viewer.question_submissions(question.id, limit=1).first().num_tbd > 0 %}
+    {% elif question.submissions(user_id=viewer.id, limit=1).first().num_tbd > 0 %}
         Your previous submission is still running - please wait until that is done before submitting again.
     {% else %}
         There is a cooldown period before you are allowed to submit again - why don't you look at your code again to make sure there are no bugs?
@@ -116,6 +116,6 @@
     {% endif %}
 
     <h2>Submission History</h2>
-    {{ submission_history_table(submission.user.question_submissions(question.id), course=False, question=False, submitter=False, disable=(question.allow_disable and (role >= Role.INSTRUCTOR or not question.locked))) }}
+    {{ submission_history_table(question.submissions(user_id=submission.user.id), course=False, question=False, submitter=False, disable=(question.allow_disable and (role >= Role.INSTRUCTOR or not question.locked))) }}
     {% endif %}
 {% endblock %}

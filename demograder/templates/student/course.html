@@ -47,7 +47,7 @@
                 {% endif %}
             </td>
             <td class="summary-cell">
-                {% set submission = question.most_recent_submission(viewer.id) %}
+                {% set submission = question.submissions(user_id=user.id, limit=1).first() %}
                 {% if submission and submission.num_results%}
                 <div class="summary-bar">
                     <div class="summary pass" style="width:{{ 100 * submission.num_passed / submission.num_results }}%;">&nbsp;</div>
