@@ -31,9 +31,9 @@
             {% for question in assignment.questions() %}
             {% set submission = assignment.submissions(user_id=user.id, before=before, limit=1).first() %}
             {% if submission %}
-            <td><a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ 100 * submission.num_passed / submission.num_results }}%</a></td>
+            <td><a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ '%.2f'|format(100 * submission.num_passed / submission.num_results) }}%</a></td>
             {% else %}
-            <td>0%</td>
+            <td>{{ '%.2f'|format(0) }}%</td>
             {% endif %}
             {% endfor %}
         </tr>
