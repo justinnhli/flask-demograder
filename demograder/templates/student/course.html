@@ -38,11 +38,21 @@
             </td>
             <td class="summary-cell">
                 {% set submission = question.submissions(user_id=viewer.id, limit=1).first() %}
-                {% if submission and submission.num_results%}
+                {% set num_results = question.upstream_submission_id_sets | length %}
+                {% if num_results %}
+                {% if submission %}
+                {% set num_passed = submission.num_passed %}
+                {% set num_failed = submission.num_failed %}
+                {% set num_results = submission.num_results %}
+                {% else %}
+                {% set num_passed = 0 %}
+                {% set num_failed = 0 %}
+                {% endif %}
                 <div class="summary-bar">
-                    <div class="summary pass" style="width:{{ 100 * submission.num_passed / submission.num_results }}%;">&nbsp;</div>
-                    <div class="summary fail" style="width:{{ 100 * submission.num_failed / submission.num_results }}%;">&nbsp;</div>
-                    <div class="summary score">{{ submission.num_passed }} / {{ submission.num_results }}</div>
+                    <div class="summary pass" style="width:100%;">&nbsp;</div>
+                    <div class="summary tbd" style="width:{{ 100 * (num_results - num_passed) / num_results }}%;">&nbsp;</div>
+                    <div class="summary fail" style="width:{{ 100 * num_failed / num_results }}%;">&nbsp;</div>
+                    <div class="summary score">{{ num_passed }} / {{ num_results }}</div>
                 </div>
                 {% endif %}
             </td>

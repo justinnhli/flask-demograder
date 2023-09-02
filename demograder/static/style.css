@@ -26,10 +26,11 @@ table.form-table input[readonly] {background-color:#CCCCCC;}
 
 table.assignment-summary-table {width:100%}
 table.assignment-summary-table td.summary-cell {min-width:50%;}
-table.assignment-summary-table div.summary-bar {position:relative; background-color:#C0C0C0; margin:0.1em auto; width:100%;}
-table.assignment-summary-table div.summary-bar div.pass {background-color:#57BB8A; float:left;}
+table.assignment-summary-table div.summary-bar {position:relative;}
+table.assignment-summary-table div.summary-bar div.pass {background-color:#57BB8A; position:absolute; right:0;}
+table.assignment-summary-table div.summary-bar div.tbd {background-color:#C0C0C0; position:absolute; right:0;}
 table.assignment-summary-table div.summary-bar div.fail {background-color:#E67C73; position:absolute; right:0;}
-table.assignment-summary-table div.summary-bar div.score {position: absolute; width: 100%; text-align: center;}
+table.assignment-summary-table div.summary-bar div.score {position:absolute; width:100%; text-align:center;}
 
 div.scoreboard a.score {align-items:center; color:#FFFFFF; display:flex; float:left; height:5em; justify-content:center; margin:0.1em; overflow:hidden; text-align:center; width:5em;}
 div.scoreboard a.score:hover {font-weight:bold;}
