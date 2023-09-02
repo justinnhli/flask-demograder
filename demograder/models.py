@@ -1,4 +1,5 @@
 from datetime import datetime as DateTime
+from itertools import product
 from textwrap import dedent
 
 from flask import current_app
@@ -370,6 +371,33 @@ class Question(db.Model):
     @property
     def course(self):
         return self.assignment.course
+
+    @property
+    def upstream_submission_id_sets(self):
+        permute_args = []
+        for dependency in self.upstream_dependencies:
+            if dependency.submitters == 'everyone':
+                submitters = [
+                    *(student.id for student in self.course.students),
+                    *(instructor.id for instructor in self.course.instructors),
+                ]
+            elif dependency.submitters == 'students':
+                submitters = [student.id for student in self.course.students]
+            elif dependency.submitters == 'instructors':
+                submitters = [instructor.id for instructor in self.course.instructors]
+            else:
+                assert False
+            submissions = db.session.scalars(
+                select(Submission)
+                .where(Submission.question_id == dependency.producer_id)
+                .where(Submission.disabled == False)
+                .where(Submission.user_id.in_(submitters))
+            )
+            permute_args.append(list(submission.id for submission in submissions))
+        if permute_args:
+            return list(product(*permute_args))
+        else:
+            return []
 
     def most_recent_submission(self, user_id):
         return db.session.scalar(

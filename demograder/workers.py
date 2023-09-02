@@ -1,5 +1,5 @@
 import sys
-from itertools import product, chain
+from itertools import chain
 from os import chmod, walk
 from os.path import join as join_path
 from pathlib import Path
@@ -15,11 +15,26 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 
 def evaluate_submission(submission_id):
-    result_ids = []
-    for dependent_ids in expand_submission(submission_id):
-        result_ids.append(create_empty_result(submission_id, dependent_ids))
-    for result_id in result_ids:
+    for result_id in create_empty_results(submission_id):
         evaluate_result(result_id)
+
+
+def create_empty_results(submission_id):
+    from demograder import create_app
+    from demograder.models import db, Submission, Result, ResultDependency
+    with create_app(with_queue=False).app_context():
+        submission = db.session.scalar(select(Submission).where(Submission.id == submission_id))
+        result_ids = []
+        for upstream_ids in submission.question.upstream_submission_id_sets:
+            result = Result(submission_id=submission_id)
+            db.session.add(result)
+            db.session.commit()
+            # need to commit the Result first so there is an id
+            for upstream_id in upstream_ids:
+                db.session.add(ResultDependency(result_id=result.id, submission_id=upstream_id))
+            db.session.commit()
+            result_ids.append(result.id)
+        return result_ids
 
 
 def reevaluate_submission(submission_id):
@@ -39,63 +54,6 @@ def delete_submission_results(submission_id):
         for result in db.session.scalars(select(Result).where(Result.submission_id == submission_id)):
             db.session.delete(result)
         db.session.commit()
-
-
-def expand_submission(submission_id):
-    from demograder import create_app
-    from demograder.models import db, User, Student, Instructor, Submission
-    with create_app(with_queue=False).app_context():
-        submission = db.session.scalar(select(Submission).where(Submission.id == submission_id))
-        permute_args = []
-        course_id = submission.course.id
-        for dependency in submission.question.upstream_dependencies:
-            if dependency.submitters == 'everyone':
-                submitters = [
-                    *(
-                        student.id for student in
-                        submission.question.assignment.course.students
-                    ),
-                    *(
-                        instructor.id for instructor in 
-                        submission.question.assignment.course.instructors
-                    ),
-                ]
-            elif dependency.submitters == 'students':
-                submitters = [
-                    student.id for student in
-                    submission.question.assignment.course.students
-                ]
-            elif dependency.submitters == 'instructors':
-                submitters = [
-                    instructor.id for instructor in 
-                    submission.question.assignment.course.instructors
-                ]
-            else:
-                assert False
-            submissions = db.session.scalars(
-                select(Submission)
-                .where(Submission.question_id == dependency.producer_id)
-                .where(Submission.disabled == False)
-                .where(Submission.user_id.in_(submitters))
-            )
-            permute_args.append(list(submission.id for submission in submissions))
-        if permute_args:
-            return list(product(*permute_args))
-        else:
-            return []
-
-
-def create_empty_result(submission_id, dependent_ids):
-    from demograder import create_app
-    from demograder.models import db, Result, ResultDependency
-    with create_app(with_queue=False).app_context():
-        result = Result(submission_id=submission_id)
-        db.session.add(result)
-        db.session.commit()
-        for dependent_id in dependent_ids:
-            db.session.add(ResultDependency(result_id=result.id, submission_id=dependent_id))
-        db.session.commit()
-        return result.id
 
 
 def recursive_chmod(path):
