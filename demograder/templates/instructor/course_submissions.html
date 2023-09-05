@@ -16,6 +16,6 @@
     {% if not course.submissions %}
     <p>There are no submissions for this course yet.</p>
     {% else %}
-    {{ submission_history_table(course.submissions(), course=False) }}
+    {{ submission_history_table(course.submissions(limit=200), course=False) }}
     {% endif %}
 {% endblock %}
