@@ -196,6 +196,7 @@ def get_context(**kwargs):
             context['submission'] = context['question'].submissions(
                 user_id=context['viewer'].id,
                 include_hidden=context['instructor'],
+                include_disabled=context['instructor'],
                 limit=1,
             ).first()
         # check that the viewer is related to the course
