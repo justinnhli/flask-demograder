@@ -1,4 +1,4 @@
-{% from 'macros.html' import assignment_admin_links %}
+{% from 'macros.html' import full_name, assignment_admin_links %}
 {% from 'instructor/macros.html' import submission_date_limit_form %}
 {% extends "base.html" %}
 
@@ -26,7 +26,7 @@
         </tr>
         {% for user in course.students %}
         <tr>
-            <td><a href="{{ url_for('demograder.user_view', page_user_email=user.email) }}">{{ user.full_name }}</a></td>
+            <td><a href="{{ url_for('demograder.user_view', page_user_email=user.email) }}">{{ full_name(user) }}</a></td>
             <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
             {% for question in assignment.questions() %}
             {% set submission = assignment.submissions(user_id=user.id, before=before, limit=1).first() %}
