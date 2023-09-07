@@ -16,11 +16,7 @@
     <h1>
         {{ question.name }}
         {% if submission %}
-        {% if submission == question.submissions(user_id=viewer.id, include_hidden=instructor, limit=1).first() %}
-        latest submission
-        {% else %}
-        {{ submission.iso_format }} submission
-        {% endif %}
+        submission
         {% endif %}
         {% if instructor %}
         {{ submission_admin_links(question, submission=submission, regrade=True) }}
