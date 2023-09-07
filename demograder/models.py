@@ -32,6 +32,10 @@ class User(db.Model, UserMixin):
         return f'{self.full_name} <{self.email}>'
 
     @property
+    def has_full_name(self):
+        return self.preferred_name and self.family_name
+
+    @property
     def full_name(self):
         return f'{self.preferred_name} {self.family_name}'
 
