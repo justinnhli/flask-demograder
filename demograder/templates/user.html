@@ -4,7 +4,12 @@
 {% block title %}Demograder{% endblock %}
 
 {% block content %}
-    <h1>{{ page_user.full_name }}</h1>
+    <h1>
+        {{ page_user.full_name }}
+        <span class="admin-link">
+            <a href="{{ url_for('demograder.user_form', user_id=page_user.id) }}">edit</a>
+        </span>
+    </h1>
     <a href="mailto:{{ page_user.email }}">{{ page_user.email }}</a>
 
     {% for course in courses %}
