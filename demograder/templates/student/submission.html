@@ -102,6 +102,9 @@
         {% endif %}
         {% endfor %}
     </div>
+    {% if submission.num_tbd > 0 %}
+    <p style="clear:both;">Results are still coming in; refresh the page in a few seconds to see more results.</p>
+    {% endif %}
     {% endif %}
 
     <h2>Submission History</h2>
