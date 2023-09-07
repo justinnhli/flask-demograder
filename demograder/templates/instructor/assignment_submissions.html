@@ -14,10 +14,9 @@
         {{ assignment.name }} Submissions
         {{ assignment_admin_links(assignment) }}
     </h1>
-    {% set submissions = assignment.submissions(include_hidden=True, include_disabled=True) %}
-    {% if not submissions %}
+    {% if not assignment.submissions(include_hidden=True, include_disabled=True, limit=1).first() %}
     <p>There are no submissions for this assignment yet.</p>
     {% else %}
-    {{ submission_history_table(submissions, course=False) }}
+    {{ submission_history_table(assignment.submissions(include_hidden=True, include_disabled=True), course=False) }}
     {% endif %}
 {% endblock %}

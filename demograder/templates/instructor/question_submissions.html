@@ -15,10 +15,9 @@
         {{ question.name }} Submissions
         {{ submission_admin_links(question) }}
     </h1>
-    {% set submissions = question.submissions(include_hidden=True, include_disabled=True) %}
-    {% if not submissions %}
+    {% if not question.submissions(include_hidden=True, include_disabled=True, limit=1).first() %}
     <p>There are no submissions for this question yet.</p>
     {% else %}
-    {{ submission_history_table(submissions, course=False, question=False) }}
+    {{ submission_history_table(question.submissions(include_hidden=True, include_disabled=True), course=False, question=False) }}
     {% endif %}
 {% endblock %}
