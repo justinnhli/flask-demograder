@@ -14,7 +14,7 @@
         {{ assignment.name }} Submissions
         {{ assignment_admin_links(assignment) }}
     </h1>
-    {% set submissions = assignment.submissions() %}
+    {% set submissions = assignment.submissions(include_hidden=True, include_disabled=True) %}
     {% if not submissions %}
     <p>There are no submissions for this assignment yet.</p>
     {% else %}

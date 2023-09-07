@@ -15,7 +15,7 @@
         {{ question.name }} Submissions
         {{ submission_admin_links(question) }}
     </h1>
-    {% set submissions = question.submissions() %}
+    {% set submissions = question.submissions(include_hidden=True, include_disabled=True) %}
     {% if not submissions %}
     <p>There are no submissions for this question yet.</p>
     {% else %}
