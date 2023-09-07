@@ -13,11 +13,15 @@
 
 {% block content %}
     <h1>
-        {{ question.name }} {{ submission.iso_format }} submission
+        {{ question.name }} result
         {% if instructor %}
         {{ result_admin_links(result) }}
         {% endif %}
     </h1>
+    Submitted {{ submission.iso_format }}
+    {% if submission.user_id != viewer.id %}
+    by <a href="{{ url_for('demograder.user_view', page_user_email=submission.user.email) }}">{{ submission.user.full_name }}</a>
+    {% endif %}
 
     <h2>Submitted File(s)</h2>
     {% if result.submission.files %}
