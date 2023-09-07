@@ -13,9 +13,10 @@
         {{ course.course_number }} {{ course.title }} ({{ course.semester }}) Submissions
         {{ course_admin_links(course) }}
     </h1>
-    {% if not course.submissions %}
+    {% set submissions = course.submissions(limit=200) %}
+    {% if not submissions %}
     <p>There are no submissions for this course yet.</p>
     {% else %}
-    {{ submission_history_table(course.submissions(limit=200), course=False) }}
+    {{ submission_history_table(submissions, course=False) }}
     {% endif %}
 {% endblock %}
