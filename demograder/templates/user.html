@@ -27,13 +27,13 @@
     </h2>
     {% if page_user.submissions_from_students(limit=1).first() %}
     <p>Recent Submissions from Students in this Course</p>
-    {{ submission_history_table(page_user.submissions_from_students(limit=10), files=False) }}
+    {{ submission_history_table(page_user.submissions_from_students(limit=10), course=False, files=False) }}
     {% endif %}
     {% if not course.submissions(user_id=page_user.id, limit=1).first() %}
     <p>You have not yet submitted to this course.</p>
     {% else %}
     <p>Your Recent Submissions in this Course</p>
-    {{ submission_history_table(course.submissions(user_id=page_user.id, limit=10), submitter=False, files=False) }}
+    {{ submission_history_table(course.submissions(user_id=page_user.id, limit=10), course=False, submitter=False, files=False) }}
     {% endif %}
     {% endfor %}
 {% endblock %}
