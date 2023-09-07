@@ -12,7 +12,7 @@
     </h1>
     <a href="mailto:{{ page_user.email }}">{{ page_user.email }}</a>
 
-    {% for course in courses %}
+    {% for course in page_user.courses %}
     <h2>
         <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">
             {{ course.course_number }}: {{ course.title }}
