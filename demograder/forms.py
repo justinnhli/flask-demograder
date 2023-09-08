@@ -209,6 +209,7 @@ class QuestionForm(FlaskForm):
                 Question.assignment_id == question.assignment_id,
                 Question.id != question.id,
             )
+            .order_by(Question.name)
         )
         for other_question in other_questions:
             question_dependency = db.session.scalar(
