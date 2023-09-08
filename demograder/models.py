@@ -366,7 +366,7 @@ class Question(db.Model):
     @property
     def iso_format(self):
         aware_datetime = self.due_date.replace(tzinfo=UTC)
-        return current_app.config['TIMEZONE'].normalize(aware_datetime).strftime('%Y-%m-%d %H:%M:%S')
+        return current_app.config['TIMEZONE'].normalize(aware_datetime).strftime('%Y-%m-%d %H:%M')
 
     @property
     def course(self):
