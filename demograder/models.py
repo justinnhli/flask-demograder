@@ -231,12 +231,12 @@ class Course(db.Model):
         assignments = db.session.scalars(
             select(Assignment)
             .where(Assignment.course_id == self.id)
-            .order_by(Assignment.id.desc())
         )
-        if include_hidden:
-            return assignments
-        else:
-            return tuple(assignment for assignment in assignments if assignment.visible)
+        return sorted(
+            (assignment for assignment in assignments if include_hidden or assignment.visible),
+            key=(lambda assignment: assignment.due_date),
+            reverse=True,
+        )
 
     def submissions(self, user_id=None, include_hidden=False, include_disabled=False, before=None, limit=None):
         statement = select(Submission)
@@ -278,6 +278,17 @@ class Assignment(db.Model):
     @property
     def visible(self):
         return any(question.visible for question in self.questions(include_hidden=True))
+
+    @property
+    def due_date(self):
+        now = DateTime.now()
+        if not self.questions().first():
+            return now
+        else:
+            return max(
+                (question.due_date if question.due_date else now)
+                for question in self.questions()
+            )
 
     def questions(self, include_hidden=False):
         statement = (
