@@ -107,7 +107,7 @@
     {% endif %}
     {% endif %}
 
-    <h2>Submission History</h2>
+    <h2>Submission History ({{ question.submissions(user_id=submission.user.id, include_hidden=instructor, include_disabled=instructor).all() | length }} submissions)</h2>
     {{ submission_history_table(question.submissions(user_id=submission.user.id, include_hidden=instructor, include_disabled=instructor), course=False, question=False, submitter=False, disable=(question.allow_disable and (instructor or not question.locked))) }}
     {% endif %}
 {% endblock %}
