@@ -1,4 +1,5 @@
 from datetime import datetime as DateTime
+from enum import IntEnum
 from itertools import product
 from textwrap import dedent
 
@@ -10,6 +11,25 @@ from sqlalchemy import select, case, func
 from sqlalchemy.orm import validates
 
 db = SQLAlchemy()
+
+
+class SiteRole(IntEnum):
+    """A class representing the site role of the viewer.
+
+    This exists to allow dynamically checking what the page looks like for different people.
+    """
+    STUDENT = 0
+    FACULTY = 1
+    ADMIN = 2
+
+
+class CourseRole(IntEnum):
+    """A class representing the course role of the viewer.
+
+    This exists to allow dynamically checking what the page looks like for different people.
+    """
+    STUDENT = 0
+    INSTRUCTOR = 1
 
 
 class User(db.Model, UserMixin):

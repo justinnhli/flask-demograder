@@ -5,9 +5,9 @@ from flask import Blueprint, render_template, url_for, redirect, abort, request
 from sqlalchemy import select
 from werkzeug.utils import secure_filename
 
-from .context import get_context, Role
+from .context import get_context
 from .forms import UserForm, CourseForm, AssignmentForm, QuestionForm, SubmissionForm
-from .models import db, User, Course, Assignment, Question
+from .models import db, SiteRole, CourseRole, User, Course, Assignment, Question
 from .models import QuestionDependency, QuestionFile
 from .models import Submission, SubmissionFile
 from .dispatch import enqueue_evaluate_submission, enqueue_reevaluate_submission, enqueue_reevaluate_result
@@ -42,6 +42,8 @@ def user_view(page_user_email):
     # FIXME should there be other privacy things?
     # this leaks whether the user exists at all
     if not page_user:
+        abort(403)
+    if not bool(context['viewer'].courses_with_student(page_user.id).first()):
         abort(403)
     context['page_user'] = page_user
     return render_template('user.html', **context)
@@ -146,19 +148,19 @@ def download_file(file_id):
 
 @blueprint.route('/course_enrollment/<int:course_id>')
 def course_enrollment_view(course_id):
-    context = get_context(course_id=course_id, min_role=Role.ADMIN)
+    context = get_context(course_id=course_id, min_course_role=CourseRole.INSTRUCTOR)
     return render_template('instructor/course_enrollment.html', **context)
 
 
 @blueprint.route('/course_submissions/<int:course_id>')
 def course_submissions_view(course_id):
-    context = get_context(course_id=course_id, min_role=Role.ADMIN)
+    context = get_context(course_id=course_id, min_course_role=CourseRole.INSTRUCTOR)
     return render_template('instructor/course_submissions.html', **context)
 
 
 @blueprint.route('/assignment_grades/<int:assignment_id>')
 def assignment_grades_view(assignment_id):
-    context = get_context(assignment_id=assignment_id, min_role=Role.ADMIN)
+    context = get_context(assignment_id=assignment_id, min_course_role=CourseRole.INSTRUCTOR)
     url_args = request.args.to_dict()
     try:
         iso_date = f'{url_args["date"]} {url_args["hour"]}:{url_args["minute"]}'
@@ -170,13 +172,13 @@ def assignment_grades_view(assignment_id):
 
 @blueprint.route('/assignment_submissions/<int:assignment_id>')
 def assignment_submissions_view(assignment_id):
-    context = get_context(assignment_id=assignment_id, min_role=Role.ADMIN)
+    context = get_context(assignment_id=assignment_id, min_course_role=CourseRole.INSTRUCTOR)
     return render_template('instructor/assignment_submissions.html', **context)
 
 
 @blueprint.route('/question_grades/<int:question_id>')
 def question_grades_view(question_id):
-    context = get_context(question_id=question_id, min_role=Role.ADMIN)
+    context = get_context(question_id=question_id, min_course_role=CourseRole.INSTRUCTOR)
     url_args = request.args.to_dict()
     try:
         iso_date = f'{url_args["date"]} {url_args["hour"]}:{url_args["minute"]}'
@@ -188,7 +190,7 @@ def question_grades_view(question_id):
 
 @blueprint.route('/question_submissions/<int:question_id>')
 def question_submissions_view(question_id):
-    context = get_context(question_id=question_id, min_role=Role.ADMIN)
+    context = get_context(question_id=question_id, min_course_role=CourseRole.INSTRUCTOR)
     return render_template('instructor/question_submissions.html', **context)
 
 
@@ -247,7 +249,7 @@ def find_emails(text):
 @blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>', methods=('GET', 'POST'))
 def course_form(course_id):
-    context = get_context(course_id=course_id, min_role=Role.FACULTY)
+    context = get_context(course_id=course_id, min_site_role=SiteRole.FACULTY)
     form = CourseForm.build(context)
     if not form.is_submitted():
         if course_id is None:
@@ -312,7 +314,7 @@ def course_form(course_id):
 @blueprint.route('/forms/assignment/<int:course_id>/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/assignment/<int:course_id>/<int:assignment_id>/', methods=('GET', 'POST'))
 def assignment_form(course_id, assignment_id):
-    context = get_context(course_id=course_id, assignment_id=assignment_id, min_role=Role.INSTRUCTOR)
+    context = get_context(course_id=course_id, assignment_id=assignment_id, min_course_role=CourseRole.INSTRUCTOR)
     form = AssignmentForm.build(context)
     if not form.is_submitted():
         if assignment_id is not None:
@@ -340,7 +342,7 @@ def assignment_form(course_id, assignment_id):
 @blueprint.route('/forms/question/<int:assignment_id>/', defaults={'question_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/question/<int:assignment_id>/<int:question_id>/', methods=('GET', 'POST'))
 def question_form(assignment_id, question_id):
-    context = get_context(assignment_id=assignment_id, question_id=question_id, min_role=Role.INSTRUCTOR)
+    context = get_context(assignment_id=assignment_id, question_id=question_id, min_course_role=CourseRole.INSTRUCTOR)
     form = QuestionForm.build(context)
     if not form.is_submitted():
         if question_id is not None:
@@ -421,13 +423,13 @@ def question_form(assignment_id, question_id):
 
 @blueprint.route('/admin')
 def admin():
-    context = get_context(min_role=Role.ADMIN)
+    context = get_context(min_site_role=SiteRole.ADMIN)
     return render_template('admin/home.html', **context)
 
 
 @blueprint.route('/admin/users')
 def admin_users_view():
-    context = get_context(min_role=Role.ADMIN)
+    context = get_context(min_site_role=SiteRole.ADMIN)
     context['users'] = db.session.scalars(
         select(User)
         .order_by(User.id.desc())
@@ -437,7 +439,7 @@ def admin_users_view():
 
 @blueprint.route('/admin/courses')
 def admin_courses_view():
-    context = get_context(min_role=Role.ADMIN)
+    context = get_context(min_site_role=SiteRole.ADMIN)
     context['courses'] = db.session.scalars(
         select(Course)
         .order_by(Course.id.desc())
@@ -447,7 +449,7 @@ def admin_courses_view():
 
 @blueprint.route('/admin/submissions')
 def admin_submissions_view():
-    context = get_context(min_role=Role.ADMIN)
+    context = get_context(min_site_role=SiteRole.ADMIN)
     context['submissions'] = db.session.scalars(
         select(Submission)
         .order_by(Submission.timestamp.desc())

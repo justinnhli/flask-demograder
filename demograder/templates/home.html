@@ -6,7 +6,7 @@
 {% block content %}
     <h2>
         Courses
-        {% if role >= Role.FACULTY %}
+        {% if site_role >= SiteRole.FACULTY %}
         <span class="admin-link">
             <a href="{{ url_for('demograder.course_form') }}">new course</a>
         </span>

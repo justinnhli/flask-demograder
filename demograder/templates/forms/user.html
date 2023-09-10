@@ -10,7 +10,7 @@
             {{ render_field(form.preferred_name) }}
             {{ render_field(form.family_name) }}
             {{ render_field(form.email) }}
-            {% if role >= Role.ADMIN %}
+            {% if site_role >= SiteRole.ADMIN %}
             {{ render_field(form.admin) }}
             {{ render_field(form.faculty) }}
             {% endif %}
