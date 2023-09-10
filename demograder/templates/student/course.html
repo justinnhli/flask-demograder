@@ -37,7 +37,7 @@
                 {% endif %}
             </td>
             <td class="summary-cell">
-                {% set submission = question.submissions(user_id=viewer.id, limit=1).first() %}
+                {% set submission = question.submissions(user_id=viewer.id, include_hidden=instructor, limit=1).first() %}
                 {% set num_results = question.upstream_submission_id_sets | length %}
                 {% if num_results %}
                 {% if submission %}
