@@ -37,13 +37,15 @@ def home():
 
 @blueprint.route('/user/<page_user_email>')
 def user_view(page_user_email):
-    context = get_context()
     page_user = db.session.scalar(select(User).where(User.email == page_user_email))
-    # FIXME should there be other privacy things?
-    # this leaks whether the user exists at all
     if not page_user:
         abort(403)
-    if not bool(context['viewer'].courses_with_student(page_user.id).first()):
+    context = get_context(user_id=page_user.id)
+    allowed = (
+        context['user'].admin
+        or bool(context['viewer'].courses_with_student(page_user.id).first())
+    )
+    if not allowed:
         abort(403)
     context['page_user'] = page_user
     return render_template('user.html', **context)
