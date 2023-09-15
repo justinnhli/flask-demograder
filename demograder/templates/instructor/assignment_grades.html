@@ -24,7 +24,7 @@
             <th>{{ question.name }}</th>
             {% endfor %}
         </tr>
-        {% for user in course.students %}
+        {% for user in course.students | sort(attribute="family_name,preferred_name") %}
         <tr>
             <td><a href="{{ url_for('demograder.user_view', page_user_email=user.email) }}">{{ full_name(user) }}</a></td>
             <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
