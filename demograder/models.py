@@ -302,7 +302,7 @@ class Assignment(db.Model):
     @property
     def due_date(self):
         now = DateTime.now()
-        if not self.questions().first():
+        if not self.questions(include_hidden=True).first():
             return now
         else:
             return max(
