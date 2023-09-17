@@ -43,6 +43,7 @@ def user_view(page_user_email):
     context = get_context(user_id=page_user.id)
     allowed = (
         context['user'].admin
+        or context['viewer'].id == context['user'].id
         or bool(context['viewer'].courses_with_student(page_user.id).first())
     )
     if not allowed:
