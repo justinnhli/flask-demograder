@@ -32,6 +32,9 @@
             {% if question %}
             <td><a href="{{ url_for('demograder.submission_view', question_id=submission.question.id) }}">
                 {{ submission.question.assignment.name }}: {{ submission.question.name }}
+                {% if not submission.question.visible %}
+                (hidden)
+                {% endif %}
             </a></td>
             {% endif %}
             {% if submitter %}
