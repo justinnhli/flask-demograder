@@ -307,7 +307,7 @@ class Assignment(db.Model):
         else:
             return max(
                 (question.due_date if question.due_date else now)
-                for question in self.questions()
+                for question in self.questions(include_hidden=True)
             )
 
     def questions(self, include_hidden=False):
