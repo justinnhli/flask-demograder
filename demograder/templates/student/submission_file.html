@@ -16,6 +16,17 @@
 {% endblock %}
 
 {% block content %}
+    <style>
+        .hljs-ln-numbers {margin-right:1em;}
+        .hljs-ln td.hljs-ln-code {padding-left:1em;}
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        hljs.initLineNumbersOnLoad();
+    </script>
     <h1>
         <code>{{ submission_file.question_file.filename }}</code>
         {% if (instructor or submission_file.submitter == viewer) and submission_file.filename != submission_file.question_file.filename %}
