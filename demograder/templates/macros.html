@@ -30,12 +30,12 @@
             </a></td>
             {% endif %}
             {% if question %}
-            <td><a href="{{ url_for('demograder.submission_view', question_id=submission.question.id) }}">
-                {{ submission.question.assignment.name }}: {{ submission.question.name }}
-                {% if not submission.question.visible %}
-                (hidden)
-                {% endif %}
-            </a></td>
+            <td>
+                <a href="{{ url_for('demograder.submission_view', question_id=submission.question.id) }}">
+                    {{ submission.question.assignment.name }}: {{ submission.question.name }}
+                </a>
+                {% if not submission.question.visible %}(hidden){% endif %}
+            </td>
             {% endif %}
             {% if submitter %}
             <td><a href="{{ url_for('demograder.user_view', page_user_email=submission.user.email) }}">
