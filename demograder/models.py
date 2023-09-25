@@ -302,12 +302,12 @@ class Assignment(db.Model):
     @property
     def due_date(self):
         now = DateTime.now()
-        if not self.questions(include_hidden=True).first():
+        if not self.questions().first():
             return now
         else:
             return max(
                 (question.due_date if question.due_date else now)
-                for question in self.questions(include_hidden=True)
+                for question in self.questions()
             )
 
     def questions(self, include_hidden=False):
