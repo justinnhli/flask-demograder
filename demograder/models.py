@@ -422,12 +422,16 @@ class Question(db.Model):
                 submitters = [instructor.id for instructor in self.course.instructors]
             else:
                 assert False
-            submissions = db.session.scalars(
+            statement = (
                 select(Submission)
                 .where(Submission.question_id == dependency.producer_id)
                 .where(Submission.disabled == False)
                 .where(Submission.user_id.in_(submitters))
             )
+            if dependency.input_type == 'all':
+                submissions = db.session.scalars(statement)
+            elif dependency.input_type == 'latest':
+                submissions = db.session.scalars(statement.order_by(Submission.timestamp.desc()).limit(1))
             permute_args.append(list(submission.id for submission in submissions))
         if permute_args:
             return list(product(*permute_args))
