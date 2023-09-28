@@ -103,17 +103,27 @@ class User(db.Model, UserMixin):
         return self.email
 
     def courses(self):
-        # FIXME change to SQLAlchemy 2 syntax
-        return Course.query.join(
-            Student.query.filter_by(user_id=self.id).union(
-                Instructor.query.filter_by(user_id=self.id)
-            ).subquery()
-        ).order_by(
-            Course.year.desc(),
-            SEASONS_ORDER_BY.desc(),
-            Course.department_code.asc(),
-            Course.number.asc(),
-            Course.section.asc(),
+        return db.session.scalars(
+            select(Course)
+            .where(or_(
+                (
+                    select(Instructor).
+                    where(Instructor.user_id == self.id, Instructor.course_id == Course.id)
+                    .exists()
+                ),
+                (
+                    select(Student).
+                    where(Student.user_id == self.id, Student.course_id == Course.id)
+                    .exists()
+                ),
+            ))
+            .order_by(
+                Course.year.desc(),
+                SEASONS_ORDER_BY.desc(),
+                Course.department_code.asc(),
+                Course.number.asc(),
+                Course.section.asc(),
+            )
         )
 
     def courses_with_student(self, student_id):
