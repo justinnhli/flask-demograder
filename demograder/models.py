@@ -7,7 +7,7 @@ from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from pytz import UTC
-from sqlalchemy import select, case, func
+from sqlalchemy import select, case, func, or_
 from sqlalchemy.orm import validates
 
 db = SQLAlchemy()
