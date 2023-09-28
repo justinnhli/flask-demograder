@@ -411,27 +411,53 @@ class Question(db.Model):
     def upstream_submission_id_sets(self):
         permute_args = []
         for dependency in self.upstream_dependencies:
-            if dependency.submitters == 'everyone':
-                submitters = [
-                    *(student.id for student in self.course.students),
-                    *(instructor.id for instructor in self.course.instructors),
-                ]
-            elif dependency.submitters == 'students':
-                submitters = [student.id for student in self.course.students]
-            elif dependency.submitters == 'instructors':
-                submitters = [instructor.id for instructor in self.course.instructors]
-            else:
-                assert False
             statement = (
                 select(Submission)
                 .where(Submission.question_id == dependency.producer_id)
                 .where(Submission.disabled == False)
-                .where(Submission.user_id.in_(submitters))
+                .join(User)
             )
+            if dependency.submitters == 'everyone':
+                statement = (
+                    statement
+                    .where(or_(
+                        (
+                            select(Instructor).
+                            where(Instructor.user_id == User.id, Instructor.course_id == self.course.id)
+                            .exists()
+                        ),
+                        (
+                            select(Student).
+                            where(Student.user_id == User.id, Student.course_id == self.course.id)
+                            .exists()
+                        ),
+                    ))
+                )
+            elif dependency.submitters == 'students':
+                statement = (
+                    statement
+                    .join(Student)
+                    .where(Student.course_id == self.course.id)
+                )
+            elif dependency.submitters == 'instructors':
+                statement = (
+                    statement
+                    .join(Instructor)
+                    .where(Instructor.course_id == self.course.id)
+                )
+            else:
+                assert False
             if dependency.input_type == 'all':
-                submissions = db.session.scalars(statement)
+                pass # no need to filter if all submissions are used
             elif dependency.input_type == 'latest':
-                submissions = db.session.scalars(statement.order_by(Submission.timestamp.desc()).limit(1))
+                statement = (
+                    statement
+                    .group_by(User.id)
+                    .order_by(func.max(Submission.timestamp).desc())
+                )
+            else:
+                assert False
+            submissions = db.session.scalars(statement)
             permute_args.append(list(submission.id for submission in submissions))
         if permute_args:
             return list(product(*permute_args))
