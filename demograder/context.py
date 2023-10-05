@@ -132,12 +132,12 @@ def get_context(**kwargs):
         'CourseRole': CourseRole, # including the Enum allows templates to branch on course role
         'user': db.session.scalar(select(User).where(User.email == session.get('user_email'))),
     }
-    # if login is not required, no need to do anything else
-    if not kwargs.get('login_required', True):
-        return context
-    # check that there is a user if login is required
-    if kwargs.get('login_required', True) and not context['user']:
-        abort(401)
+    # if the user is not logged in, we can stop here
+    if not context['user']:
+        if kwargs.get('login_required', True):
+            abort(401)
+        else:
+            return context
     # set site role context
     _set_site_role_context(context, url_args, **kwargs)
     # check that the user is the specific user required
@@ -146,8 +146,12 @@ def get_context(**kwargs):
     # check that the user has the site role required
     if context['site_role'] < kwargs.get('min_site_role', SiteRole.STUDENT):
         forbidden(context)
-    # set viewer and course contexts
+    # set viewer context
     _set_viewer_context(context, url_args, **kwargs)
+    # if login is not required, no need to do anything else
+    if not kwargs.get('login_required', True):
+        return context
+    # set course context
     _set_course_context(context, url_args, **kwargs)
     # FIXME user pages don't have a course context
     # check that both the user and the viewer are related to the course
