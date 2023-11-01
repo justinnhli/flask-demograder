@@ -14,6 +14,7 @@
 
     {% if page_user.submissions(limit=1).first() %}
     <h2>Your Recent Submissions</h2>
+    <a href="{{ url_for('demograder.user_submissions_view', user_id=page_user.id) }}">see all</a>
     {{ submission_history_table(page_user.submissions(limit=10), submitter=False, files=False) }}
     {% endif %}
 

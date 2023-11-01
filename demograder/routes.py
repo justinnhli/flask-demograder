@@ -150,6 +150,23 @@ def download_file(file_id):
 # INSTRUCTOR
 
 
+@blueprint.route('/user_submissions/<int:user_id>')
+def user_submissions_view(user_id):
+    page_user = db.session.scalar(select(User).where(User.id == user_id))
+    if not page_user:
+        abort(403)
+    context = get_context(user_id=user_id)
+    allowed = (
+        context['user'].admin
+        or context['viewer'].id == context['user'].id
+        or bool(context['viewer'].courses_with_student(page_user.id).first())
+    )
+    if not allowed:
+        abort(403)
+    context['page_user'] = page_user
+    return render_template('user_submissions.html', **context)
+
+
 @blueprint.route('/course_enrollment/<int:course_id>')
 def course_enrollment_view(course_id):
     context = get_context(course_id=course_id, min_course_role=CourseRole.INSTRUCTOR)

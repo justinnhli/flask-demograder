@@ -1,0 +1,19 @@
+{% from 'macros.html' import full_name, submission_history_table %}
+{% extends "base.html" %}
+
+{% block title %}Demograder{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ full_name(page_user) }}
+        <span class="admin-link">
+            <a href="{{ url_for('demograder.user_form', user_id=page_user.id) }}">edit</a>
+        </span>
+    </h1>
+    <a href="mailto:{{ page_user.email }}">{{ page_user.email }}</a>
+
+    {% if page_user.submissions(limit=1).first() %}
+    <h2>Your Submissions History</h2>
+    {{ submission_history_table(page_user.submissions(), submitter=False, files=False) }}
+    {% endif %}
+{% endblock %}
