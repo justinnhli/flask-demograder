@@ -427,6 +427,7 @@ def question_form(assignment_id, question_id):
         # FIXME this would destroy data if a filename needs to be changed
         if form.file_names.data.strip():
             for filename in form.file_names.data.split(','):
+                filename = filename.strip()
                 if filename in filenames:
                     del filenames[filename]
                 else:
