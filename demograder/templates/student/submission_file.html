@@ -5,11 +5,10 @@
 {% block breadcrumb %}
     &gt; <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.course_number }}</a>
     &gt; {{ assignment.name }}
-    {% if submission.submitter == viewer %}
-    &gt; <a href="{{ url_for('demograder.submission_view', question_id=question.id) }}">{{ question.name }}</a> <!-- FIXME disable link if they are not the submitter -->
+    &gt; <a href="{{ url_for('demograder.submission_view', question_id=question.id) }}">{{ question.name }}</a>
+    {% if instructor or submission.submitter == viewer %}
     &gt; <a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.iso_format }} submission</a>
     {% else %}
-    &gt; {{ question.name }}
     &gt; {{ submission.iso_format }} submission
     {% endif %}
     &gt; <code>{{ submission_file.question_file.filename }}</code>
