@@ -174,6 +174,7 @@ def get_context(**kwargs):
         if context['course_role'] < kwargs.get('min_course_role', CourseRole.STUDENT):
             forbidden(context)
         # backfill the submission; we do this here because the instructor context wasn't set
+        # so we could not have selected hidden/disabled submissions
         if context['question'] and not context['submission']:
             context['submission'] = context['question'].submissions(
                 user_id=context['viewer'].id,
