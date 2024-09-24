@@ -5,7 +5,9 @@ from .models import db, SiteRole, CourseRole, User, Course, Assignment, Question
 
 
 def forbidden(context):
-    if not context['user'].admin:
+    if context['user'].admin:
+        abort(418)
+    else:
         abort(403)
 
 
