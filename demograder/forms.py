@@ -190,24 +190,27 @@ class QuestionForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, question_id, context):
-        question = db.session.scalar(select(Question).where(Question.id == question_id))
-        self.id.data = question_id
-        self.name.data = question.name
-        if question.due_date:
-            self.due_date.data = question.due_date
-            self.due_hour.data = f'{question.due_date.hour:02d}'
-            self.due_minute.data = f'{question.due_date.minute:02d}'
-        self.cooldown.data = question.cooldown_seconds
-        self.timeout.data = question.timeout_seconds
-        self.visible.data = question.visible
-        self.locked.data = question.locked
-        self.allow_disable.data = question.allow_disable
-        self.hide_output.data = question.hide_output
+        if question_id is not None:
+            question = db.session.scalar(select(Question).where(Question.id == question_id))
+            self.id.data = question_id
+            self.name.data = question.name
+            if question.due_date:
+                self.due_date.data = question.due_date
+                self.due_hour.data = f'{question.due_date.hour:02d}'
+                self.due_minute.data = f'{question.due_date.minute:02d}'
+            self.cooldown.data = question.cooldown_seconds
+            self.timeout.data = question.timeout_seconds
+            self.visible.data = question.visible
+            self.locked.data = question.locked
+            self.allow_disable.data = question.allow_disable
+            self.hide_output.data = question.hide_output
+            self.file_names.data = ','.join(question_file.filename for question_file in question.filenames)
+            self.script.data = question.script
         other_questions = db.session.scalars(
             select(Question)
             .where(
-                Question.assignment_id == question.assignment_id,
-                Question.id != question.id,
+                Question.assignment_id == context['assignment'].id,
+                Question.id != question_id,
             )
             .order_by(Question.name)
         )
@@ -216,7 +219,7 @@ class QuestionForm(FlaskForm):
                 select(QuestionDependency)
                 .where(
                     QuestionDependency.producer_id == other_question.id,
-                    QuestionDependency.consumer_id == question.id,
+                    QuestionDependency.consumer_id == question_id,
                 )
             )
             if question_dependency:
@@ -236,8 +239,6 @@ class QuestionForm(FlaskForm):
                     'submitters_used': 'instructor',
                     'viewable': True,
                 })
-        self.file_names.data = ','.join(question_file.filename for question_file in question.filenames)
-        self.script.data = question.script
 
     @staticmethod
     def build(context):
@@ -245,6 +246,10 @@ class QuestionForm(FlaskForm):
         form.assignment_id.data = context['assignment'].id
         form.course.data = str(context['course'])
         form.assignment.data = str(context['assignment'])
+        if context['question']:
+            form.update_for(context['question'].id, context)
+        else:
+            form.update_for(None, context)
         return form
 
     def validate_file_names(self, field):
