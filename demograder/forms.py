@@ -222,23 +222,14 @@ class QuestionForm(FlaskForm):
                     QuestionDependency.consumer_id == question_id,
                 )
             )
-            if question_dependency:
-                self.dependencies.append_entry({
-                    'question_id': other_question.id,
-                    'question': other_question.name,
-                    'is_dependency': True,
-                    'submissions_used': question_dependency.input_type,
-                    'submitters_used': question_dependency.submitters,
-                    'viewable': question_dependency.viewable,
-                })
-            else:
-                self.dependencies.append_entry({
-                    'question_id': other_question.id,
-                    'question': other_question.name,
-                    'submissions_used': 'all',
-                    'submitters_used': 'instructor',
-                    'viewable': True,
-                })
+            self.dependencies.append_entry({
+                'question_id': other_question.id,
+                'question': other_question.name,
+                'is_dependency': bool(question_dependency),
+                'submissions_used': (question_dependency.input_type if question_dependency else 'all'),
+                'submitters_used': (question_dependency.submitters if question_dependency else 'instructor'),
+                'viewable': (question_dependency.viewable if question_dependency else True),
+            })
 
     @staticmethod
     def build(context):
