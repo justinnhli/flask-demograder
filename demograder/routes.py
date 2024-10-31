@@ -221,43 +221,43 @@ def question_submissions_view(question_id):
 @blueprint.route('/forms/user/', defaults={'user_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/user/<int:user_id>', methods=('GET', 'POST'))
 def user_form(user_id):
+    # get the context
     context = get_context(user_id=user_id)
+    # create the form
     form = UserForm.build(context)
+    # if the form is not being submitted, populate the form and return
     if not form.is_submitted():
         if user_id is not None:
             form.update_for(user_id, context)
         return render_template('forms/user.html', form=form, **context)
-    elif form.validate():
-        if form.id.data:
-            # if there is an ID, this is editing an existing User
-            # make sure the URL user_id matches the form id field
-            if int(form.id.data) != user_id:
-                abort(403)
-            # make sure that the submitted ID is the same as the user ID
-            if not (context['user'].admin or int(form.id.data) == user_id):
-                abort(403)
-            user = db.session.scalar(select(User).where(User.id == int(form.id.data)))
-            user.preferred_name = form.preferred_name.data.strip()
-            user.family_name = form.family_name.data.strip()
-            # only an admin can change the email or the admin/faculty statuses
-            if context['user'].admin:
-                user.email = form.email.data.strip()
-                user.admin = form.admin.data
-                user.faculty = form.faculty.data
-        else:
-            # otherwise, this is creating a new User
-            user = User(
-                preferred_name=form.preferred_name.data.strip(),
-                family_name=form.family_name.data.strip(),
-                email=form.email.data.strip(),
-                admin=form.admin.data,
-                faculty=form.faculty.data,
-            )
-        db.session.add(user)
-        db.session.commit()
-        return redirect(url_for('demograder.home'))
-    else:
+    # if the submitted form does not validate, return
+    if not form.validate():
         return render_template('forms/user.html', form=form, **context)
+    # either get or create the User
+    if form.id.data:
+        # make sure the URL parameter matches the form id field
+        if int(form.id.data) != user_id:
+            abort(403)
+        user = db.session.scalar(select(User).where(User.id == int(form.id.data)))
+        user.preferred_name = form.preferred_name.data.strip()
+        user.family_name = form.family_name.data.strip()
+        # only an admin can change the email or the admin/faculty statuses
+        if context['user'].admin:
+            user.email = form.email.data.strip()
+            user.admin = form.admin.data
+            user.faculty = form.faculty.data
+    else:
+        user = User(
+            preferred_name=form.preferred_name.data.strip(),
+            family_name=form.family_name.data.strip(),
+            email=form.email.data.strip(),
+            admin=form.admin.data,
+            faculty=form.faculty.data,
+        )
+    # commit and return
+    db.session.add(user)
+    db.session.commit()
+    return redirect(url_for('demograder.home'))
 
 
 def find_emails(text):
@@ -270,94 +270,104 @@ def find_emails(text):
 @blueprint.route('/forms/course/', defaults={'course_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/course/<int:course_id>', methods=('GET', 'POST'))
 def course_form(course_id):
+    # get the context
     context = get_context(course_id=course_id, min_site_role=SiteRole.FACULTY)
+    # create the form
     form = CourseForm.build(context)
+    # if the form is not being submitted, populate the form and return
     if not form.is_submitted():
         if course_id is None:
             form.instructors.data = str(context['viewer'])
         else:
             form.update_for(course_id, context)
         return render_template('forms/course.html', form=form, **context)
-    elif form.validate():
-        if form.id.data:
-            # if there is an ID, this is editing an existing Course
-            # make sure the URL course_id matches the form id field
-            if int(form.id.data) != course_id:
-                abort(403)
-            course = db.session.scalar(select(Course).where(Course.id == int(form.id.data)))
-            course.season = form.season.data.strip()
-            course.year = int(form.year.data)
-            course.department_code = form.department_code.data.strip()
-            course.number = int(form.number.data)
-            course.section = int(form.section.data)
-            course.title = form.title.data.strip()
-        else:
-            # otherwise, this is creating a new Course
-            course = Course(
-                season=form.season.data,
-                year=int(form.year.data),
-                department_code = form.department_code.data.strip(),
-                number=int(form.number.data),
-                section=int(form.section.data),
-                title=form.title.data.strip(),
-            )
-        form_instructors = set(find_emails(form.instructors.data.strip()))
-        curr_instructors = set(user.email for user in course.instructors)
-        for email in form_instructors - curr_instructors:
-            user = db.session.scalar(select(User).where(User.email == email))
-            if not user:
-                user = User(email=email)
-                db.session.add(user)
-            course.instructors.append(user)
-        for email in curr_instructors - form_instructors:
-            course.instructors.remove(
-                db.session.scalar(select(User).where(User.email == email))
-            )
-        form_students = set(find_emails(form.students.data.strip()))
-        curr_students = set(user.email for user in course.students)
-        for email in form_students - curr_students:
-            user = db.session.scalar(select(User).where(User.email == email))
-            if not user:
-                user = User(email=email)
-                db.session.add(user)
-            course.students.append(user)
-        for email in curr_students - form_students:
-            course.students.remove(
-                db.session.scalar(select(User).where(User.email == email))
-            )
-        db.session.add(course)
-        db.session.commit()
-        return redirect(url_for('demograder.course_view', course_id=course.id))
-    else:
+    # if the submitted form does not validate, return
+    if not form.validate():
         return render_template('forms/course.html', form=form, **context)
+    # either get or create the Course
+    if form.id.data:
+        # make sure the URL parameter matches the form id field
+        if int(form.id.data) != course_id:
+            abort(403)
+        course = db.session.scalar(select(Course).where(Course.id == int(form.id.data)))
+        course.season = form.season.data.strip()
+        course.year = int(form.year.data)
+        course.department_code = form.department_code.data.strip()
+        course.number = int(form.number.data)
+        course.section = int(form.section.data)
+        course.title = form.title.data.strip()
+    else:
+        course = Course(
+            season=form.season.data,
+            year=int(form.year.data),
+            department_code = form.department_code.data.strip(),
+            number=int(form.number.data),
+            section=int(form.section.data),
+            title=form.title.data.strip(),
+        )
+    # register instructors
+    form_instructors = set(find_emails(form.instructors.data.strip()))
+    curr_instructors = set(user.email for user in course.instructors)
+    for email in form_instructors - curr_instructors:
+        user = db.session.scalar(select(User).where(User.email == email))
+        if not user:
+            user = User(email=email)
+            db.session.add(user)
+        course.instructors.append(user)
+    for email in curr_instructors - form_instructors:
+        course.instructors.remove(
+            db.session.scalar(select(User).where(User.email == email))
+        )
+    # register students
+    form_students = set(find_emails(form.students.data.strip()))
+    curr_students = set(user.email for user in course.students)
+    for email in form_students - curr_students:
+        user = db.session.scalar(select(User).where(User.email == email))
+        if not user:
+            user = User(email=email)
+            db.session.add(user)
+        course.students.append(user)
+    for email in curr_students - form_students:
+        course.students.remove(
+            db.session.scalar(select(User).where(User.email == email))
+        )
+    # commit and return
+    db.session.add(course)
+    db.session.commit()
+    return redirect(url_for('demograder.course_view', course_id=course.id))
 
 
 @blueprint.route('/forms/assignment/<int:course_id>/', defaults={'assignment_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/assignment/<int:course_id>/<int:assignment_id>/', methods=('GET', 'POST'))
 def assignment_form(course_id, assignment_id):
+    # get the context
     context = get_context(course_id=course_id, assignment_id=assignment_id, min_course_role=CourseRole.INSTRUCTOR)
+    # create the form
     form = AssignmentForm.build(context)
+    # if the form is not being submitted, populate the form and return
     if not form.is_submitted():
         if assignment_id is not None:
             form.update_for(assignment_id, context)
         return render_template('forms/assignment.html', form=form, **context)
-    elif form.validate():
-        if form.id.data:
-            # make sure the URL assignment_id matches the form id field
-            if int(form.id.data) != assignment_id:
-                abort(403)
-            assignment = db.session.scalar(select(Assignment).where(Assignment.id == int(form.id.data)))
-            assignment.name = form.name.data.strip()
-        else:
-            assignment = Assignment(
-                course_id=course_id,
-                name=form.name.data.strip(),
-            )
-        db.session.add(assignment)
-        db.session.commit()
-        return redirect(url_for('demograder.course_view', course_id=context['course'].id))
-    else:
+    # if the submitted form does not validate, return
+    if not form.validate():
         return render_template('forms/assignment.html', form=form, **context)
+    # either get or create the Assignment
+    if form.id.data:
+        # make sure the URL parameter matches the form id field
+        if int(form.id.data) != assignment_id:
+            abort(403)
+        assignment = db.session.scalar(select(Assignment).where(Assignment.id == int(form.id.data)))
+        assignment.name = form.name.data.strip()
+    else:
+        assignment = Assignment(
+            course_id=course_id,
+            name=form.name.data.strip(),
+        )
+    # commit and return
+    db.session.add(assignment)
+    db.session.commit()
+    return redirect(url_for('demograder.course_view', course_id=context['course'].id))
 
 
 @blueprint.route('/forms/question/<int:assignment_id>/', defaults={'question_id': None}, methods=('GET', 'POST'))
@@ -369,8 +379,8 @@ def question_form(assignment_id, question_id):
     form = QuestionForm.build(context)
     # if the form is not being submitted, populate the form and return
     if not form.is_submitted():
-        if context['question']:
-            form.update_for(context['question'].id, context)
+        if question_id is not None:
+            form.update_for(question_id, context)
         else:
             form.update_for(None, context)
         return render_template('forms/question.html', form=form, **context)
@@ -379,20 +389,29 @@ def question_form(assignment_id, question_id):
         return render_template('forms/question.html', form=form, **context)
     # either get or create the Question
     if form.id.data:
-        # make sure the URL question_id matches the form id field
+        # make sure the URL parameter matches the form id field
         if int(form.id.data) != question_id:
             abort(403)
         question = db.session.scalar(select(Question).where(Question.id == int(form.id.data)))
     else:
         question = Question(assignment_id=assignment_id)
-    due_date = form.due_date.data
-    if due_date:
-        due_date = DateTime(
-            due_date.year, due_date.month, due_date.day,
+    # update the Question
+    question.name = form.name.data.strip()
+    if form.due_date.data:
+        question.due_date = DateTime(
+            form.due_date.year, form.due_date.month, form.due_date.day,
             int(form.due_hour.data), int(form.due_minute.data),
         )
     else:
-        due_date = None
+        question.due_date = None
+    question.cooldown_seconds = int(form.cooldown.data)
+    question.timeout_seconds = int(form.timeout.data)
+    question.visible = form.visible.data
+    question.locked = form.locked.data
+    question.allow_disable = form.allow_disable.data
+    question.hide_output = form.hide_output.data
+    question.script = form.script.data
+    # update dependencies
     for dependency_form in form.dependencies:
         question_dependency = db.session.scalar(
             select(QuestionDependency)
@@ -414,15 +433,7 @@ def question_form(assignment_id, question_id):
         else:
             if question_dependency:
                 db.session.delete(question_dependency)
-    question.name = form.name.data.strip()
-    question.due_date = due_date
-    question.cooldown_seconds = int(form.cooldown.data)
-    question.timeout_seconds = int(form.timeout.data)
-    question.visible = form.visible.data
-    question.locked = form.locked.data
-    question.allow_disable = form.allow_disable.data
-    question.hide_output = form.hide_output.data
-    question.script = form.script.data
+    # update filenames
     # FIXME should be able to do the following, a la instructors/students in course_form
     # question.files.add(QuestionFile(...))
     # question.files.remove(QuestionFile(...))
@@ -442,6 +453,7 @@ def question_form(assignment_id, question_id):
                 db.session.add(QuestionFile(question_id=question.id, filename=filename))
     for _, question_file in filenames.items():
         db.session.delete(question_file)
+    # commit and return
     db.session.commit()
     return redirect(url_for('demograder.submission_view', question_id=question.id))
 
