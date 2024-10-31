@@ -5,10 +5,9 @@ from .models import db, SiteRole, CourseRole, User, Course, Assignment, Question
 
 
 def forbidden(context):
-    if context['user'].admin:
-        abort(418)
-    else:
+    if not context['user'].admin:
         abort(403)
+    context['override'] = True
 
 
 def _set_site_role_context(context, url_args, **kwargs):
@@ -133,6 +132,7 @@ def get_context(**kwargs):
         'SiteRole': SiteRole, # including the Enum allows templates to branch on site role
         'CourseRole': CourseRole, # including the Enum allows templates to branch on course role
         'user': db.session.scalar(select(User).where(User.email == session.get('user_email'))),
+        'override': False,
     }
     # if the user is not logged in, we can stop here
     if not context['user']:

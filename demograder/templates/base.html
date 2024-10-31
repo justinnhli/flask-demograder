@@ -14,6 +14,9 @@
             {% if user %}
             <div id="quicklinks">
                 {% if viewer.admin %}
+                {% if override %}
+                overriding as
+                {% endif %}
                 <a href="{{ url_for('demograder.admin') }}">admin</a> |
                 {% endif %}
                 {% if alternate_view %}viewing as{% endif %}
