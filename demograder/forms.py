@@ -246,10 +246,6 @@ class QuestionForm(FlaskForm):
         form.assignment_id.data = context['assignment'].id
         form.course.data = str(context['course'])
         form.assignment.data = str(context['assignment'])
-        if context['question']:
-            form.update_for(context['question'].id, context)
-        else:
-            form.update_for(None, context)
         return form
 
     def validate_file_names(self, field):

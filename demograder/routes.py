@@ -363,81 +363,87 @@ def assignment_form(course_id, assignment_id):
 @blueprint.route('/forms/question/<int:assignment_id>/', defaults={'question_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/forms/question/<int:assignment_id>/<int:question_id>/', methods=('GET', 'POST'))
 def question_form(assignment_id, question_id):
+    # get the context
     context = get_context(assignment_id=assignment_id, question_id=question_id, min_course_role=CourseRole.INSTRUCTOR)
+    # create the form
     form = QuestionForm.build(context)
+    # if the form is not being submitted, populate the form and return
     if not form.is_submitted():
-        if question_id is not None:
-            form.update_for(question_id, context)
+        if context['question']:
+            form.update_for(context['question'].id, context)
+        else:
+            form.update_for(None, context)
         return render_template('forms/question.html', form=form, **context)
-    elif form.validate():
-        due_date = form.due_date.data
-        if due_date:
-            due_date = DateTime(
-                due_date.year, due_date.month, due_date.day,
-                int(form.due_hour.data), int(form.due_minute.data),
-            )
-        else:
-            due_date = None
-        if form.id.data:
-            # make sure the URL question_id matches the form id field
-            if int(form.id.data) != question_id:
-                abort(403)
-            question = db.session.scalar(select(Question).where(Question.id == int(form.id.data)))
-        else:
-            question = Question(assignment_id=assignment_id)
-        for dependency_form in form.dependencies:
-            question_dependency = db.session.scalar(
-                select(QuestionDependency)
-                .where(
-                    QuestionDependency.producer_id == int(dependency_form.question_id.data),
-                    QuestionDependency.consumer_id == question.id,
-                )
-            )
-            if dependency_form.is_dependency.data:
-                if not question_dependency:
-                    question_dependency = QuestionDependency(
-                        producer_id=int(dependency_form.question_id.data),
-                        consumer_id=question.id,
-                    )
-                question_dependency.input_type = dependency_form.submissions_used.data
-                question_dependency.submitters = dependency_form.submitters_used.data
-                question_dependency.viewable = dependency_form.viewable.data
-                db.session.add(question_dependency)
-            else:
-                if question_dependency:
-                    db.session.delete(question_dependency)
-        question.name = form.name.data.strip()
-        question.due_date = due_date
-        question.cooldown_seconds = int(form.cooldown.data)
-        question.timeout_seconds = int(form.timeout.data)
-        question.visible = form.visible.data
-        question.locked = form.locked.data
-        question.allow_disable = form.allow_disable.data
-        question.hide_output = form.hide_output.data
-        question.script = form.script.data
-        # FIXME should be able to do the following, a la instructors/students in course_form
-        # question.files.add(QuestionFile(...))
-        # question.files.remove(QuestionFile(...))
-        db.session.add(question)
-        db.session.commit()
-        filenames = {
-            question_file.filename: question_file
-            for question_file in question.filenames
-        }
-        # FIXME this would destroy data if a filename needs to be changed
-        if form.file_names.data.strip():
-            for filename in form.file_names.data.split(','):
-                filename = filename.strip()
-                if filename in filenames:
-                    del filenames[filename]
-                else:
-                    db.session.add(QuestionFile(question_id=question.id, filename=filename))
-        for _, question_file in filenames.items():
-            db.session.delete(question_file)
-        db.session.commit()
-        return redirect(url_for('demograder.submission_view', question_id=question.id))
+    # if the submitted form does not validate, return
+    if not form.validate():
+        return render_template('forms/question.html', form=form, **context)
+    # either get or create the Question
+    if form.id.data:
+        # make sure the URL question_id matches the form id field
+        if int(form.id.data) != question_id:
+            abort(403)
+        question = db.session.scalar(select(Question).where(Question.id == int(form.id.data)))
     else:
-        return render_template('forms/question.html', form=form, **context)
+        question = Question(assignment_id=assignment_id)
+    due_date = form.due_date.data
+    if due_date:
+        due_date = DateTime(
+            due_date.year, due_date.month, due_date.day,
+            int(form.due_hour.data), int(form.due_minute.data),
+        )
+    else:
+        due_date = None
+    for dependency_form in form.dependencies:
+        question_dependency = db.session.scalar(
+            select(QuestionDependency)
+            .where(
+                QuestionDependency.producer_id == int(dependency_form.question_id.data),
+                QuestionDependency.consumer_id == question.id,
+            )
+        )
+        if dependency_form.is_dependency.data:
+            if not question_dependency:
+                question_dependency = QuestionDependency(
+                    producer_id=int(dependency_form.question_id.data),
+                    consumer_id=question.id,
+                )
+            question_dependency.input_type = dependency_form.submissions_used.data
+            question_dependency.submitters = dependency_form.submitters_used.data
+            question_dependency.viewable = dependency_form.viewable.data
+            db.session.add(question_dependency)
+        else:
+            if question_dependency:
+                db.session.delete(question_dependency)
+    question.name = form.name.data.strip()
+    question.due_date = due_date
+    question.cooldown_seconds = int(form.cooldown.data)
+    question.timeout_seconds = int(form.timeout.data)
+    question.visible = form.visible.data
+    question.locked = form.locked.data
+    question.allow_disable = form.allow_disable.data
+    question.hide_output = form.hide_output.data
+    question.script = form.script.data
+    # FIXME should be able to do the following, a la instructors/students in course_form
+    # question.files.add(QuestionFile(...))
+    # question.files.remove(QuestionFile(...))
+    db.session.add(question)
+    db.session.commit()
+    filenames = {
+        question_file.filename: question_file
+        for question_file in question.filenames
+    }
+    # FIXME this would destroy data if a filename needs to be changed
+    if form.file_names.data.strip():
+        for filename in form.file_names.data.split(','):
+            filename = filename.strip()
+            if filename in filenames:
+                del filenames[filename]
+            else:
+                db.session.add(QuestionFile(question_id=question.id, filename=filename))
+    for _, question_file in filenames.items():
+        db.session.delete(question_file)
+    db.session.commit()
+    return redirect(url_for('demograder.submission_view', question_id=question.id))
 
 
 # ADMIN
