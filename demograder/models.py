@@ -7,7 +7,7 @@ from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy import select, case, func, or_
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import aliased, validates
 
 db = SQLAlchemy()
 
@@ -63,39 +63,6 @@ class User(db.Model, UserMixin):
 
     def is_taking(self, course_id):
         return any(course.id == course_id for course in self.courses_taking)
-
-    def may_submit(self, question_id):
-        """Determines if a user is allowed to submit to a project.
-
-        The motivation behind stopping student submissions is to prevent
-        overloading the system, and (in theory) to instill a more thorough
-        manual debugging process. There are three trivial cases when a user can
-        submit:
-
-        * they are a superuser
-        * they are the instructor for the course
-        * they have not submitted to this project before
-
-        If they are not the instructor and have previous submissions, then all
-        of the following must be true for the student to submit:
-
-        * the project is not locked
-        * all their previous submissions for this project have finished running
-        * the cooldown has not passed since their last submission to a question
-        """
-        question = db.session.scalar(select(Question).where(Question.id == question_id))
-        if self.admin or self.is_teaching(question.course.id):
-            return True
-        if question.locked:
-            return False
-        latest_submission = question.submissions(user_id=self.id, limit=1).first()
-        if not latest_submission:
-            return True
-        if latest_submission.num_tbd > 0:
-            return False
-        current_time = DateTime.now()
-        submit_time = latest_submission.timestamp
-        return (current_time - submit_time).seconds > question.cooldown_seconds
 
     def get_id(self):
         # this method is required by flask-login
@@ -179,6 +146,67 @@ class User(db.Model, UserMixin):
             return db.session.scalars(statement)
         else:
             return db.session.scalars(statement.limit(limit))
+
+    def may_submit(self, question_id):
+        """Determine if a user is allowed to submit to a project.
+
+        The motivation behind stopping student submissions is to prevent
+        overloading the system, and (in theory) to instill a more thorough
+        manual debugging process. There are three trivial cases when a user can
+        submit:
+
+        * they are a superuser
+        * they are the instructor for the course
+        * they have not submitted to this project before
+
+        If they are not the instructor and have previous submissions, then all
+        of the following must be true for the student to submit:
+
+        * the project is not locked
+        * all their previous submissions for this project have finished running
+        * the cooldown has not passed since their last submission to a question
+        """
+        question = db.session.get(Question, question_id)
+        if self.admin or self.is_teaching(question.course.id):
+            return True
+        if question.locked:
+            return False
+        latest_submission = question.submissions(user_id=self.id, limit=1).first()
+        if not latest_submission:
+            return True
+        if latest_submission.num_tbd > 0:
+            return False
+        current_time = DateTime.now()
+        submit_time = latest_submission.timestamp
+        return (current_time - submit_time).seconds > question.cooldown_seconds
+
+    def may_view_file(self, submission_file_id):
+        """Determine if a user is allowed to view a file.
+
+        Beyond the trivial case where the user is the instructor for the course,
+        a user can see a submission file only if both of the following are true:
+
+        * the file is from a submission used in a result for the student
+        * the question dependency allows viewing that upstream submission
+        """
+        submission_file = db.session.get(SubmissionFile, submission_file_id)
+        if self.admin or self.is_teaching(submission_file.course.id):
+            return True
+        producer_alias = aliased(Question)
+        consumer_alias = aliased(Question)
+        consumer_submissions_alias = aliased(Submission)
+        return bool(db.session.scalar(
+            select(QuestionDependency)
+            .distinct()
+            .where(QuestionDependency.viewable == True)
+            .join(producer_alias, QuestionDependency.producer)
+            .join(producer_alias.all_submissions)
+            .join(SubmissionFile)
+            .where(SubmissionFile.id == submission_file_id)
+            .join(consumer_alias, QuestionDependency.consumer)
+            .join(consumer_submissions_alias, consumer_alias.all_submissions)
+            .where(consumer_submissions_alias.user_id == self.id)
+        ))
 
     @staticmethod
     def get_by_email(email):

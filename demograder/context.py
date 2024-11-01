@@ -170,14 +170,21 @@ def get_context(**kwargs):
                 include_disabled=context['instructor'],
                 limit=1,
             ).first()
-        if context['submission_file'] is None:
-            # students should not see results, submission, or questions if they are hidden
-            if context['course_role'] == CourseRole.STUDENT and context['question'] is not None and not context['question'].visible:
+        if context['submission_file']:
+            may_view_file = (
+                context['course_role'] > CourseRole.STUDENT 
+                or context['viewer'].may_view_file(context['submission_file'].id)
+            )
+            if not may_view_file:
                 forbidden(context)
-        else:
+
             # deal with submission_file permissions
             # students can see submission_files only if:
             # * the file is a submission that was used to grade the student's work
             # * the question allows viewing that supporting submission
             pass # FIXME
+        else:
+            # students should not see results, submissions, or questions if they are hidden
+            if context['course_role'] == CourseRole.STUDENT and not context['question'].visible:
+                forbidden(context)
     return context
