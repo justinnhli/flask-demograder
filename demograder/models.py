@@ -324,10 +324,7 @@ class Assignment(db.Model):
             )
 
     def questions(self, include_hidden=False):
-        statement = (
-            select(Question)
-            .where(Question.assignment_id == self.id)
-        )
+        statement = select(Question).where(Question.assignment_id == self.id)
         if not include_hidden:
             statement = statement.where(Question.visible == True)
         return db.session.scalars(statement)
@@ -435,12 +432,18 @@ class Question(db.Model):
                     .where(or_(
                         (
                             select(Instructor).
-                            where(Instructor.user_id == User.id, Instructor.course_id == self.course.id)
+                            where(
+                                Instructor.user_id == User.id,
+                                Instructor.course_id == self.course.id,
+                            )
                             .exists()
                         ),
                         (
                             select(Student).
-                            where(Student.user_id == User.id, Student.course_id == self.course.id)
+                            where(
+                                Student.user_id == User.id,
+                                Student.course_id == self.course.id,
+                            )
                             .exists()
                         ),
                     ))
