@@ -2,7 +2,7 @@ from datetime import datetime as DateTime
 
 from sqlalchemy import select
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileRequired
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import Form
 from wtforms import HiddenField, SubmitField, BooleanField,  DecimalField, StringField, TextAreaField
 from wtforms import SelectField, SelectMultipleField, DateField, FieldList, FormField
@@ -248,7 +248,11 @@ class QuestionForm(FlaskForm):
 class FileSubmissionForm(Form):
     question_file_id = HiddenField('question_file_id')
     filename = HiddenField('filename')
-    file = FileField('file', validators=[FileRequired()])
+    file = FileField(
+        'file',
+        validators=[FileRequired()],
+        render_kw={},
+    )
 
 
 class SubmissionForm(FlaskForm):
@@ -260,10 +264,15 @@ class SubmissionForm(FlaskForm):
         question = db.session.scalar(select(Question).where(Question.id == question_id))
         self.question_id.data = question_id
         for question_file in question.filenames:
-            self.submission_files.append_entry({
+            form = self.submission_files.append_entry({
                 'question_file_id': question_file.id,
                 'filename': question_file.filename,
             })
+            filename = question_file.filename
+            if '.' in filename:
+                suffix = filename[filename.rfind('.'):]
+                form.file.validators.append(FileAllowed([suffix[1:]]))
+                form.file.render_kw['accept'] = suffix
 
     @staticmethod
     def build(context):
