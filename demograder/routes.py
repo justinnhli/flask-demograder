@@ -1,8 +1,9 @@
 import re
 from datetime import datetime as DateTime
+from io import BytesIO
+from zipfile import ZipFile
 
-from flask import Blueprint, render_template, url_for, redirect, abort, request
-from pytz import UTC
+from flask import Blueprint, render_template, url_for, redirect, abort, request, send_from_directory, send_file
 from sqlalchemy import select
 from werkzeug.utils import secure_filename
 
@@ -116,7 +117,13 @@ def reevaluate_submission(submission_id):
 
 @blueprint.route('/download_submission/<int:submission_id>')
 def download_submission(submission_id):
-    return f'{submission_id=}' # TODO
+    context = get_context(submission_id=submission_id)
+    memory_file = BytesIO()
+    with ZipFile(memory_file, 'w') as zip_file:
+        for submission_file in context['submission'].files:
+            zip_file.writestr(submission_file.filename, submission_file.contents)
+    memory_file.seek(0)
+    return send_file(memory_file, download_filename=f'submission{submission_id}.zip', as_attachment=True)
 
 
 @blueprint.route('/result/<int:result_id>')
@@ -142,9 +149,16 @@ def submission_file_view(submission_file_id):
     return render_template('student/submission_file.html', **context)
 
 
-@blueprint.route('/download_file/<int:file>')
-def download_file(file_id):
-    return f'{file_id=}' # TODO
+@blueprint.route('/download_file/<int:submission_file_id>')
+def download_file(submission_file_id):
+    context = get_context(submission_file_id=submission_file_id)
+    submission_file = context['submission_file']
+    return send_from_directory(
+        submission_file.filepath.parent,
+        submission_file.filepath.name,
+        download_name=submission_file.question_file.filename,
+        as_attachment=True,
+    )
 
 
 # INSTRUCTOR

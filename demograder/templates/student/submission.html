@@ -72,6 +72,7 @@
     {% if submission.user_id != viewer.id %}
     by <a href="{{ url_for('demograder.user_view', page_user_email=submission.user.email) }}">{{ full_name(submission.user) }}</a>
     {% endif %}
+    (<a href="{{ url_for('demograder.download_submission', submission_id=submission.id) }}">download</a>)
     <ul>
     {% for submission_file in submission.files %}
         <li>
