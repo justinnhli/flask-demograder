@@ -60,7 +60,7 @@ class UserForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, user_id, context):
-        user = db.session.scalar(select(User).where(User.id == user_id))
+        user = db.session.get(User, user_id)
         self.id.data = user.id
         self.preferred_name.data = user.preferred_name
         self.family_name.data = user.family_name
@@ -95,7 +95,7 @@ class CourseForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, course_id, context):
-        course = db.session.scalar(select(Course).where(Course.id == course_id))
+        course = db.session.get(Course, course_id)
         self.id.data = course.id
         self.season.data = course.season
         self.year.data = int(course.year)
@@ -119,7 +119,7 @@ class AssignmentForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, assignment_id, context):
-        assignment = db.session.scalar(select(Assignment).where(Assignment.id == assignment_id))
+        assignment = db.session.get(Assignment, assignment_id)
         self.id.data = assignment_id
         self.name.data = assignment.name
 
@@ -191,7 +191,7 @@ class QuestionForm(FlaskForm):
 
     def update_for(self, question_id, context):
         if question_id is not None:
-            question = db.session.scalar(select(Question).where(Question.id == question_id))
+            question = db.session.get(Question, question_id)
             self.id.data = question_id
             self.name.data = question.name
             if question.due_date:
@@ -261,7 +261,7 @@ class SubmissionForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def update_for(self, question_id, context):
-        question = db.session.scalar(select(Question).where(Question.id == question_id))
+        question = db.session.get(Question, question_id)
         self.question_id.data = question_id
         for question_file in question.filenames:
             form = self.submission_files.append_entry({

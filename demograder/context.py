@@ -32,22 +32,16 @@ def _set_viewer_context(context, url_args, **kwargs):
 
 def _set_course_context(context, url_args, **kwargs):
     if kwargs.get('submission_file_id', None):
-        context['submission_file'] = db.session.scalar(
-            select(SubmissionFile).where(SubmissionFile.id == kwargs['submission_file_id'])
-        )
+        context['submission_file'] = db.session.get(SubmissionFile, kwargs['submission_file_id'])
     else:
         context['submission_file'] = None
     if kwargs.get('result_id', None):
-        context['result'] = db.session.scalar(
-            select(Result).where(Result.id == kwargs['result_id'])
-        )
+        context['result'] = db.session.get(Result, kwargs['result_id'])
     else:
         context['result'] = None
     # FIXME this might get confused when we're looking at support files
     if kwargs.get('submission_id', None):
-        context['submission'] = db.session.scalar(
-            select(Submission).where(Submission.id == kwargs['submission_id'])
-        )
+        context['submission'] = db.session.get(Submission, kwargs['submission_id'])
     elif context['result']:
         context['submission'] = context['result'].submission
     elif context['submission_file']:
@@ -55,25 +49,19 @@ def _set_course_context(context, url_args, **kwargs):
     else:
         context['submission'] = None
     if kwargs.get('question_id', None):
-        context['question'] = db.session.scalar(
-            select(Question).where(Question.id == kwargs['question_id'])
-        )
+        context['question'] = db.session.get(Question, kwargs['question_id'])
     elif context['submission']:
         context['question'] = context['submission'].question
     else:
         context['question'] = None
     if kwargs.get('assignment_id', None):
-        context['assignment'] = db.session.scalar(
-            select(Assignment).where(Assignment.id == kwargs['assignment_id'])
-        )
+        context['assignment'] = db.session.get(Assignment, kwargs['assignment_id'])
     elif context['question']:
         context['assignment'] = context['question'].assignment
     else:
         context['assignment'] = None
     if kwargs.get('course_id', None):
-        context['course'] = db.session.scalar(
-            select(Course).where(Course.id == kwargs['course_id'])
-        )
+        context['course'] = db.session.get(Course, kwargs['course_id'])
     elif context['assignment']:
         context['course'] = context['assignment'].course
     else:

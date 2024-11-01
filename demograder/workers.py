@@ -23,7 +23,7 @@ def create_empty_results(submission_id):
     from demograder import create_app
     from demograder.models import db, Submission, Result, ResultDependency
     with create_app(with_queue=False).app_context():
-        submission = db.session.scalar(select(Submission).where(Submission.id == submission_id))
+        submission = db.session.get(Submission, submission_id)
         result_ids = []
         for upstream_ids in submission.question.upstream_submission_id_sets:
             result = Result(submission_id=submission_id)
@@ -78,7 +78,7 @@ def evaluate_result(result_id):
     from demograder import create_app
     from demograder.models import db, Result
     with create_app(with_queue=False).app_context():
-        result = db.session.scalar(select(Result).where(Result.id == result_id))
+        result = db.session.get(Result, result_id)
         # create a temporary directory for evaluation
         with TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
@@ -120,7 +120,7 @@ def evaluate_result(result_id):
                 cwd=temp_dir,
                 check=False,
             )
-        result = db.session.scalar(select(Result).where(Result.id == result_id))
+        result = db.session.get(Result, result_id)
         result.stdout = stdout.strip()
         result.stderr = stderr.strip()
         result.return_code = return_code
@@ -132,5 +132,5 @@ def delete_result(result_id):
     from demograder import create_app
     from demograder.models import db, Result
     with create_app(with_queue=False).app_context():
-        db.session.delete(db.session.scalar(select(Result).where(Result.id == result_id)))
+        db.session.delete(db.session.get(Result, result_id))
         db.session.commit()

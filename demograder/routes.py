@@ -152,7 +152,7 @@ def download_file(file_id):
 
 @blueprint.route('/user_submissions/<int:user_id>')
 def user_submissions_view(user_id):
-    page_user = db.session.scalar(select(User).where(User.id == user_id))
+    page_user = db.session.get(User, user_id)
     if not page_user:
         abort(403)
     context = get_context(user_id=user_id)
@@ -238,7 +238,7 @@ def user_form(user_id):
         # make sure the URL parameter matches the form id field
         if int(form.id.data) != user_id:
             abort(403)
-        user = db.session.scalar(select(User).where(User.id == int(form.id.data)))
+        user = db.session.get(User, int(form.id.data))
         user.preferred_name = form.preferred_name.data.strip()
         user.family_name = form.family_name.data.strip()
         # only an admin can change the email or the admin/faculty statuses
@@ -289,7 +289,7 @@ def course_form(course_id):
         # make sure the URL parameter matches the form id field
         if int(form.id.data) != course_id:
             abort(403)
-        course = db.session.scalar(select(Course).where(Course.id == int(form.id.data)))
+        course = db.session.get(Course, int(form.id.data))
         course.season = form.season.data.strip()
         course.year = int(form.year.data)
         course.department_code = form.department_code.data.strip()
@@ -357,7 +357,7 @@ def assignment_form(course_id, assignment_id):
         # make sure the URL parameter matches the form id field
         if int(form.id.data) != assignment_id:
             abort(403)
-        assignment = db.session.scalar(select(Assignment).where(Assignment.id == int(form.id.data)))
+        assignment = db.session.get(Assignment, int(form.id.data))
         assignment.name = form.name.data.strip()
     else:
         assignment = Assignment(
@@ -392,7 +392,7 @@ def question_form(assignment_id, question_id):
         # make sure the URL parameter matches the form id field
         if int(form.id.data) != question_id:
             abort(403)
-        question = db.session.scalar(select(Question).where(Question.id == int(form.id.data)))
+        question = db.session.get(Question, int(form.id.data))
     else:
         question = Question(assignment_id=assignment_id)
     # update the Question
