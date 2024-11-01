@@ -22,7 +22,7 @@ def login_redirect():
     # get the user's email address
     user_email = user_info.get('email', 'user@example.com')
     # find or create the user
-    user = db.session.scalar(select(User).where(User.email == user_email))
+    user = User.get_by_email(user_email)
     if not user or not user.logged_in:
         if 'nickname' in user_info:
             preferred_name = user_info['nickname']

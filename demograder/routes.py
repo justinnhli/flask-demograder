@@ -38,7 +38,7 @@ def home():
 
 @blueprint.route('/user/<page_user_email>')
 def user_view(page_user_email):
-    page_user = db.session.scalar(select(User).where(User.email == page_user_email))
+    page_user = User.get_by_email(page_user_email)
     if not page_user:
         abort(403)
     context = get_context(user_id=page_user.id)
@@ -309,28 +309,24 @@ def course_form(course_id):
     form_instructors = set(find_emails(form.instructors.data.strip()))
     curr_instructors = set(user.email for user in course.instructors)
     for email in form_instructors - curr_instructors:
-        user = db.session.scalar(select(User).where(User.email == email))
+        user = User.get_by_email(email)
         if not user:
             user = User(email=email)
             db.session.add(user)
         course.instructors.append(user)
     for email in curr_instructors - form_instructors:
-        course.instructors.remove(
-            db.session.scalar(select(User).where(User.email == email))
-        )
+        course.instructors.remove(User.get_by_email(email))
     # register students
     form_students = set(find_emails(form.students.data.strip()))
     curr_students = set(user.email for user in course.students)
     for email in form_students - curr_students:
-        user = db.session.scalar(select(User).where(User.email == email))
+        user = User.get_by_email(email)
         if not user:
             user = User(email=email)
             db.session.add(user)
         course.students.append(user)
     for email in curr_students - form_students:
-        course.students.remove(
-            db.session.scalar(select(User).where(User.email == email))
-        )
+        course.students.remove(User.get_by_email(email))
     # commit and return
     db.session.add(course)
     db.session.commit()

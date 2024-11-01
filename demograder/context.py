@@ -21,7 +21,7 @@ def _set_site_role_context(context, url_args, **kwargs):
 
 def _set_viewer_context(context, url_args, **kwargs):
     if 'viewer' in url_args:
-        context['viewer'] = db.session.scalar(select(User).where(User.email == url_args['viewer']))
+        context['viewer'] = User.get_by_email(url_args['viewer'])
     if not context.get('viewer', None):
         context['viewer'] = context['user']
     context['alternate_view'] = (context['user'] != context['viewer'])
@@ -119,7 +119,7 @@ def get_context(**kwargs):
     context = {
         'SiteRole': SiteRole, # including the Enum allows templates to branch on site role
         'CourseRole': CourseRole, # including the Enum allows templates to branch on course role
-        'user': db.session.scalar(select(User).where(User.email == session.get('user_email'))),
+        'user': User.get_by_email(session.get('user_email')),
         'override': False,
     }
     # if the user is not logged in, we can stop here

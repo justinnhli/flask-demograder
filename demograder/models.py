@@ -180,6 +180,10 @@ class User(db.Model, UserMixin):
         else:
             return db.session.scalars(statement.limit(limit))
 
+    @staticmethod
+    def get_by_email(email):
+        return db.session.scalar(select(User).where(User.email == email))
+
 
 class Instructor(db.Model):
     __tablename__ = 'instructors'
