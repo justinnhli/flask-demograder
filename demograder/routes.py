@@ -118,12 +118,13 @@ def reevaluate_submission(submission_id):
 @blueprint.route('/download_submission/<int:submission_id>')
 def download_submission(submission_id):
     context = get_context(submission_id=submission_id)
+    filename = f'submission{submission_id}'
     memory_file = BytesIO()
     with ZipFile(memory_file, 'w') as zip_file:
         for submission_file in context['submission'].files:
-            zip_file.writestr(submission_file.filename, submission_file.contents)
+            zip_file.writestr(f'{filename}/{submission_file.filename}', submission_file.contents)
     memory_file.seek(0)
-    return send_file(memory_file, download_filename=f'submission{submission_id}.zip', as_attachment=True)
+    return send_file(memory_file, download_name=f'{filename}.zip', as_attachment=True)
 
 
 @blueprint.route('/result/<int:result_id>')
