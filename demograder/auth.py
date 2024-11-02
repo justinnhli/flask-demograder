@@ -1,6 +1,5 @@
 from authlib.integrations.flask_client import OAuth
 from flask import Blueprint, url_for, redirect, session
-from sqlalchemy import select
 
 from .models import db, User
 

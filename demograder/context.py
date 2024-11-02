@@ -1,5 +1,4 @@
 from flask import session, request, abort
-from sqlalchemy import select
 
 from .models import db, SiteRole, CourseRole, User, Course, Assignment, Question, Submission, SubmissionFile, Result
 
