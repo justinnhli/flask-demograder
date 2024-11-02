@@ -3,7 +3,7 @@ from datetime import datetime as DateTime
 from io import BytesIO
 from zipfile import ZipFile
 
-from flask import Blueprint, render_template, url_for, redirect, abort, request, send_from_directory, send_file
+from flask import Blueprint, render_template, url_for, redirect, abort, request, send_file
 from sqlalchemy import select
 from werkzeug.utils import secure_filename
 
@@ -154,9 +154,8 @@ def submission_file_view(submission_file_id):
 def download_file(submission_file_id):
     context = get_context(submission_file_id=submission_file_id)
     submission_file = context['submission_file']
-    return send_from_directory(
-        submission_file.filepath.parent,
-        submission_file.filepath.name,
+    return send_file(
+        submission_file.filepath,
         download_name=submission_file.question_file.filename,
         as_attachment=True,
     )
