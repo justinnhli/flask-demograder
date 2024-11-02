@@ -66,37 +66,42 @@ def course_view(course_id):
 @blueprint.route('/question/<int:question_id>', defaults={'submission_id': None}, methods=('GET', 'POST'))
 @blueprint.route('/submission/<int:submission_id>', defaults={'question_id': None}, methods=('GET', 'POST'))
 def submission_view(question_id, submission_id):
+    # get the context
     if submission_id:
         context = get_context(submission_id=submission_id)
         question_id = context['question'].id
     else:
         context = get_context(question_id=question_id)
-    form = SubmissionForm()
+    # create the form
+    form = SubmissionForm.build(context)
+    # if the form is not being submitted, populate the form and return
     if not context['viewer'].may_submit(context['question'].id) or not form.is_submitted():
         form.update_for(context['question'].id, context)
         return render_template('student/submission.html', **context, form=form)
-    elif form.validate_on_submit():
-        submission = Submission(
-            user_id=context['viewer'].id,
-            question_id=context['question'].id,
-        )
-        db.session.add(submission)
-        db.session.commit()
-        for file_submission_form in form.submission_files:
-            submission_file = SubmissionFile(
-                submission_id=submission.id,
-                question_file_id=file_submission_form.question_file_id.data,
-                filename=secure_filename(file_submission_form.file.data.filename),
-            )
-            db.session.add(submission_file)
-            db.session.commit()
-            submission_file.filepath.parent.mkdir(parents=True, exist_ok=True)
-            file_submission_form.file.data.save(submission_file.filepath)
-        db.session.commit()
-        enqueue_evaluate_submission(submission.id)
-        return redirect(url_for('demograder.submission_view', submission_id=submission.id))
-    else:
+    # if the submitted form does not validate, return
+    if not form.validate():
         return render_template('student/submission.html', **context, form=form)
+    # create the Submission
+    submission = Submission(
+        user_id=context['viewer'].id,
+        question_id=context['question'].id,
+    )
+    db.session.add(submission)
+    db.session.commit()
+    # create the associated SubmissionFiles
+    for file_submission_form in form.submission_files:
+        submission_file = SubmissionFile(
+            submission_id=submission.id,
+            question_file_id=file_submission_form.question_file_id.data,
+            filename=secure_filename(file_submission_form.file.data.filename),
+        )
+        db.session.add(submission_file)
+        db.session.commit()
+        submission_file.filepath.parent.mkdir(parents=True, exist_ok=True)
+        file_submission_form.file.data.save(submission_file.filepath)
+    # evaluate the submission and return
+    enqueue_evaluate_submission(submission.id)
+    return redirect(url_for('demograder.submission_view', submission_id=submission.id))
 
 
 @blueprint.route('/disable_submission/<int:submission_id>')
