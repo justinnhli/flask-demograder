@@ -426,6 +426,9 @@ def question_form(assignment_id, question_id):
     question.allow_disable = form.allow_disable.data
     question.hide_output = form.hide_output.data
     question.script = form.script.data
+    # commit the question first, so we can create dependencies
+    db.session.add(question)
+    db.session.commit()
     # update dependencies
     for dependency_form in form.dependencies:
         question_dependency = db.session.scalar(
@@ -452,8 +455,6 @@ def question_form(assignment_id, question_id):
     # FIXME should be able to do the following, a la instructors/students in course_form
     # question.files.add(QuestionFile(...))
     # question.files.remove(QuestionFile(...))
-    db.session.add(question)
-    db.session.commit()
     filenames = {
         question_file.filename: question_file
         for question_file in question.filenames
