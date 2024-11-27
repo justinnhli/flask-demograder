@@ -12,6 +12,28 @@
     </h1>
     <a href="mailto:{{ page_user.email }}">{{ page_user.email }}</a>
 
+    <h2>
+        Your Courses
+        {% if site_role >= SiteRole.FACULTY %}
+        <span class="admin-link">
+            <a href="{{ url_for('demograder.course_form') }}">new course</a>
+        </span>
+        {% endif %}
+    </h2>
+    {% for course in page_user.courses() %}
+    <ul>
+        <li>
+            <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.course_number }} {{ course.title }} ({{ course.semester }})</a>
+            {% if page_user.is_teaching(course.id) %}(teaching){% endif %}
+        </li>
+    </ul>
+    {% endfor %}
+
+    {% if page_user.submissions_from_students(limit=1).first() %}
+    <h2>Recent Submissions in Your Courses</h2>
+    {{ submission_history_table(page_user.submissions_from_students(limit=10), files=False) }}
+    {% endif %}
+
     {% if page_user.submissions(limit=1).first() %}
     <h2>Your Recent Submissions</h2>
     <a href="{{ url_for('demograder.user_submissions_view', user_id=page_user.id) }}">see all</a>
