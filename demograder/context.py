@@ -184,6 +184,6 @@ def get_context(**kwargs):
             pass # FIXME
         else:
             # students should not see results, submissions, or questions if they are hidden
-            if context['course_role'] == CourseRole.STUDENT and not context['question'].visible:
+            if context['course_role'] == CourseRole.STUDENT and context['question'] and not context['question'].visible:
                 forbidden(context)
     return context
