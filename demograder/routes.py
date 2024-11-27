@@ -21,20 +21,18 @@ blueprint = Blueprint(name='demograder', import_name='demograder')
 def root():
     context = get_context(login_required=False)
     if context['user']:
-        return redirect(url_for('demograder.home'))
-    return render_template('login.html')
+        return redirect(url_for(
+            'demograder.user_view',
+            page_user_email=context['user'].email,
+        ))
+    else:
+        return render_template('login.html')
 
 
 @blueprint.route('/about')
 def about():
     context = get_context(login_required=False)
     return render_template('about.html', **context)
-
-
-@blueprint.route('/home')
-def home():
-    context = get_context()
-    return render_template('home.html', **context)
 
 
 @blueprint.route('/user/<page_user_email>')
@@ -277,7 +275,7 @@ def user_form(user_id):
     # commit and return
     db.session.add(user)
     db.session.commit()
-    return redirect(url_for('demograder.home'))
+    return redirect(url_for('demograder.root'))
 
 
 def find_emails(text):
