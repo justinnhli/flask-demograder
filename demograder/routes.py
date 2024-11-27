@@ -413,7 +413,7 @@ def question_form(assignment_id, question_id):
     question.name = form.name.data.strip()
     if form.due_date.data:
         question.due_date = DateTime(
-            form.due_date.year, form.due_date.month, form.due_date.day,
+            form.due_date.data.year, form.due_date.data.month, form.due_date.data.day,
             int(form.due_hour.data), int(form.due_minute.data),
         )
     else:
