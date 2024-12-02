@@ -14,14 +14,12 @@
             {% if user %}
             <div id="quicklinks">
                 {% if viewer.admin %}
-                {% if override %}
-                overriding as
+                {% if override %}overriding permissions as{% endif %}
+                <a href="{{ url_for('demograder.admin') }}">admin</a>
+                {% if alternate_view %} and viewing as {{ viewer.email }}{% endif %} |
                 {% endif %}
-                <a href="{{ url_for('demograder.admin') }}">admin</a> |
-                {% endif %}
-                {% if alternate_view %}viewing as{% endif %}
-                <a href="{{ url_for('demograder.user_form', user_id=viewer.id) }}">{{ viewer.email }}</a>
-                | <a href="{{ url_for('auth.logout') }}">logout</a>
+                <a href="{{ url_for('demograder.user_view', page_user_email=viewer.email) }}">profile</a> |
+                <a href="{{ url_for('auth.logout') }}">logout</a>
             </div>
             {% endif %}
             <div id="breadcrumb">
