@@ -4,6 +4,11 @@
 {% block title %}Demograder{% endblock %}
 
 {% block content %}
+    {% if viewier == page_user %}
+    {% set user_possessive = 'Your' %}
+    {% else %}
+    {% set user_possessive = page_user.full_name + "'s" %}
+    {% endif %}
     <h1>
         {{ full_name(page_user) }}
         <span class="admin-link">
@@ -35,7 +40,7 @@
     {% endif %}
 
     {% if page_user.submissions(limit=1).first() %}
-    <h2>Your Recent Submissions</h2>
+    <h2>{{ user_possessive }} Recent Submissions</h2>
     <a href="{{ url_for('demograder.user_submissions_view', user_id=page_user.id) }}">see all</a>
     {{ submission_history_table(page_user.submissions(limit=10), submitter=False, files=False) }}
     {% endif %}
@@ -53,9 +58,9 @@
     {{ submission_history_table(page_user.submissions_from_students(limit=10), course=False, files=False) }}
     {% endif %}
     {% if not course.submissions(user_id=page_user.id, limit=1).first() %}
-    <p>You have not yet submitted to this course.</p>
+    <p>No submissions yet!</p>
     {% else %}
-    <p>Your Recent Submissions in this Course</p>
+    <p>{{ user_possessive }} Recent Submissions in this Course</p>
     {{ submission_history_table(course.submissions(user_id=page_user.id, limit=10), course=False, submitter=False, files=False) }}
     {% endif %}
     {% endfor %}
