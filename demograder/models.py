@@ -33,6 +33,9 @@ class CourseRole(IntEnum):
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
+    __table_args__ = (
+        db.Index('ix_users_family_name_preferred_name', 'family_name', 'preferred_name'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     preferred_name = db.Column(db.String, nullable=False, default='')
     family_name = db.Column(db.String, nullable=False, default='')
@@ -216,7 +219,7 @@ class User(db.Model, UserMixin):
 class Instructor(db.Model):
     __tablename__ = 'instructors'
     __table_args__ = (
-        db.Index('instructor_user_course_idx', 'user_id', 'course_id'),
+        db.UniqueConstraint('user_id', 'course_id'),
     )
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
@@ -226,7 +229,7 @@ class Instructor(db.Model):
 class Student(db.Model):
     __tablename__ = 'students'
     __table_args__ = (
-        db.Index('student_user_course_idx', 'user_id', 'course_id'),
+        db.UniqueConstraint('user_id', 'course_id'),
     )
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
@@ -395,6 +398,9 @@ class QuestionDependency(db.Model):
 
 class Question(db.Model):
     __tablename__ = 'questions'
+    __table_args__ = (
+        db.Index('ix_questions_assignment_id_due_date_visible', 'assignment_id', 'visible', 'due_date'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     assignment_id = db.Column(db.Integer, db.ForeignKey('assignments.id'), nullable=False, index=True)
     name = db.Column(db.String, nullable=False, default='')
@@ -548,8 +554,15 @@ class QuestionFile(db.Model):
 class Submission(db.Model):
     __tablename__ = 'submissions'
     __table_args__ = (
-        db.Index('submission_user_question_idx', 'user_id', 'question_id'),
-        db.Index('submission_question_idx', 'question_id', 'disabled'),
+        # for site-level submissions page
+        db.Index('ix_submissions_timestamp', 'timestamp'),
+        # for user page, group by the user_id
+        db.Index('ix_submissions_user_id_question_id_timestamp', 'user_id', 'question_id', 'timestamp'),
+        # for user submissions page, group by the user_id
+        db.Index('ix_submissions_user_id_timestamp', 'user_id', 'timestamp'),
+        # for course/assignment/question-level submissions page (which will ignore the user_id)
+        # and for evaluation (which uses the user_id)
+        db.Index('ix_submissions_question_id_disabled_user_id_timestamp', 'question_id', 'disabled', 'user_id', 'timestamp'),
     )
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
@@ -648,7 +661,7 @@ class SubmissionFile(db.Model):
 class Result(db.Model):
     __tablename__ = 'results'
     __table_args__ = (
-        db.Index('result_submission_returncode_idx', 'submission_id', 'return_code'),
+        db.Index('ix_results_submission_id_return_code', 'submission_id', 'return_code'),
     )
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False, index=True)
