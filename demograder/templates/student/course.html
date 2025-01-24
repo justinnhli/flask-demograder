@@ -22,7 +22,7 @@
         {% endif %}
     </h3>
     <table class="assignment-summary-table">
-        {% for question in assignment.questions(instructor)|sort(attribute='name') %}
+        {% for question in assignment.questions(instructor) %}
         <tr>
             <td>
                 {% if instructor and not question.visible %}

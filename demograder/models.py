@@ -361,6 +361,7 @@ class Assignment(db.Model):
         statement = statement.order_by(
             Question.visible.desc(),
             Question.due_date.desc(),
+            Question.name.asc(),
         )
         return db.session.scalars(statement)
 
