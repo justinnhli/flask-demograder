@@ -358,6 +358,10 @@ class Assignment(db.Model):
         statement = select(Question).where(Question.assignment_id == self.id)
         if not include_hidden:
             statement = statement.where(Question.visible == True)
+        statement = statement.order_by(
+            Question.visible.desc(),
+            Question.due_date.desc(),
+        )
         return db.session.scalars(statement)
 
     def submissions(self, user_id=None, include_hidden=False, include_disabled=False, before=None, limit=None):
