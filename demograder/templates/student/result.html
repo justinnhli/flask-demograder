@@ -4,7 +4,7 @@
 {% block title %}Demograder{% endblock %}
 
 {% block breadcrumb %}
-    &gt; <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.course_number }}</a>
+    &gt; <a href="{{ url_for('demograder.course_view', course_id=course.id) }}">{{ course.semester }} {{ course.course_number }}</a>
     &gt; {{ assignment.name }}
     &gt; <a href="{{ url_for('demograder.submission_view', question_id=question.id) }}">{{ question.name }}</a>
     &gt; <a href="{{ url_for('demograder.submission_view', submission_id=submission.id) }}">{{ submission.iso_format }} submission</a>
