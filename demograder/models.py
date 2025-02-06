@@ -195,6 +195,8 @@ class User(db.Model, UserMixin):
         submission_file = db.session.get(SubmissionFile, submission_file_id)
         if self.admin or self.is_teaching(submission_file.course.id):
             return True
+        if self == submission_file.submitter:
+            return True
         producer_alias = aliased(Question)
         consumer_alias = aliased(Question)
         consumer_submissions_alias = aliased(Submission)
