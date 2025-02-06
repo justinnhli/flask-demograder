@@ -577,7 +577,7 @@ class Submission(db.Model):
     files = db.relationship('SubmissionFile', backref='submission')
     results = db.relationship('Result', backref='submission')
     user = db.relationship('User')
-    question = db.relationship('Question')
+    question = db.relationship('Question', backref='all_submissions')
 
     @property
     def num_results(self):
