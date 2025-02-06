@@ -193,7 +193,7 @@ class User(db.Model, UserMixin):
         * the question dependency allows viewing that upstream submission
         """
         submission_file = db.session.get(SubmissionFile, submission_file_id)
-        if self.admin or self.is_teaching(submission_file.course.id):
+        if self.is_teaching(submission_file.course.id):
             return True
         if self == submission_file.submitter:
             return True
