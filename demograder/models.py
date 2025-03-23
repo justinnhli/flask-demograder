@@ -347,14 +347,10 @@ class Assignment(db.Model):
 
     @property
     def due_date(self):
-        now = DateTime.now()
-        if not self.questions().first():
-            return now
-        else:
-            return max(
-                (question.due_date if question.due_date else now)
-                for question in self.questions()
-            )
+        return max(
+            (question.due_date for question in self.questions() if question.visible),
+            default=DateTime.now(),
+        )
 
     def questions(self, include_hidden=False):
         statement = select(Question).where(Question.assignment_id == self.id)
