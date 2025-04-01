@@ -300,7 +300,7 @@ class Course(db.Model):
         )
         return sorted(
             (assignment for assignment in assignments if include_hidden or assignment.visible),
-            key=(lambda assignment: assignment.due_date),
+            key=(lambda assignment: (assignment.due_date, assignment.name.lower())),
             reverse=True,
         )
 
