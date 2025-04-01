@@ -3,7 +3,7 @@
 if lsof -i:5000 >/dev/null 2>&1; then
     echo 'a program is using port 5000; output of `lsof -i:5000`:'
     lsof -i:5000
-elif ! systemctl status httpd | grep inactive >/dev/null 2>&1; then
+elif ! command -v systemctl >/dev/null 2>&1 && systemctl list-unit-files httpd && systemctl status httpd | grep inactive >/dev/null 2>&1; then
     echo 'httpd service is running, and likely using port 5000'
     echo 'kill httpd as root with `systemctl stop httpd` first and try again'
 else
