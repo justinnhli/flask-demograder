@@ -347,9 +347,13 @@ class Assignment(db.Model):
 
     @property
     def due_date(self):
+        now = DateTime.now()
         return max(
-            (question.due_date for question in self.questions() if question.visible),
-            default=DateTime.now(),
+            (
+                (question.due_date if question.due_date else now)
+                for question in self.questions()
+            ),
+            default=now,
         )
 
     def questions(self, include_hidden=False):
