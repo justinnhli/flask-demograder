@@ -105,8 +105,12 @@ def evaluate_result(result_id):
                 stdout=PIPE,
                 check=False,
             )
-            stdout = completed_process.stdout.decode('utf-8')[:2**16]
-            stderr = completed_process.stderr.decode('utf-8')[:2**16]
+            stdout = completed_process.stdout.decode('utf-8').strip()
+            if len(stdout) > 2**16:
+                stdout = f'[output too long; first lines truncated...]\n\n{stdout[-2**16:].split('\n', maxsplit=1)[1]}'
+            stderr = completed_process.stderr.decode('utf-8').strip()
+            if len(stderr) > 2**16:
+                stderr = f'[output too long; first lines truncated...]\n\n{stderr[-2**16:].split('\n', maxsplit=1)[1]}'
             return_code = completed_process.returncode
             if return_code == -9: # from timeout
                 stderr += '\n\n'
