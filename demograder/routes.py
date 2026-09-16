@@ -151,6 +151,7 @@ def download_result(result_id):
 def submission_file_view(submission_file_id):
     context = get_context(submission_file_id=submission_file_id)
     # FIXME check permissions - only allow if have question where submission is a dependency
+    # FIXME submission_file assumes it's text; redirect to download if it's a zip file
     return render_template('student/submission_file.html', **context)
 
 
