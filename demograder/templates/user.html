@@ -53,9 +53,9 @@
         </a>
         ({{ course.semester }})
     </h2>
-    {% if page_user.submissions_from_students(limit=1).first() %}
+    {% if page_user.is_teaching(course.id) %}
     <p>Recent Submissions from Students in this Course</p>
-    {{ submission_history_table(page_user.submissions_from_students(limit=10), course=False, files=False) }}
+    {{ submission_history_table(course.submissions(limit=10), course=False, files=False) }}
     {% endif %}
     {% if not course.submissions(user_id=page_user.id, limit=1).first() %}
     <p>No submissions yet!</p>
